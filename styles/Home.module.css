@@ -1,0 +1,68 @@
+.Rubros{
+  display: grid;
+  /* gap: 1rem; */
+  /* grid-auto-flow: dense; */
+  /* grid-auto-rows: 22rem; */
+  /* grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr)); */
+
+
+  box-shadow: 0 0 20px 1px rgba(255, 255, 255, 0.3);
+  height: 600px;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+
+  overflow: hidden;
+}
+
+.R1{
+  background: rebeccapurple;
+  grid-row: 1/3;
+}
+.R2{
+  background: red;
+
+}
+.R3{
+  background: blue;
+}
+.R4{
+  background: green;
+  grid-column: 2/4;
+}
+
+.box{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 768px) {
+  .Rubros{
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+  }
+  .R1{
+    background: rebeccapurple;
+    grid-row: 1/2;
+  }
+  .R4{
+    background: green;
+    grid-column: 2/3;
+  }
+}
+
+@media (max-width: 640px) {
+  .Rubros{
+    height: auto;
+    grid-template-columns: repeat(1, 1fr);
+    grid-template-rows: repeat(1, 1fr);
+  }
+  .R1{
+    background: rebeccapurple;
+    grid-row: 1/2;
+  }
+  .R4{
+    background: green;
+    grid-column: 1/2;
+  }
+}

@@ -1,0 +1,6 @@
+.contenedor_Articulos_Card{
+    gap: 1rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+
+}

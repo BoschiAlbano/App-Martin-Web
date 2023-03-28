@@ -1,0 +1,30 @@
+.input_text{
+    @apply w-64 py-2 px-2 border rounded-xl ;
+    @apply focus:outline-none border-none;
+}
+
+.input_text + *{
+    color: #CBD5E1;
+}
+.input_text:focus + * {
+    color: #6366f1
+}
+
+.input_group_Error{
+    @apply flex border rounded-xl m-1 border-rose-500;
+    position: relative
+}
+
+.input_group{
+    @apply flex border rounded-xl m-1;
+    position: relative
+}
+  
+#btnLogin{
+    @apply bg-gradient-to-r from-blue-500 to-indigo-500 rounded-l-md;
+}
+
+.input_text:not([type=email]).input_text:not([type=text]) ~ span:hover * {
+    color: #6366f1;
+    cursor: pointer;
+}

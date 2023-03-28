@@ -1,0 +1,11 @@
+#### Data Base First ####
+Generar los modelos, con bd que ya existe
+npx prisma db pull
+
+
+#### Code First ####
+Generar las migraciones
+    npx prisma migrate dev --name Inicial
+por cada migracion que se haga usamos
+    npx prisma generate
+para actualizar el cliente de PrismaClient
