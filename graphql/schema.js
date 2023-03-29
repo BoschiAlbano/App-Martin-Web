@@ -1,7 +1,22 @@
 import { gql } from "apollo-server-micro"
 
-export const typeDefs = gql`
+import { GraphQLScalarType } from 'graphql';
+import { Kind } from 'graphql/language';
 
+const BigInt = new GraphQLScalarType({
+  name: 'BigInt',
+  description:
+    'The `BigInt` scalar type represents non-fractional signed whole numeric ' +
+    'values. BigInt can represent values between -(2^63) and 2^63 - 1',
+  serialize: value => value.toString(),
+  parseValue: value => BigInt(value),
+  parseLiteral: ast => ast.kind === Kind.INT ? BigInt(ast.value) : null
+});
+
+export const typeDefs = gql`
+ 
+  scalar BigInt
+ 
   enum Verificado{
     Si
     No
@@ -14,16 +29,16 @@ export const typeDefs = gql`
   }
 
   type Marca {
-    id: String!,
-    descripcion: String!,
-    eliminado: Boolean,
+    Id: BigInt!,
+    Descripcion: String!,
+    EstaEliminado: Boolean,
     articulo: [Articulo]
   }
 
   type Rubro {
-    id: String!,
-    descripcion: String!,
-    eliminado: Boolean
+    Id: String!,
+    Descripcion: String!,
+    EstaEliminado: Boolean
     articulo: [Articulo]
   }
 

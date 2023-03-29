@@ -10,7 +10,8 @@ export const resolvers = {
                     name: {
                       contains: args.name
                     }
-                }
+                },
+                include: {accounts: true}
             })
 
             console.log(usuarios)
@@ -19,23 +20,37 @@ export const resolvers = {
         },
         GetUsers: async (root, args) => {
 
-            if(!args.Isverificado) return await Usuario_Model.find().populate('notas').populate('Pedidos')
+            let UsuariosVerificados;
 
-            // return Usuario_Model.find({emailVerified: { $exists: args.Isverificado === 'Si'}}).populate('notas')
+            try {
 
-            if(args.Isverificado === 'Si'){
-                const users = await Usuario_Model.find().populate('notas').populate('Pedidos')
-                // FILTRAR -> nose como hacer una consulta distinda te null
-                const byEmail = u => u.emailVerified != null
-                return users.filter(byEmail)
+                UsuariosVerificados = await prisma.user.findMany({
+                    where: {
+                        emailVerified: args.Isverificado === "Si" ? { not: null} : null
+                    }
+                })
+                
+                if (UsuariosVerificados.length === 0) {
+                    throw new Error("No hay Usuarios Registrados")
+                }
 
-            }else{
-                return await Usuario_Model.find({emailVerified: null}).populate('notas').populate('Pedidos')
+            } catch (error) {
+                throw new Error(`${error.message}`);
             }
+
+            return UsuariosVerificados
         },
         // Marca
         GET_Marca: async () => {
-            return Marca_Model.find().populate('articulo')
+            const Marca =  await prisma.marca.findMany({
+                // include: {
+                //     Articulo: true
+                // }
+            })
+
+            console.log(Marca)
+
+            return Marca
         },
         GET_Marcaid: async (root, args) => {
             return Marca_Model.findById(args.id).populate('articulo')
