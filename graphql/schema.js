@@ -1,17 +1,17 @@
 import { gql } from "apollo-server-micro"
 
-import { GraphQLScalarType } from 'graphql';
-import { Kind } from 'graphql/language';
+import { GraphQLScalarType, GraphQLObjectType } from 'graphql';
+// import { Kind } from 'graphql/language';
 
-const BigInt = new GraphQLScalarType({
-  name: 'BigInt',
-  description:
-    'The `BigInt` scalar type represents non-fractional signed whole numeric ' +
-    'values. BigInt can represent values between -(2^63) and 2^63 - 1',
-  serialize: value => value.toString(),
-  parseValue: value => BigInt(value),
-  parseLiteral: ast => ast.kind === Kind.INT ? BigInt(ast.value) : null
-});
+// const BigInt = new GraphQLScalarType({
+//   name: 'BigInt',
+//   description:
+//     'The `BigInt` scalar type represents non-fractional signed whole numeric ' +
+//     'values. BigInt can represent values between -(2^63) and 2^63 - 1',
+//   serialize: value => value.toString(),
+//   parseValue: value => BigInt(value),
+//   parseLiteral: ast => ast.kind === Kind.INT ? BigInt(ast.value) : null
+// });
 
 export const typeDefs = gql`
  
@@ -32,27 +32,30 @@ export const typeDefs = gql`
     Id: BigInt!,
     Descripcion: String!,
     EstaEliminado: Boolean,
-    articulo: [Articulo]
+    Articulo: [Articulo]
   }
 
   type Rubro {
-    Id: String!,
+    Id: BigInt!,
     Descripcion: String!,
     EstaEliminado: Boolean
-    articulo: [Articulo]
+    Articulo: [Articulo]
   }
 
   type Articulo {
-    id: String!,
-    codigo: Int!,
-    descripcion: String,
-    eliminado: Boolean,
-    fecha: String,
-    imagen: String,
-    precio: Int,
+    Id: BigInt!,
+    Codigo: Int!,
+    CodigoBarra: String,
+    Descripcion: String,
+    Detalle: String,
+    EstaEliminado: Boolean,
+    Foto: String,
+    PrecioVenta: Float,
+    PermiteStockNegativo: Boolean,
     Rubro: Rubro,
-    Marca: Marca
+    Marca: Marca,
   }
+
 
   type Pedidos {
     id: String!,
@@ -69,14 +72,14 @@ export const typeDefs = gql`
     GetUsers(Isverificado: Verificado): [User],
     # Marca 
     GET_Marca: [Marca],
-    GET_Marcaid(id: String!): Marca,
+    GET_Marcaid(id: BigInt!): Marca,
     # Rubro 
     GET_Rubro: [Rubro],
-    GET_Rubroid(id: String!): Rubro ,
+    GET_Rubroid(id: BigInt!): Rubro ,
     # Rubro 
     GET_Articulo: [Articulo],
     GET_Articuloid(id: String!): Articulo,
-    FILTRO_Articulo(marca: String, rubro: String, keyword: String): [Articulo]
+    FILTRO_Articulo(marca: BigInt, rubro: BigInt, keyword: String): [Articulo]
     # Pedidos 
     GET_Pedidos: [Pedidos],
     GET_Pedidoid(id: String!): Pedidos 

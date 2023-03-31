@@ -1,4 +1,6 @@
 import { PrismaClient } from '@prisma/client'
+import GraphQLBigInt  from 'graphql-bigint'
+
 const prisma = new PrismaClient()
 
 export const resolvers = {
@@ -43,53 +45,108 @@ export const resolvers = {
         // Marca
         GET_Marca: async () => {
             const Marca =  await prisma.marca.findMany({
-                // include: {
-                //     Articulo: true
-                // }
+                include: {
+                    Articulo: true
+                }
             })
-
-            console.log(Marca)
 
             return Marca
         },
         GET_Marcaid: async (root, args) => {
-            return Marca_Model.findById(args.id).populate('articulo')
+            
+            const Marca =  await prisma.marca.findFirst({
+                where: {
+                    Id: args.id
+                },
+                include: {
+                    Articulo: {
+                        include: {
+                            Marca: true
+                        }
+                    },
+                }
+            })
+
+            return Marca
         },
         // Rubro
         GET_Rubro: async () => {
-            return Rubro_Model.find().populate('articulo')
+            return await prisma.rubro.findMany({
+                include: {
+                    Articulo: true
+                }
+            })
         },
         GET_Rubroid: async (root, args) => {
-            return Rubro_Model.findById(args.id).populate('articulo')
+            return await prisma.rubro.findFirst({
+                where: {
+                    Id: args.id
+                },
+                include: {
+                    Articulo: true
+                }
+            })
         },
         // Articulo
         GET_Articulo: async () => {
-            return await Articulo_Model.find().populate('Rubro').populate('Marca')
+            return await prisma.articulo.findMany({
+                include: {
+                    Marca: true,
+                    Rubro: true
+                }
+            })
         },
         GET_Articuloid: async (root, args) => {
-            return await Articulo_Model.findById(args.id).populate('Rubro').populate('Marca')
-        },
-        // Pedidos
-        GET_Pedidos: async () => {
-            return await Pedidos_Model.find().populate('user').populate('Articulos')
-        },
-        GET_Pedidoid: async (root, args) => {
-            return await Pedidos_Model.findById(args.id).populate('user').populate('Articulos')
+            return await prisma.articulo.findFirst({
+                where: {
+                    Id: args.id
+                },
+                include:{
+                    Rubro: true,
+                    Marca: true
+                }
+            })
         },
         FILTRO_Articulo: async (root, args) => {
             const {keyword, marca, rubro} = args
-            
-            let datos = await Articulo_Model.find(keyword ? {descripcion: new RegExp(keyword,'i')} : null).populate('Marca').populate('Rubro')
 
-            if(marca) datos = await datos.filter(((item) => {
-                return item.Marca._id.toString() === marca
-            }))
+            console.log("datos")
+            console.log(marca)
 
-            if(rubro) datos = await datos.filter(((item) => {
-                return item.Rubro._id.toString() === rubro
-            }))
+            //Problemas con bigInt 
 
-            return datos
+            // const datos = await prisma.articulo.findMany({
+            //     where: {
+            //         Descripcion: {
+            //             contains: keyword
+            //         },
+            //         MarcaId: marca  ? {not: null} : marca,
+            //         // RubroId: rubro ? rubro : {not: null}
+            //     },
+            //     include: {
+            //         Marca: true,
+            //         Rubro: true
+            //     }
+            // })
+
+            // let datos = await Articulo_Model.find(keyword ? {descripcion: new RegExp(keyword,'i')} : null).populate('Marca').populate('Rubro')
+
+            // if(marca) datos = await datos.filter(((item) => {
+            //     return item.Marca._id.toString() === marca
+            // }))
+
+            // if(rubro) datos = await datos.filter(((item) => {
+            //     return item.Rubro._id.toString() === rubro
+            // }))
+
+            return null
+        },
+        // Pedidos
+        GET_Pedidos: async () => {
+            return 'Los pedidos deben inpactar en comprobante y detalle de comprobante'
+        },
+        GET_Pedidoid: async (root, args) => {
+            return 'Los pedidos deben inpactar en comprobante y detalle de comprobante'
         }
     },
     Mutation:{
@@ -191,6 +248,10 @@ export const resolvers = {
             return borrar
         },
     },
+    BigInt: GraphQLBigInt,
+    Articulo: {
+        Foto: (root) => Buffer.from(root.Foto).toString('base64')
+    }
     // Nota: {
     //     Compuesto: (root) => `${root.title}, ${root.description}`,
     //     CompuestoStatico: () => 'Dato Estatico no calculado'
