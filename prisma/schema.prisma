@@ -40,7 +40,12 @@ model User {
   emailVerified DateTime?
   image         String?
   password      String?   @db.Text
+  apellido      String?
+  DNI           String?   @db.NVarChar(100)
+  telefono      String?   @db.NVarChar(100)
+  direccion     String?   @db.NVarChar(100)
   accounts      Account[]
+  Pedido        Pedido[]
   sessions      Session[]
 }
 
@@ -79,10 +84,12 @@ model Articulo {
   Foto                 Bytes?
   StockMinimo          Decimal              @db.Decimal(18, 2)
   EstaEliminado        Boolean
-  PermiteStockNegativo Boolean              @default(false, map: "DF__Articulo__Permit__70DDC3D8")
+  PermiteStockNegativo Boolean              @default(false, map: "DF__Articulo__Permit__6383C8BA")
+  FotoUrl              String?              @db.NVarChar(Max)
   Marca                Marca                @relation(fields: [MarcaId], references: [Id], onUpdate: NoAction, map: "FK_dbo.Articulo_dbo.Marca_MarcaId")
   Rubro                Rubro                @relation(fields: [RubroId], references: [Id], onUpdate: NoAction, map: "FK_dbo.Articulo_dbo.Rubro_RubroId")
   DetalleComprobante   DetalleComprobante[]
+  DetallePedido        DetallePedido[]
 }
 
 model Caja {
@@ -149,7 +156,7 @@ model DetalleComprobante {
   Precio        Decimal     @db.Decimal(18, 2)
   SubTotal      Decimal     @db.Decimal(18, 2)
   EstaEliminado Boolean
-  PrecioCosto   Decimal     @default(0, map: "DF__DetalleCo__Preci__71D1E811") @db.Decimal(18, 2)
+  PrecioCosto   Decimal     @default(0, map: "DF__DetalleCo__Preci__6477ECF3") @db.Decimal(18, 2)
   Dto           Decimal?    @db.Decimal(18, 2)
   Articulo      Articulo    @relation(fields: [ArticuloId], references: [Id], onUpdate: NoAction, map: "FK_dbo.DetalleComprobante_dbo.Articulo_ArticuloId")
   Comprobante   Comprobante @relation(fields: [ComprobanteId], references: [Id], onUpdate: NoAction, map: "FK_dbo.DetalleComprobante_dbo.Comprobante_ComprobanteId")
@@ -193,7 +200,7 @@ model Persona_Cliente {
   ActivarCtaCte     Boolean
   TieneLimiteCompra Boolean
   MontoMaximoCtaCte Decimal       @db.Decimal(18, 2)
-  Deuda             Decimal       @default(0, map: "DF__Persona_C__Deuda__72C60C4A") @db.Decimal(18, 2)
+  Deuda             Decimal       @default(0, map: "DF__Persona_C__Deuda__656C112C") @db.Decimal(18, 2)
   Comprobante       Comprobante[]
   Persona           Persona       @relation(fields: [Id], references: [Id], onUpdate: NoAction, map: "FK_dbo.Persona_Cliente_dbo.Persona_Id")
 }
@@ -242,4 +249,41 @@ model Usuario {
   EstaEliminado    Boolean
   Comprobante      Comprobante[]
   Persona_Empleado Persona_Empleado @relation(fields: [EmpleadoId], references: [Id], onUpdate: NoAction, map: "FK_dbo.Usuario_dbo.Persona_Empleado_EmpleadoId")
+}
+
+model sysdiagrams {
+  name         String @db.NVarChar(128)
+  principal_id Int
+  diagram_id   Int    @id(map: "PK__sysdiagr__C2B05B61BBC64596") @default(autoincrement())
+  version      Int?
+  definition   Bytes?
+
+  @@unique([principal_id, name], map: "UK_principal_name")
+}
+
+model DetallePedido {
+  Id            BigInt    @id(map: "PK__DetalleP__3214EC075882C4F2") @default(autoincrement())
+  PedidoId      BigInt?
+  ArticuloId    BigInt?
+  Codigo        String?   @db.VarChar(8000)
+  Descripcion   String?   @db.VarChar(8000)
+  Cantidad      Int
+  Precio        Decimal   @db.Decimal(18, 2)
+  SubTotal      Decimal   @db.Decimal(18, 2)
+  EstaEliminado Boolean?  @default(false, map: "DF__DetallePe__EstaE__18EBB532")
+  PrecioCosto   Decimal   @db.Decimal(18, 2)
+  Dto           Decimal?  @db.Decimal(18, 2)
+  Articulo      Articulo? @relation(fields: [ArticuloId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK__DetallePe__Artic__07C12930")
+  Pedido        Pedido?   @relation(fields: [PedidoId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK__DetallePe__Pedid__06CD04F7")
+}
+
+model Pedido {
+  Id            BigInt          @id(map: "PK__Pedido__3214EC07C4562EC0") @default(autoincrement())
+  UserId        String
+  Fecha         DateTime?       @db.DateTime
+  SubTotal      Decimal?        @db.Decimal(18, 2)
+  Descuento     Decimal?        @db.Decimal(18, 2)
+  Total         Decimal?        @db.Decimal(18, 2)
+  DetallePedido DetallePedido[]
+  User          User            @relation(fields: [UserId], references: [id], onUpdate: NoAction, map: "FK__Pedido__UserId__02FC7413")
 }

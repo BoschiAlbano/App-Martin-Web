@@ -12,20 +12,19 @@ const Layout = ({children, title}) => {
                 <link rel="icon" href="/favicon.ico" />
             </Head>
 
-            <div className='grid place-content-center h-screen bg-blue-400'>
+            <div className=' flex flex-col justify-center items-center h-screen bg-blue-400 p-3'>
                 
-                <div className='bg-slate-50 rounded-md overflow-hidden min-h-[450px] grid sm:grid-cols-2 sm:grid-rows-1 grid-rows-3 shadow-2xl'>
+                {/* Contenedor */}
+                <div className=' neumorphismoLogin rounded-md overflow-hidden min-w-[50%] min-h-[50%]'>
                     
-                    <div className={styles.imgStyle}>
-                        <div className='h-full flex flex-col items-center place-content-center justify-center'>
-                            <div>
-                                <Image src={'/assets/layout.png'} width={400} height={400} alt={'Imagen del Layout'} priority={true}/>
-                            </div>
-                        </div>
+                    {/* Imagen */}
+                    <div className="bg-gradient-to-r from-blue-500 to-indigo-500 rounded-l-md flex flex-col justify-center items-center w-[auto] relative min-h-[200px]">
+                        <Image src={'/assets/layout.png'} layout="fill" objectFit='contain' alt="Distrinova" priority={true} className='p-4'/>
                     </div>
 
-                    <div className='flex flex-col place-content-center sm:col-span-1 row-span-2'>
-                        <div className='text-center relative '>
+                    {/* Login y Register */}
+                    <div className='flex flex-col place-content-start sm:place-content-center sm:col-span-1 row-span-2 overflow-y-auto'>
+                        <div className='text-center relative mt-2 sm:mt-1 '>
                             {children}
                         </div>
                     </div>

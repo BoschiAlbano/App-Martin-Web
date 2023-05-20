@@ -4,7 +4,7 @@ import {IoCartOutline} from 'react-icons/io5'
 const card = ({ articulo, AgregarCarrito }) => {
 
     return (
-        <div className="relative block overflow-hidden  border-[3px] border-[rgb(145,145,145)]">
+        <div className="CardProductos relative block overflow-hidden">
             <button className="absolute right-4 top-4 z-10 rounded-full bg-white p-1.5 text-gray-900 transition hover:text-rose-900">
                 <span className="sr-only">Corazon</span>
 
@@ -16,20 +16,22 @@ const card = ({ articulo, AgregarCarrito }) => {
             <span className="">
                 {/* Imagenes de next, necesito q las images vengan del mismo dominio */}
                 <img
-                    src={articulo.imagen}
-                    alt={articulo.descripcion}
-                    className="object-cover w-full h-[13rem] transition duration-500 hover:scale-150"
+                    src={articulo.FotoUrl ?? "./assets/ProductoSinFoto.png"}
+                    alt={articulo.Descripcion}
+                    className="object-cover w-full h-auto transition duration-500 hover:scale-150"
                 />
             </span>
 
-            <div className="relative bg-white border border-gray-100 flex flex-col h-full ">
+            <div className="relative bg-white border border-gray-100 flex flex-col h-full">
 
                 {/* Descripcion */}
-                <p className="m-1 text-center text-xl font-medium text-gray-900">{articulo.descripcion}</p>
+                <p className="m-1 text-center text-xl font-medium text-gray-900">{articulo.Descripcion}</p>
 
                 {/* <div className="px-6"> */}
                     {/* Precio */}
-                    <p className="mt-1.5 text-center text-sm text-gray-700">{`$${articulo.precio}`}</p>
+                    <p className="mt-1.5 text-center text-sm text-gray-700">{`Precio: $${articulo.PrecioVenta}`}</p>
+                    <p className="mt-1.5 text-center text-sm text-gray-700">{`Stock: ${articulo.Stock}`}</p>
+
                     {/* Boton */}
                     <div className="mt-4 px-6">
 

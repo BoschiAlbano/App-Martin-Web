@@ -13,57 +13,50 @@ import {useAddPedidos} from 'components/prueba/pedidos/hook'
 const Carrito = ({ session }) => {
 
   const [store, setValue] = useLocalStorage('Carrito', [])
-  const [loading, setloading] = useState(true);
+
+  const [loading, setLoading] = useState(true);
   const [total, setTotal] = useState(0)
-  const [recargar, setrecargar] = useState(false);
-  const [error, setError] = useState(null);
-  
-  const showError = (Error) => {
-    setError(Error)
-    setTimeout(() => { setError(null) }, 5000);
+
+  const showError = (error) => {
+    if (error) {
+      Swal.fire({
+        icon: 'error',
+        title: error,
+      })
+    }else{
+      Swal.fire({
+        icon: 'success',
+        title: 'Pedido, Enviado.',
+        timer: 2500
+      })
+
+       // Borrar Carrito
+        setValue([])
+        setTotal(0)
+    }
   }
 
-  const [ crear ] = useAddPedidos(showError)
-  
+  const [ crear ] = useAddPedidos(showError);
+
+
   useEffect(() => {
+    setLoading(true);
 
-    console.log(store)
-    setloading(true)
+    // setTimeout(() => {
+    //   setLoading(false);
+    // }, 1000);
 
-    setloading(false)
-    if (store.length != 0) {
-
-      // calcular total
-      const tot = store.reduce((acumulador, item) => acumulador + (item.precio * item.cantidad), 0)
-
-      setTotal(tot)
+    if (store.length !== 0) {
+      const tot = store.reduce((acumulador, item) => acumulador + (item.PrecioVenta * item.Cantidad), 0);
+      setTotal(tot);
+    }else{
+      setTotal(0);
     }
 
-  }, [store, recargar]);
-  const modificarCantidad = ({ id, cantidad }) => {
-    // buscar si ya existe el art y aumentar la cantidad
-    const indice = store.findIndex(art => art.id === id)
-    // modificar cantidad
-    const actualizar = store
-    actualizar[indice].cantidad = cantidad
-    setValue(actualizar)
-    setrecargar(!recargar)
-  }
-  const eliminarArticulo = (id) => {
-    const indice = store.findIndex(art => art.id === id)
+    setLoading(false)
+  }, [store]);
 
-    // Eliminar cantidad
-    const eliminar = store
-    eliminar.splice(indice, 1)
-    setValue(eliminar)
-    setrecargar(!recargar)
-
-    store.length == 0 ? setTotal(0) : null
-  }
   const GuardarYenviarPedido = async() => {
-
-    // console.log(session)
-    // return
 
     try {
       // verificar q no sea 0 el carrito
@@ -77,16 +70,13 @@ const Carrito = ({ session }) => {
       }
       // Guardar en base de datos
       const Arts = store.map((valor, index, arr) => {
-        return valor.id
+        return {Id: valor.Id, Cantidad: +valor.Cantidad, Descripcion: valor.Descripcion}
       })
 
-      const datos = {
-        eliminado: false,
-        articulosId: Arts,
-        usuario: session.user.email
-      }
+      const datos = {articulos: Arts, usuario: session.user.email}
+      console.log(datos)
 
-      crear({variables: {...datos}})
+      crear({variables: datos})
 
       // Enviar mail o wp
       // let mensaje = 'Buenos dias Albano este es mi Carrito de Compras: \n'
@@ -98,18 +88,6 @@ const Carrito = ({ session }) => {
       // const url = `https://api.whatsapp.com/send?phone=${numero}&text=${encodeURIComponent(mensaje)}`;
       // window.open(url, '_system');
 
-      // Borrar Carrito
-      setValue([])
-      setTotal(0)
-      setrecargar(!recargar)
-
-      // Mostrar Alerta
-      Swal.fire({
-        icon: 'success',
-        title: 'Pedido Enviado.',
-        timer: 2500
-      })
-
     } catch (error) {
       console.log(error.message)
         Swal.fire({
@@ -120,11 +98,23 @@ const Carrito = ({ session }) => {
     }
   }
 
+  const modificarCantidad = ({ id, cantidad }) => {
+    const indice = store.findIndex(art => art.Id === id);
+    const actualizar = [...store];
+    actualizar[indice].Cantidad = cantidad;
+    setValue(actualizar);
+  }
+
+  const eliminarArticulo = (id) => {
+    const eliminar = store.filter(art => art.Id !== id);
+    setValue(eliminar);
+  }
+  
   return (
     <MenuPaginas user={session.user}>
       <div className="ContenedorCarrito mt-[80px] bg-white grid grid-cols-1 shadow-xl py-6 px-3 place-items-center gap-2">
 
-        <h1 className="text-2xl font-[Merienda] hover:text-[#5E69F1] hover:border-b-[#5E69F1] border-b border-b-black w-full text-center"> Tu Carrito </h1>
+        <h1 className="text-2xl font-[Merienda] hover:text-[#5E69F1] hover:border-b-[#5E69F1] border-b border-b-black w-full text-center">{loading ? "Tu Carrito" : `Tu Carrito (${store.length})`}</h1>
 
         {loading ? <div className="w-full flex flex-col items-center"><Spinner /></div>
           : store.map((item, index) => {
@@ -135,11 +125,6 @@ const Carrito = ({ session }) => {
             )
           })
         }
-
-        {
-          store.length == 0 ? <div> No hay Productos en el Carrito. <Link className="font-[Merienda] text-red-500" href={'/articulos'}>Ver Catalogo</Link></div> : null
-        }
-
           <div className="w-full flex flex-col justify-end items-end">
 
             <div className={`filtro3 border-[2px] overflow-hidden flex justify-between rounded-xl m-1 border-[#EBEBEB] w-[200px] `}>

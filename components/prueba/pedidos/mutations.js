@@ -2,23 +2,30 @@ import { gql } from '@apollo/client'
 
 
 export const NUEVA_PEDIDO = gql`
-    mutation Mutation($usuario: String!, $eliminado: Boolean, $articulosId: [String]) {
-        ADD_Pedido(usuario: $usuario, eliminado: $eliminado, articulosId: $articulosId) {
-        id
-        codigo
-        fecha
-        eliminado
-        Articulos {
-            id
-            codigo
-            descripcion
-        }
-        user {
-            id
-            name
-        }
-        }
+mutation Mutation($articulos: [ArticuloInput!]!, $usuario: String!) {
+  ADD_Pedido(articulos: $articulos, usuario: $usuario) {
+    Id
+    Fecha
+    SubTotal
+    Descuento
+    Total
+    User {
+      id
+      name
+    }
+    DetallePedido {
+      Id
+      Codigo
+      Descripcion
+      Cantidad
+      Precio
+      SubTotal
+      EstaEliminado
+      PrecioCosto
+      Dto
+    }
   }
+}
 `
 
 export const DELETE_PEDIDO = gql`

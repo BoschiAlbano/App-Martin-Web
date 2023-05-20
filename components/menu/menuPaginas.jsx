@@ -1,12 +1,13 @@
 
 import Link from 'next/link'
-import { IoClose, IoHomeOutline, IoNewspaperOutline, IoBulbOutline, IoCartOutline, IoMenuSharp } from 'react-icons/io5'
+import { IoClose, IoHomeOutline, IoNewspaperOutline, IoCartOutline, IoFastFoodOutline } from 'react-icons/io5'
 import React, { useState, useRef, useEffect } from 'react';
 import { signOut } from 'next-auth/react';
 import Image from 'next/image';
 import MenuDesplegable from 'components/menu/Submenu'
 import Navegacion from './navegacion';
 import { useLocalStorage } from 'components/prueba/localStorage/hook';
+import Swal from 'sweetalert2'
 
 export default function ({ user, children }) {
 
@@ -57,29 +58,38 @@ export default function ({ user, children }) {
     /*[Items del menu horizontal]*/
     const datos = [
         { ruta: "/", nombre: "Home", icono: IoHomeOutline, subMenu: [] },
-        { ruta: "/pruebas", nombre: "Pruebas", icono: IoNewspaperOutline, subMenu: [] },
-        { ruta: "/articulos", nombre: "Articulos", icono: IoCartOutline, subMenu: [] },
-        {
-            ruta: "/comic", nombre: "Comics", icono: IoBulbOutline, subMenu: [
-                { ruta: "/#", nombre: "Detalle", icono: IoBulbOutline },
-                { ruta: "/#", nombre: "Seguridad", icono: IoBulbOutline },
-            ]
-        },
-        { ruta: "/articulos", nombre: "Articulos", icono: IoCartOutline, subMenu: [] },
-        {
-            ruta: "/comic", nombre: "Comics", icono: IoBulbOutline, subMenu: [
-                { ruta: "/#", nombre: "Detalle", icono: IoBulbOutline },
-                { ruta: "/#", nombre: "Seguridad", icono: IoBulbOutline },
-            ]
-        },
+        { ruta: "/Favoritos", nombre: "Favoritos", icono: IoNewspaperOutline, subMenu: [] },
+        { ruta: "/articulos", nombre: "Articulos", icono: IoFastFoodOutline, subMenu: [] },
+        { ruta: "/carrito", nombre: "Carrito", icono: IoCartOutline, subMenu: [] },
+
+        // { ruta: "/articulos", nombre: "Articulos", icono: IoCartOutline, subMenu: [] },
+        // {
+        //     ruta: "/comic", nombre: "Comics", icono: IoBulbOutline, subMenu: [
+        //         { ruta: "/#", nombre: "Detalle", icono: IoBulbOutline },
+        //         { ruta: "/#", nombre: "Seguridad", icono: IoBulbOutline },
+        //     ]
+        // },
 
 
     ]
 
     const BtnSalir = () => {
-        signOut()
 
-        setValue([])
+        Swal.fire({
+            title: '¿Estas Seguro que quieres cerrar session?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#86F09B',
+            cancelButtonColor: '#F14848',
+            confirmButtonText: 'Si, Cerrar Sesion',
+            focusCancel: true
+          }).then((result) => {
+            if (result.isConfirmed) {
+                setValue([])
+                signOut()
+            }
+          })
+
     }
 
     return (
@@ -92,25 +102,18 @@ export default function ({ user, children }) {
             {/* Menu Horizontal */}
             <nav id='Menu-Horizontal' className={`fixed overflow-y-auto overflow-x-hidden h-full flex flex-col w-[85%] sm:min-w-[250px] sm:w-[20%] DegradadoHorizontal opacity-[0.98] z-[100] rounded-r-xl items-stretch top-0 transition-all duration-500 ${open ? "left-0" : "left-[-100%]"}`}>
                 
-                <header className="flex items-center justify-between mt-1 mb-2 py-1 px-1 left-0">
+                <div className="w-full flex flex-row justify-end absolute">
+                    <div className="w-[50px] h-[50px] mx-1 text-4xl cursor-pointer transition-all duration-300 rounded-full hover:bg-gray-100 hover:text-gray-700 flex justify-center items-center right-0" onClick={() => EsconderMenu()}><IoClose /></div>
+                </div>
+                
+                <header className="flex items-start justify-center mt-3 mb-2 py-1 px-1 left-0">
 
                     <Link href="/" className="transition ml-3 hover:rotate-2 hover:scale-110 focus:outline-none focus:ring" onClick={() => EsconderMenuPantalla()}>
-                        <Image height={100} width={150} src={'/assets/Logo.png'} alt={"Logo"} className="h-[50px] p-1" />
+                        <Image height={100} width={180} src={'/assets/layout.png'} alt={"Logo"} className="h-[auto] p-1" />
                     </Link>
-
-                    <div className="w-[50px] h-[50px] mx-1 text-4xl cursor-pointer transition-all duration-300 rounded-full hover:bg-gray-100 hover:text-gray-700 flex justify-center items-center" onClick={() => EsconderMenu()}><IoClose /></div>
 
                 </header>
 
-                <div className="flex flex-col gap-1 items-center text-center h-auto m-1  rounded-lg p-2">
-                    <span className="rounded-full overflow-hidden">
-                        <Image src={user.image} width={100} height={100} alt={"Avatar de user"} />
-                    </span>
-                    <div className="flex flex-col w-full gap-1">
-                        {/* <h1 className='font-[Merienda]'>{user.name}</h1> */}
-                        <h1 className='font-[Merienda]'>{user.email}</h1>
-                    </div>
-                </div>
 
                 <div className="flex flex-col justify-between h-full mt-2">
 

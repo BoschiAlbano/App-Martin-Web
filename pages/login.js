@@ -62,19 +62,13 @@ export default function Login () {
         })
         alert('Correo Reenviado, verifique su Email')
     }
-    const signInGithub = () => {
-        signIn('github', {callbackUrl: process.env.NEXT_PUBLIC_HOST})
-    }
-    const signInGoogle = () => {
-        signIn('google', {callbackUrl: process.env.NEXT_PUBLIC_HOST})
-    }
 
     return (
         <Layout title={"Login"}>
 
-            <div className='h[400px] flex flex-col items-center relative'>
+            <div className='flex flex-col items-center relative'>
                 <div>
-                    <h1 className="font-semibold mb-5 text-[40px]">Login</h1>
+                    <h1 className="font-semibold  text-[40px]">Login</h1>
                 </div>
 
                 <form className='w-full' onSubmit={handleSubmit(onSubmit)}>
@@ -96,27 +90,20 @@ export default function Login () {
                             <span onClick={() => setshow(!show)} className="flex items-center px-4 cursor-pointer"><HiFingerPrint size={25}/></span>
                         </div>
 
-                        <input id={styles.btnLogin} className="cursor-pointer p-1 m-2 w-80 border-2 border-b-slate-300 rounded-[5px] text-[20px]" type={'submit'} value="Login"/>
+                        <input id={styles.btnLogin} className="cursor-pointer p-1 m-2 w-80 border-2 border-b-slate-300 rounded-[5px] text-[20px]" type={'submit'} value="Ingresar"/>
                     </div>
                 </form>
-
-                <div className="flex flex-col items-center w-80">
-
-                    <button className='cursor-pointer p-1 m-0 w-80 border-2 border-b-slate-300 rounded-[5px] text-[20px] flex items-center justify-center' onClick={() => signInGithub()}>Github<Image className='mx-2' src={'/assets/github.png'} width={20} height={20} alt={'Logo de Github'}/></button>
-                    
-                    <button className='cursor-pointer p-1 m-0 w-80 border-2 border-b-slate-300 rounded-[5px] text-[20px] flex items-center justify-center' onClick={() => signInGoogle()}>Google<Image className='mx-2' src={'/assets/google.png'} width={20} height={20} alt={'Logo de Google'}/></button>
-                </div>
                 
                 <p className='mt-2'>Aun no tienes una cuenta? <Link className="text-blue-600" href={'/register'}>Registrate ahora!!!</Link></p>
 
                 <div className="h-10 w-80">
                     <div className="flex flex-col items-center w-80 overflow-hidden pt-0 max-h-[25px] mt-5 absolute  ">
-                        {(errors.email?.type === 'required' || errors.password?.type === 'required') && <p className=" text-rose-400">Complete todos los campos</p>}
-                        {errorNextAuth && <p className=" text-rose-400">{errorNextAuth}</p>}
+                        {(errors.email?.type === 'required' || errors.password?.type === 'required') && <p className="text-red-900">Complete todos los campos</p>}
+                        {errorNextAuth && <p className="text-red-900">{errorNextAuth}</p>}
                     </div>
                 </div>
 
-                {errorNextAuth === 'Verifica Email' && 
+                {errorNextAuth === 'Verifica el Email.' && 
                     <div>
                         <button className="text-black" onClick={() => ReenviarCorreo()}>Desea reenviar el Mail ?</button>
                     </div>

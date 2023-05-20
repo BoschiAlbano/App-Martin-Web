@@ -108,140 +108,137 @@ export const resolvers = {
             })
         },
         FILTRO_Articulo: async (root, args) => {
-            const {keyword, marca, rubro} = args
+            const {keyword, rubro} = args
+            let datos;
+            console.log(rubro)
+            
+            if (rubro == null) {
+                datos = await prisma.articulo.findMany({
+                    where: {
+                        Descripcion: {
+                            contains: keyword
+                        },
+                    },
+                    include: {
+                        Marca: true,
+                        Rubro: true
+                    }
+                })
 
-            console.log("datos")
-            console.log(marca)
-
-            //Problemas con bigInt 
-
-            // const datos = await prisma.articulo.findMany({
-            //     where: {
-            //         Descripcion: {
-            //             contains: keyword
-            //         },
-            //         MarcaId: marca  ? {not: null} : marca,
-            //         // RubroId: rubro ? rubro : {not: null}
-            //     },
-            //     include: {
-            //         Marca: true,
-            //         Rubro: true
-            //     }
-            // })
-
-            // let datos = await Articulo_Model.find(keyword ? {descripcion: new RegExp(keyword,'i')} : null).populate('Marca').populate('Rubro')
-
-            // if(marca) datos = await datos.filter(((item) => {
-            //     return item.Marca._id.toString() === marca
-            // }))
-
-            // if(rubro) datos = await datos.filter(((item) => {
-            //     return item.Rubro._id.toString() === rubro
-            // }))
-
-            return null
-        },
-        // Pedidos
-        GET_Pedidos: async () => {
-            return 'Los pedidos deben inpactar en comprobante y detalle de comprobante'
-        },
-        GET_Pedidoid: async (root, args) => {
-            return 'Los pedidos deben inpactar en comprobante y detalle de comprobante'
-        }
-    },
-    Mutation:{
-        //Marca
-        ADD_Marca: async(root, args) => {
-            const {descripcion} = args
-            const nueva = new Marca_Model({descripcion})
-            return await nueva.save()
-        },
-        UPDATE_Marca: async(root, args) => {
-            const update = await Marca_Model.findByIdAndUpdate(args.id, args, {new: true})
-            return update
-        },
-        DELETE_Marca: async(root, args) => {
-            const borrar = await Marca_Model.findByIdAndDelete(args.id)
-            return borrar
-        },
-        //Rubro
-        ADD_Rubro: async(root, args) => {
-            const {descripcion} = args
-            const nueva = new Rubro_Model({descripcion})
-            return await nueva.save()
-        },
-        UPDATE_Rubro: async(root, args) => {
-            const update = await Rubro_Model.findByIdAndUpdate(args.id, args, {new: true})
-            return update
-        },
-        DELETE_Rubro: async(root, args) => {
-            const borrar = await Rubro_Model.findByIdAndDelete(args.id)
-            return borrar
-        },
-        //Articulo
-        ADD_Articulo: async(root, args) => {
-            // Fecha
-            if(args.fecha != undefined) {
-                const fecha = new Date(args.fecha)
-                args.fecha = fecha
-                console.log(fecha)
+                return datos
             }
 
-            // Comprobar Marca y Rubro
-            const marca = await Marca_Model.findById(args.Marca)
-            if(marca === null) return null
-            const rubro = await Rubro_Model.findById(args.Rubro)
-            if(rubro === null) return null
+            datos = await prisma.articulo.findMany({
+                where: {
+                    Descripcion: {
+                        contains: keyword
+                    },
+                    RubroId: rubro
+                },
+                include: {
+                    Marca: true,
+                    Rubro: true
+                }
+            })
 
-            // Crear Art}
-            const nuevoArt = new Articulo_Model(args)
-            await nuevoArt.save()
-
-            // Guardar id articulo en marca y rubro
-            marca.articulo = marca.articulo.concat(nuevoArt._id)
-            await marca.save()
-            rubro.articulo = rubro.articulo.concat(nuevoArt._id)
-            await rubro.save()
-
-            // retornamos el nuevo Art
-            nuevoArt.Marca = marca
-            nuevoArt.Rubro = rubro
-
-            console.log('Retorno...')
-            console.log(nuevoArt)
-
-            return nuevoArt
+            return datos
         },
-        UPDATE_Articulo: async(root, args) => {
-            const update = await Articulo_Model.findByIdAndUpdate(args.id, args, {new: true}).populate('Rubro').populate('Marca')
-            return update
-        },
-        DELETE_Articulo: async(root, args) => {
-            const borrar = await Articulo_Model.findByIdAndDelete(args.id).populate('Rubro').populate('Marca')
-            return borrar
-        },
+        // Pedidos
+    },
+    Mutation:{
         // Pedidos
         ADD_Pedido: async(root, args) => {
         
-            const UltimoCodigo = await Pedidos_Model.findOne().sort({codigo: -1}).limit(1)
+            const {articulos, usuario} = args
 
-            const codigo = UltimoCodigo.codigo + 1
-            // buscamos el usuario exista con email y obtenemos el id
-            const usuario = await Usuario_Model.findOne({email: args.usuario})
+            const tiempoTranscurrido = Date.now();
+            const hoy = new Date(tiempoTranscurrido);
+            console.log(hoy.toISOString());// ISO 8601 - formato para sql srver dateTime
 
-            if(usuario === null ) return null
+            let _pedido
+            try {
+
+                // Buscar Otra vez el usu para asociar al pedido - tengo email i es unico
+                const _Usu = await prisma.user.findUnique({where: {email: usuario}})
+                if(_Usu === null ) throw new Error(`El usuario no Existe: ${usuario}`)
+
+                // Creamos los detalles en memoria
+                let _DetallePedidos = []
+                let _Total = 0
+
+                // Recorrer los pedidos art
+                for (const art of articulos){
+
+                    // buscar en bd
+                    const _ArticuloBD = await prisma.articulo.findUnique({where: {Id: art.Id}})
+                    if(_ArticuloBD === null ) throw new Error(`Codigo de Articulo no Existe: ${art.Descripcion}`)
+
+                    // comprobar si hay stock
+                    if (!_ArticuloBD.PermiteStockNegativo) {
+                        if(_ArticuloBD.Stock < art.Cantidad ){
+                            console.log("No hay stock")
+                            throw {
+                                message: `Error no hay Stock Para el articulo: ${art.Descripcion}`,
+                            };
+                        }
+                    }
+
+                    // total y detalle
+                    _Total += art.Cantidad * _ArticuloBD.PrecioVenta
+
+                    _DetallePedidos.push({
+                        ArticuloId: _ArticuloBD.Id,
+                        Codigo: _ArticuloBD.Codigo.toString(),
+                        Descripcion: _ArticuloBD.Descripcion,
+                        Cantidad: art.Cantidad,
+                        Precio: _ArticuloBD.PrecioVenta,
+                        Dto: 0,
+                        SubTotal: art.Cantidad * _ArticuloBD.PrecioVenta,
+                        PrecioCosto: _ArticuloBD.PrecioCosto,
+                        EstaEliminado: false,
+                    })
+
+                };
+
+                // transaccion
+                const _Trans = await prisma.$transaction(async (prisma) => {
+
+                    // Crear el pedido
+                    _pedido = await prisma.pedido.create({
+                        data: {
+                            UserId: _Usu.id,
+                            Fecha: hoy,
+                            SubTotal: 0,
+                            Descuento: 0,
+                            Total: _Total,
+                        }
+                    })
+
+                    for (const art of _DetallePedidos) {
+                        // Crear el detalle
+                        await prisma.detallePedido.create({
+                            data: {
+                                ...art,
+                                PedidoId: _pedido.Id,
+                            }
+                        })
+                    }
+
+                })
             
-            // Creamos el pedido
-            const nueva = new Pedidos_Model({codigo, Articulos: args.articulosId, user: usuario._id})
-            const pedido = await nueva.save()
+            } catch (error) {
+                throw new Error(`${error.message}`);
+            }
+            
+            const _nuevoPedido = await prisma.pedido.findUnique({
+                where: {Id: _pedido.Id},
+                include: {
+                    User: true, 
+                    DetallePedido: true
+                }
+            })
 
-            // actualizamos - concatenamos el id del pedido en usuario
-            usuario.Pedidos = usuario.Pedidos.concat(pedido._id)
-            await usuario.save()
-
-            const ObneterUltimo = await Pedidos_Model.findById(pedido._id).populate('Articulos').populate('user')
-
-            return ObneterUltimo
+            return _nuevoPedido
         },
         DELETE_Pedido: async(root, args) => {
             const borrar = await Pedidos_Model.findByIdAndDelete(args.id)
@@ -249,11 +246,26 @@ export const resolvers = {
         },
     },
     BigInt: GraphQLBigInt,
-    Articulo: {
-        Foto: (root) => Buffer.from(root.Foto).toString('base64')
-    }
+    // Articulo: {
+    //     Foto: (root) => Buffer.from(root.Foto).toString('base64')
+    // }
     // Nota: {
     //     Compuesto: (root) => `${root.title}, ${root.description}`,
     //     CompuestoStatico: () => 'Dato Estatico no calculado'
     // }
+}
+
+
+function formatDate(date) {
+    var d = new Date(date),
+        month = '' + (d.getMonth() + 1),
+        day = '' + d.getDate(),
+        year = d.getFullYear();
+
+    if (month.length < 2) 
+        month = '0' + month;
+    if (day.length < 2) 
+        day = '0' + day;
+
+    return `${[year, month, day].join('-')} ${d.toLocaleTimeString()}`;
 }

@@ -1,6 +1,4 @@
 import NextAuth from "next-auth"
-import GithubProvider from "next-auth/providers/github"
-import GoogleProvider from "next-auth/providers/google"
 import CredentialsProvider from "next-auth/providers/credentials"
 import EmailProvider from "next-auth/providers/email";
 
@@ -70,19 +68,11 @@ export default NextAuth({
       }
       
     }),
-    GithubProvider({
-      clientId: process.env.GITHUB_ID,
-      clientSecret: process.env.GITHUB_SECRET
-    }),
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    }),
     EmailProvider({
       // https://www.google.com/settings/security/lesssecureapps
       // https://myaccount.google.com/
-      // vugksfklwddwhslj
-      // smtp://iprogramacion17@gmail.com:vugksfklwddwhslj@smtp.gmail.com:587
+      // AppMartinWeb: ygwejxovsofffbfp
+      // smtp://iprogramacion17@gmail.com:ygwejxovsofffbfp@smtp.gmail.com:587
       server: process.env.EMAIL_SERVER_HOST,
       from: process.env.EMAIL_FROM,
       async sendVerificationRequest ({

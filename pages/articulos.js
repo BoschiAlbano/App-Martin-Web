@@ -19,19 +19,19 @@ const Articulos = ({ session }) => {
     try {
 
       // Datos local Storage - id descripcion imagen cantidad precio
-      const { id, descripcion, imagen, precio } = articulo
+      const { Id, Descripcion, FotoUrl, PrecioVenta } = articulo
       // buscar si ya existe el art y aumentar la cantidad
-      const indice = value.findIndex(art => art.id === articulo.id)
+      const indice = value.findIndex(art => art.Id === articulo.Id)
 
       if (indice < 0) {
         // agregar
         const Add = value
-        Add.push({ id, descripcion, imagen, precio, cantidad: 1 })
+        Add.push({ Id, Descripcion, FotoUrl, PrecioVenta, Cantidad: 1 })
         setvalue(Add)
       } else {
         // modificar cantidad
         const actualizar = value
-        actualizar[indice].cantidad += 1
+        actualizar[indice].Cantidad += 1
         setvalue(actualizar)
       }
 
@@ -54,34 +54,32 @@ const Articulos = ({ session }) => {
 
   }
 
+  // GET
   const { data, loading, error } = useRubroMarca()
-
-  const articulos = useArticulos()
-
+  
+  // Estado
   const [dataArticulos, setData] = useState(null);
+
+  // GET Filtro
   const [getData, result] = useArticuloFiltro()
 
 
   useEffect(() => {
-    if (!articulos.loading) {
-      if (articulos.data) {
-        setData(articulos.data.GET_Articulo)
-      }
-    }
-  }, [articulos.loading]);
+    filtro("",null)
+  }, [])
 
-  useEffect(() => {
+  useEffect(() => {    
     if (result.data) {
       setData(result.data.FILTRO_Articulo)
     }
   }, [result]);
 
-  const filtro = ({ keyword, rubro, marca }) => {
-    getData({ variables: { keyword, rubro, marca } })
+  const filtro = ({ keyword = '', rubro = null}) => {
+    getData({ variables: { keyword, rubro: rubro == "Todo" ? null : rubro} })
   }
 
   if (error) return <span className="text-red-600">{error}</span>
-  if (articulos.error) return <span className="text-red-600">{articulos.error}</span>
+  // if (articulos.error) return <span className="text-red-600">{articulos.error}</span>
 
   return (
     <div>

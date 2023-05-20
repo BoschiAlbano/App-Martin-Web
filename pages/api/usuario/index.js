@@ -7,6 +7,9 @@ export default async function usuario(req,res){
     
     const {body, method} = req
 
+
+    console.log(body)
+
     switch (method) {
         case "POST":
             

@@ -3,19 +3,19 @@ import { gql } from '@apollo/client'
 export const GET_ARTICULOS = gql`
     query Get_Articulos {
         GET_Articulo {
-            id
-            codigo
-            descripcion
-            eliminado
-            imagen
-            precio
+            Id
+            Codigo
+            Descripcion
+            EstaEliminado
+            FotoUrl
+            PrecioVenta
             Rubro {
-                id
-                descripcion
+                Id
+                Descripcion
             }
             Marca {
-                id
-                descripcion
+                Id
+                Descripcion
             }
         }
     }
@@ -24,34 +24,37 @@ export const GET_ARTICULOS = gql`
 export const GET_RUBRO_MARCA = gql`
     query Get_Rubro_Marca {
     GET_Marca {
-        id
-        descripcion
+        Id
+        Descripcion
     }
     GET_Rubro {
-        id
-        descripcion
+        Id
+        Descripcion
     }
     }
 `
 
 export const GET_ARTICULOS_Filtro =gql`
-    query Get_Articulos_Filtro($marca: String, $rubro: String, $keyword: String) {
-    FILTRO_Articulo(marca: $marca, rubro: $rubro, keyword: $keyword) {
-        id
-        codigo
-        descripcion
-        imagen
-        precio
-        eliminado
-        fecha
-        Marca {
-        id
-        descripcion
+    query Query($rubro: BigInt, $keyword: String) {
+        FILTRO_Articulo(rubro: $rubro, keyword: $keyword) {
+            Id
+            Codigo
+            CodigoBarra
+            Descripcion
+            Stock
+            Detalle
+            EstaEliminado
+            FotoUrl
+            PrecioVenta
+            PermiteStockNegativo
+            Rubro {
+            Id
+            Descripcion
+            }
+            Marca {
+            Id
+            Descripcion
+            }
         }
-        Rubro {
-        id
-        descripcion
-        }
-    }
     }
 `
