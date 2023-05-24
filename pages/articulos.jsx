@@ -9,7 +9,9 @@ import styles from 'styles/ArticuloCard.module.css'
 import FiltroArt from 'components/filtroArt';
 import { useLocalStorage } from 'components/prueba/localStorage/hook';
 import Swal from 'sweetalert2'
+import {BsFillArrowUpCircleFill} from 'react-icons/bs'
 
+import {FaArrowCircleUp} from 'react-icons/fa' 
 
 const Articulos = ({ session }) => {
   const [value, setvalue] = useLocalStorage('Carrito', [])
@@ -19,14 +21,21 @@ const Articulos = ({ session }) => {
     try {
 
       // Datos local Storage - id descripcion imagen cantidad precio
-      const { Id, Descripcion, FotoUrl, PrecioVenta } = articulo
+      const { Id, Descripcion, FotoUrl, PrecioVenta, Stock } = articulo
       // buscar si ya existe el art y aumentar la cantidad
       const indice = value.findIndex(art => art.Id === articulo.Id)
 
       if (indice < 0) {
+        if (Stock == 0) {
+          return Swal.fire({
+            icon: 'error',
+            title: 'No hay Stock',
+            timer: 2500
+          })
+        }
         // agregar
         const Add = value
-        Add.push({ Id, Descripcion, FotoUrl, PrecioVenta, Cantidad: 1 })
+        Add.push({ Id, Descripcion, FotoUrl, PrecioVenta, Cantidad: 1, Stock})
         setvalue(Add)
       } else {
         // modificar cantidad
@@ -81,6 +90,7 @@ const Articulos = ({ session }) => {
   if (error) return <span className="text-red-600">{error}</span>
   // if (articulos.error) return <span className="text-red-600">{articulos.error}</span>
 
+  
   return (
     <div>
       <Head>
@@ -112,6 +122,22 @@ const Articulos = ({ session }) => {
 
         </div>
 
+
+        <FaArrowCircleUp className='w-[45px] h-[45px] rounded-full z-[88] text-[rgb(59,130,246)] fixed bottom-0 right-0 flex justify-center items-center' onClick={() => {
+            window.scrollTo({
+              top: 0,
+              behavior: 'smooth'
+            });
+          }}/>
+
+        {/* <div className='w-[50px] h-[50px] rounded-full Degradado fixed bottom-0 right-0 flex justify-center items-center' onClick={() => {
+            window.scrollTo({
+              top: 0,
+              behavior: 'smooth'
+            });
+          }}
+        >
+        </div> */}
       </MenuPaginas>
     </div>
   );

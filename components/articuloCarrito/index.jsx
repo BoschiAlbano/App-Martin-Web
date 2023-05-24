@@ -1,4 +1,5 @@
 import React, {useState} from 'react';
+import Swal from 'sweetalert2';
 
 const ArticuloCarrito = ({item, modificar, eliminar}) => {
 
@@ -7,6 +8,16 @@ const ArticuloCarrito = ({item, modificar, eliminar}) => {
 
   const AumentarCantidad = (e) => {
     
+
+    if (e.target.value > item.Stock) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Stock Insuficiente.',
+        timer: 2500
+      })
+      return
+    }
+
     setcantidad(e.target.value)
 
     modificar({id: item.Id, cantidad: e.target.value})
@@ -16,18 +27,25 @@ const ArticuloCarrito = ({item, modificar, eliminar}) => {
         <div className="ArticuloCarro p-2 justify-items-center items-center hover:bg-slate-200">
     
             {/* Opitimizar imgane cuando tengas host de imgs */}
-            <img src={item.FotoUrl ?? "./assets/ProductoSinFoto.png"} alt={item.Descripcion} className="ArticuloCarro1" />
+            <img src={item.FotoUrl ?? "./assets/ProductoSinFoto.png"} alt={item.Descripcion} className="imagen" />
     
-            <p className='ArticuloCarro2 text-2xl text-gray-600'>{item.Descripcion}</p>
-            <p className='ArticuloCarro22 text-2xl text-gray-600'>{`$${item.PrecioVenta}`}</p>
+            <p className='descripcion text-2xl text-gray-600'>{item.Descripcion}</p>
+
+            <p className='precio text-2xl text-gray-600'>{`$${item.PrecioVenta}`}</p>
     
-            <label  className=" ArticuloCarro3 flex items-center gap-2">
+    
+            <label  className="stock flex items-center gap-2">
+              <span className="text-xl text-gray-600">Stock: {item.Stock}</span>
+            </label>
+
+            <label  className="cantidad flex items-center gap-2">
               <span className="text-xl text-gray-600">Cantidad</span>
 
               <input
                 type="number"
                 value={cantidad}
                 min={1}
+                max={item.Stock}
                 onChange={(e) => AumentarCantidad(e)}
                 id={`FilterPriceFrom${item.Id}`}
                 className="w-full border border-gray-200 pl-3 hover:border-[#5E69F1] rounded-md shadow-sm focus:outline-none h-[2rem]"
@@ -35,7 +53,7 @@ const ArticuloCarrito = ({item, modificar, eliminar}) => {
             </label>
 
     
-            <button className="ArticuloCarro4 text-gray-600 transition hover:text-red-600" onClick={() => eliminar(item.Id)}>
+            <button className="eliminar text-gray-600 transition hover:text-red-600" onClick={() => eliminar(item.Id)}>
               <span className="sr-only">Eliminar</span>
       
               <svg

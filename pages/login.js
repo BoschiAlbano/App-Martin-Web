@@ -90,7 +90,7 @@ export default function Login () {
                             <span onClick={() => setshow(!show)} className="flex items-center px-4 cursor-pointer"><HiFingerPrint size={25}/></span>
                         </div>
 
-                        <input id={styles.btnLogin} className="cursor-pointer p-1 m-2 w-80 border-2 border-b-slate-300 rounded-[5px] text-[20px]" type={'submit'} value="Ingresar"/>
+                        <input id={styles.btnLogin} className="Saltar cursor-pointer p-1 m-2 w-80 border-2 border-b-slate-300 rounded-[5px] text-[20px] " type={'submit'} value="Ingresar"/>
                     </div>
                 </form>
                 

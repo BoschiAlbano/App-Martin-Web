@@ -114,7 +114,7 @@ const Register = () => {
                             </div>
 
 
-                        <input id={styles.btnLogin} className="cursor-pointer p-1 m-2 w-80 border-2 border-b-slate-300 rounded-[5px] text-[20px]" type={'submit'} value="Register"/>
+                        <input id={styles.btnLogin} className="Saltar cursor-pointer p-1 m-2 w-80 border-2 border-b-slate-300 rounded-[5px] text-[20px]" type={'submit'} value="Register"/>
                     </div>
                 </form>
 
