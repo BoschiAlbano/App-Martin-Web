@@ -9,10 +9,3 @@ Generar las migraciones
 por cada migracion que se haga usamos
     npx prisma generate
 para actualizar el cliente de PrismaClient
-
-
-package para q anda en azure le saq
-    // "dev": "next dev",
-    // "build": "next build",
-    // "start": "next start",
-    // "lint": "next lint",
