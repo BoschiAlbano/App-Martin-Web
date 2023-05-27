@@ -8,6 +8,7 @@ import { HiAtSymbol, HiFingerPrint } from "react-icons/hi";
 import styles from 'styles/Login.module.css'
 import Link from 'next/link';
 
+import Publicas from 'config';
 
 export default function Login () {
 
@@ -38,7 +39,7 @@ export default function Login () {
             email: data.email,
             password: data.password,
             redirect: false,
-            callbackUrl: process.env.NEXT_PUBLIC_HOST,
+            callbackUrl: Publicas.NEXT_PUBLIC_HOST,
         }).then(response => {
             console.log(response)
 
@@ -58,7 +59,7 @@ export default function Login () {
         signIn('email', {
             email: getValues('email'),
             redirect: false,
-            callbackUrl: process.env.NEXT_PUBLIC_HOST,
+            callbackUrl: Publicas.NEXT_PUBLIC_HOST,
         })
         alert('Correo Reenviado, verifique su Email')
     }

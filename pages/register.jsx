@@ -7,6 +7,8 @@ import { HiAtSymbol, HiFingerPrint, HiUser } from "react-icons/hi";
 import styles from 'styles/Login.module.css'
 import Link from 'next/link';
 
+import Publicas from 'config';
+
 const Register = () => {
 
     const {data, status} = useSession()
@@ -25,7 +27,7 @@ const Register = () => {
 
         const {Cpassword, ...resto} = data
 
-        const response = await fetch(`${process.env.NEXT_PUBLIC_HOST}/api/usuario`, {
+        const response = await fetch(`${Publicas.NEXT_PUBLIC_HOST}/api/usuario`, {
             method: "POST",
             body: JSON.stringify({image: "http://images7.memedroid.com/images/UPLOADED43/5385438d7a708.jpeg", ...resto}),
             headers: {
@@ -35,12 +37,17 @@ const Register = () => {
         
         const res = await response.json()
 
+        
+        console.log(res)
+        console.log(data.email)
+
         if(response.ok){
             signIn('email', {
                 email: data.email,
                 redirect: false,
-                callbackUrl: process.env.NEXT_PUBLIC_HOST,
+                callbackUrl: Publicas.NEXT_PUBLIC_HOST,
             })
+            console.log("Si se ejecuta el singIn email")
             router.push("/login")
         }else{
             //msj de error

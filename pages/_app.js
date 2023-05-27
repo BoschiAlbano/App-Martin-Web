@@ -3,10 +3,12 @@ import { SessionProvider } from 'next-auth/react'
 
 import { ApolloClient, ApolloProvider, InMemoryCache, HttpLink, gql } from '@apollo/client'
 
+import Publicas from 'config'
+
 const cliente = new ApolloClient({
   cache: new InMemoryCache(),
   link: new HttpLink({
-    uri: `${process.env.NEXT_PUBLIC_HOST}/api/graphql`
+    uri: `${Publicas.NEXT_PUBLIC_HOST}/api/graphql`
   })
 })
 

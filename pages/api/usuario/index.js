@@ -35,12 +35,14 @@ export default async function usuario(req,res){
                         data: {...body, password: hashPass}
                     })
 
+                    console.log(userId)
+                    
                     const account = await prisma.Account.create({
                         data: {
                             userId: userId.id,
                             type: "oauth",
-                            provider: "credentials",
-                            providerAccountId: "123456789"
+                            provider: `credentials ${userId.email}`,
+                            providerAccountId: `provider ${userId.email}`
                         }
                     })
 
