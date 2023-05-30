@@ -74,7 +74,6 @@ const Carrito = ({ session }) => {
       })
 
       const datos = {articulos: Arts, usuario: session.user.email}
-      console.log(datos)
 
       crear({variables: datos})
 

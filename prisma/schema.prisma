@@ -72,105 +72,16 @@ model Articulo {
   MarcaId              BigInt
   RubroId              BigInt
   Codigo               Int
-  CodigoBarra          String?              @db.VarChar(8000)
-  Abreviatura          String?              @db.VarChar(8000)
   Descripcion          String?              @db.VarChar(8000)
-  Detalle              String?              @db.VarChar(8000)
-  Ubicacion            String?              @db.VarChar(8000)
   Stock                Int
-  PrecioCosto          Decimal              @db.Decimal(18, 2)
   PrecioVenta          Decimal              @db.Decimal(18, 2)
-  PorcentajeGanancia   Decimal              @db.Decimal(18, 2)
-  Foto                 Bytes?
-  StockMinimo          Decimal              @db.Decimal(18, 2)
   EstaEliminado        Boolean
   PermiteStockNegativo Boolean              @default(false, map: "DF__Articulo__Permit__6383C8BA")
   FotoUrl              String?              @db.NVarChar(Max)
   Marca                Marca                @relation(fields: [MarcaId], references: [Id], onUpdate: NoAction, map: "FK_dbo.Articulo_dbo.Marca_MarcaId")
   Rubro                Rubro                @relation(fields: [RubroId], references: [Id], onUpdate: NoAction, map: "FK_dbo.Articulo_dbo.Rubro_RubroId")
-  DetalleComprobante   DetalleComprobante[]
   DetallePedido        DetallePedido[]
-}
-
-model Caja {
-  Id              BigInt   @id(map: "PK_dbo.Caja") @default(autoincrement())
-  Efectivo        Decimal  @db.Decimal(18, 2)
-  CuentaCorriente Decimal  @db.Decimal(18, 2)
-  Fecha           DateTime @db.DateTime
-  EstaEliminado   Boolean
-}
-
-model Comprobante {
-  Id                  BigInt               @id(map: "PK_dbo.Comprobante") @default(autoincrement())
-  EmpleadoId          BigInt
-  UsuarioId           BigInt
-  Fecha               DateTime             @db.DateTime
-  Numero              Int
-  SubTotal            Decimal              @db.Decimal(18, 2)
-  Descuento           Decimal              @db.Decimal(18, 2)
-  Total               Decimal              @db.Decimal(18, 2)
-  TipoComprobante     Int
-  Efectivo            Decimal              @db.Decimal(18, 2)
-  CuentaCorriente     Decimal              @db.Decimal(18, 2)
-  Estado              Int
-  ClienteId           BigInt
-  PagoCuentaCorriente Boolean
-  EstaEliminado       Boolean
-  Persona_Cliente     Persona_Cliente      @relation(fields: [ClienteId], references: [Id], onUpdate: NoAction, map: "FK_dbo.Comprobante_dbo.Persona_Cliente_ClienteId")
-  Persona_Empleado    Persona_Empleado     @relation(fields: [EmpleadoId], references: [Id], onUpdate: NoAction, map: "FK_dbo.Comprobante_dbo.Persona_Empleado_EmpleadoId")
-  Usuario             Usuario              @relation(fields: [UsuarioId], references: [Id], onUpdate: NoAction, map: "FK_dbo.Comprobante_dbo.Usuario_UsuarioId")
-  DetalleComprobante  DetalleComprobante[]
-}
-
-model Configuracion {
-  Id                 BigInt    @id(map: "PK_dbo.Configuracion") @default(autoincrement())
-  RazonSocial        String?   @db.VarChar(8000)
-  NombreFantasia     String?   @db.VarChar(8000)
-  Cuit               String?   @db.VarChar(8000)
-  Telefono           String?   @db.VarChar(8000)
-  Celular            String?   @db.VarChar(8000)
-  Direccion          String?   @db.VarChar(8000)
-  Email              String?   @db.VarChar(8000)
-  LocalidadId        BigInt
-  PuestoCajaSeparado Boolean
-  EstaEliminado      Boolean
-  Localidad          Localidad @relation(fields: [LocalidadId], references: [Id], onUpdate: NoAction, map: "FK_dbo.Configuracion_dbo.Localidad_LocalidadId")
-}
-
-model Departamento {
-  Id            BigInt      @id(map: "PK_dbo.Departamento") @default(autoincrement())
-  ProvinciaId   BigInt
-  Descripcion   String?     @db.VarChar(8000)
-  EstaEliminado Boolean
-  Provincia     Provincia   @relation(fields: [ProvinciaId], references: [Id], onUpdate: NoAction, map: "FK_dbo.Departamento_dbo.Provincia_ProvinciaId")
-  Localidad     Localidad[]
-}
-
-model DetalleComprobante {
-  Id            BigInt      @id(map: "PK_dbo.DetalleComprobante") @default(autoincrement())
-  ComprobanteId BigInt
-  ArticuloId    BigInt
-  Codigo        String?     @db.VarChar(8000)
-  Descripcion   String?     @db.VarChar(8000)
-  Cantidad      Int
-  Precio        Decimal     @db.Decimal(18, 2)
-  SubTotal      Decimal     @db.Decimal(18, 2)
-  EstaEliminado Boolean
-  PrecioCosto   Decimal     @default(0, map: "DF__DetalleCo__Preci__6477ECF3") @db.Decimal(18, 2)
-  Dto           Decimal?    @db.Decimal(18, 2)
-  Articulo      Articulo    @relation(fields: [ArticuloId], references: [Id], onUpdate: NoAction, map: "FK_dbo.DetalleComprobante_dbo.Articulo_ArticuloId")
-  Comprobante   Comprobante @relation(fields: [ComprobanteId], references: [Id], onUpdate: NoAction, map: "FK_dbo.DetalleComprobante_dbo.Comprobante_ComprobanteId")
-}
-
-model Localidad {
-  Id             BigInt          @id(map: "PK_dbo.Localidad") @default(autoincrement())
-  DepartamentoId BigInt
-  Descripcion    String?         @db.VarChar(8000)
-  EstaEliminado  Boolean
-  Configuracion  Configuracion[]
-  Departamento   Departamento    @relation(fields: [DepartamentoId], references: [Id], onUpdate: NoAction, map: "FK_dbo.Localidad_dbo.Departamento_DepartamentoId")
-  Persona        Persona[]
-  Proveedor      Proveedor[]
+  @@unique([Codigo])
 }
 
 model Marca {
@@ -180,75 +91,11 @@ model Marca {
   Articulo      Articulo[]
 }
 
-model Persona {
-  Id               BigInt            @id(map: "PK_dbo.Persona") @default(autoincrement())
-  Apellido         String?           @db.VarChar(8000)
-  Nombre           String?           @db.VarChar(8000)
-  Dni              String?           @db.VarChar(8000)
-  Direccion        String?           @db.VarChar(8000)
-  Telefono         String?           @db.VarChar(8000)
-  Mail             String?           @db.VarChar(8000)
-  LocalidadId      BigInt
-  EstaEliminado    Boolean
-  Localidad        Localidad         @relation(fields: [LocalidadId], references: [Id], onUpdate: NoAction, map: "FK_dbo.Persona_dbo.Localidad_LocalidadId")
-  Persona_Cliente  Persona_Cliente?
-  Persona_Empleado Persona_Empleado?
-}
-
-model Persona_Cliente {
-  Id                BigInt        @id(map: "PK_dbo.Persona_Cliente")
-  ActivarCtaCte     Boolean
-  TieneLimiteCompra Boolean
-  MontoMaximoCtaCte Decimal       @db.Decimal(18, 2)
-  Deuda             Decimal       @default(0, map: "DF__Persona_C__Deuda__656C112C") @db.Decimal(18, 2)
-  Comprobante       Comprobante[]
-  Persona           Persona       @relation(fields: [Id], references: [Id], onUpdate: NoAction, map: "FK_dbo.Persona_Cliente_dbo.Persona_Id")
-}
-
-model Persona_Empleado {
-  Id          BigInt        @id(map: "PK_dbo.Persona_Empleado")
-  Legajo      Int
-  Foto        Bytes?
-  Comprobante Comprobante[]
-  Persona     Persona       @relation(fields: [Id], references: [Id], onUpdate: NoAction, map: "FK_dbo.Persona_Empleado_dbo.Persona_Id")
-  Usuario     Usuario[]
-}
-
-model Proveedor {
-  Id            BigInt    @id(map: "PK_dbo.Proveedor") @default(autoincrement())
-  RazonSocial   String?   @db.VarChar(8000)
-  CUIT          String?   @db.VarChar(8000)
-  Direccion     String?   @db.VarChar(8000)
-  Telefono      String?   @db.VarChar(8000)
-  Mail          String?   @db.VarChar(8000)
-  LocalidadId   BigInt
-  EstaEliminado Boolean
-  Localidad     Localidad @relation(fields: [LocalidadId], references: [Id], onUpdate: NoAction, map: "FK_dbo.Proveedor_dbo.Localidad_LocalidadId")
-}
-
-model Provincia {
-  Id            BigInt         @id(map: "PK_dbo.Provincia") @default(autoincrement())
-  Descripcion   String?        @db.VarChar(8000)
-  EstaEliminado Boolean
-  Departamento  Departamento[]
-}
-
 model Rubro {
   Id            BigInt     @id(map: "PK_dbo.Rubro") @default(autoincrement())
   Descripcion   String?    @db.VarChar(8000)
   EstaEliminado Boolean
   Articulo      Articulo[]
-}
-
-model Usuario {
-  Id               BigInt           @id(map: "PK_dbo.Usuario") @default(autoincrement())
-  EmpleadoId       BigInt
-  Nombre           String?          @db.VarChar(8000)
-  Password         String?          @db.VarChar(8000)
-  EstaBloqueado    Boolean
-  EstaEliminado    Boolean
-  Comprobante      Comprobante[]
-  Persona_Empleado Persona_Empleado @relation(fields: [EmpleadoId], references: [Id], onUpdate: NoAction, map: "FK_dbo.Usuario_dbo.Persona_Empleado_EmpleadoId")
 }
 
 model sysdiagrams {
@@ -271,8 +118,6 @@ model DetallePedido {
   Precio        Decimal   @db.Decimal(18, 2)
   SubTotal      Decimal   @db.Decimal(18, 2)
   EstaEliminado Boolean?  @default(false, map: "DF__DetallePe__EstaE__18EBB532")
-  PrecioCosto   Decimal   @db.Decimal(18, 2)
-  Dto           Decimal?  @db.Decimal(18, 2)
   Articulo      Articulo? @relation(fields: [ArticuloId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK__DetallePe__Artic__07C12930")
   Pedido        Pedido?   @relation(fields: [PedidoId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK__DetallePe__Pedid__06CD04F7")
 }
@@ -284,6 +129,7 @@ model Pedido {
   SubTotal      Decimal?        @db.Decimal(18, 2)
   Descuento     Decimal?        @db.Decimal(18, 2)
   Total         Decimal?        @db.Decimal(18, 2)
+  Estado        Boolean?
   DetallePedido DetallePedido[]
   User          User            @relation(fields: [UserId], references: [id], onUpdate: NoAction, map: "FK__Pedido__UserId__02FC7413")
 }

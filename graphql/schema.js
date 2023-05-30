@@ -12,6 +12,10 @@ export const typeDefs = gql`
   type User {
     id: String!,
     name: String!,
+    apellido: String,
+    DNI: String,
+    telefono: String,
+    direccion: String,
     Pedido: [Pedido]
   }
 
@@ -31,11 +35,11 @@ export const typeDefs = gql`
 
   type Articulo {
     Id: BigInt!,
+    MarcaId: BigInt!,
+    RubroId: BigInt!,
     Codigo: Int!,
-    CodigoBarra: String,
     Descripcion: String,
     Stock: Int,
-    Detalle: String,
     EstaEliminado: Boolean,
     FotoUrl: String,
     PrecioVenta: Float,
@@ -51,6 +55,7 @@ export const typeDefs = gql`
     Descuento: Float,
     Total: Float,
     User: User,
+    Estado: Boolean,
     DetallePedido: [DetallePedido]
   }
 
@@ -62,8 +67,6 @@ export const typeDefs = gql`
     Precio: Float,
     SubTotal: Float,
     EstaEliminado: Boolean,
-    PrecioCosto: Float,
-    Dto: Float
     Articulo: Articulo,
     Pedido: Pedido,
   }
@@ -78,26 +81,47 @@ export const typeDefs = gql`
     # Rubro 
     GET_Rubro: [Rubro],
     GET_Rubroid(id: BigInt!): Rubro ,
-    # Rubro 
+    # Articulo 
     GET_Articulo: [Articulo],
     GET_Articuloid(id: BigInt!): Articulo,
     FILTRO_Articulo(rubro: BigInt, keyword: String): [Articulo]
     # Pedidos 
     GET_Pedidos: [Pedido],
-    GET_Pedidoid(id: BigInt!): Pedido
+    GET_Pedido_Usuario(email: String!, ): [Pedido]
   }
 
-  input ArticuloInput{
+  input ArticuloPedido{
     Id: BigInt!,
     Cantidad: Int!,
     Descripcion: String
   }
 
+  input ArticuloInput {
+    Marca: String!,
+    Rubro: String!,
+    Codigo: Int!,
+    Descripcion: String!,
+    Stock: Int!,
+    EstaEliminado: Boolean,
+    FotoUrl: String,
+    PrecioVenta: Float!,
+    PermiteStockNegativo: Boolean,
+  }
 
   type Mutation {
     # Pedidos 
-    ADD_Pedido(usuario: String!, articulos: [ArticuloInput!]!): Pedido,
+    ADD_Pedido(usuario: String!, articulos: [ArticuloPedido!]!): Pedido,
     DELETE_Pedido(Id: String!): Pedido,
+    # Articulo
+    ADD_Articulo(articulo: ArticuloInput!): Articulo,
+    UPDATE_Articulo(articulo: ArticuloInput!): Articulo,
+    ADD_Stock_Articulo(codigo: Int!, cantidad: Int!): Articulo,
+    # Marca
+    ADD_Marca(Descripcion: String!): Marca,
+    Update_Marca(Descripcion: String!, EstaEliminado: Boolean!, NewDescripcion: String!): Marca,
+    # Rubro
+    ADD_Rubro(Descripcion: String!): Rubro,
+    Update_Rubro(Descripcion: String!, EstaEliminado: Boolean!, NewDescripcion: String!): Rubro,
   }
 
 `;

@@ -123,7 +123,7 @@ const Articulos = ({ session }) => {
         </div>
 
 
-        <FaArrowCircleUp className='w-[45px] h-[45px] rounded-full z-[88] text-[rgb(59,130,246)] fixed bottom-0 right-0 flex justify-center items-center' onClick={() => {
+        <FaArrowCircleUp className='Saltar w-[45px] h-[45px] m-2 cursor-pointer rounded-full z-[88] text-[rgb(59,130,246)] fixed bottom-0 right-0 flex justify-center items-center' onClick={() => {
             window.scrollTo({
               top: 0,
               behavior: 'smooth'

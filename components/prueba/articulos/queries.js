@@ -36,25 +36,27 @@ export const GET_RUBRO_MARCA = gql`
 
 export const GET_ARTICULOS_Filtro =gql`
     query Query($rubro: BigInt, $keyword: String) {
-        FILTRO_Articulo(rubro: $rubro, keyword: $keyword) {
-            Id
-            Codigo
-            CodigoBarra
-            Descripcion
-            Stock
-            Detalle
-            EstaEliminado
-            FotoUrl
-            PrecioVenta
-            PermiteStockNegativo
-            Rubro {
-            Id
-            Descripcion
-            }
-            Marca {
-            Id
-            Descripcion
-            }
+    FILTRO_Articulo(rubro: $rubro, keyword: $keyword) {
+        Id
+        MarcaId
+        RubroId
+        Codigo
+        Descripcion
+        Stock
+        EstaEliminado
+        FotoUrl
+        PrecioVenta
+        PermiteStockNegativo
+        Rubro {
+        Id
+        Descripcion
+        EstaEliminado
+        }
+        Marca {
+        Id
+        Descripcion
+        EstaEliminado
         }
     }
+}
 `
