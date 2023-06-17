@@ -19,12 +19,13 @@ const Pruebas = ({ session }) => {
 
 
   // Query con parametros
-  const showTareas = title => {
-    getNota({ variables: { title } })
+  const showTareas = Id => {
+    getNota({ variables: { getArticuloidId: Id } })
   }
   useEffect(() => {
     if (result.data) {
-      setNota(result.data.GetByTitle_Notas)
+      console.log(nota)
+      setNota(result.data.GET_Articuloid)
     }
   }, [result]);
 
@@ -38,10 +39,10 @@ const Pruebas = ({ session }) => {
           {
             nota ?
               <div>
-                <h1>{nota.id}</h1>
-                <h1>{nota.title}</h1>
-                <h1>{nota.description}</h1>
-                <h1>{nota.user.name}</h1>
+                <h1>{nota.Id}</h1>
+                <h1>{nota.Codigo}</h1>
+                <h1>{nota.Descripcion}</h1>
+                <h1>{nota.Stock}</h1>
                 <button onClick={() => setNota(null)}>Cerrar</button>
               </div>
               :
@@ -49,9 +50,10 @@ const Pruebas = ({ session }) => {
                 {loading
                   ? <h1>Cargando...</h1>
                   : <ul>
-                    {data.Get_Notas.map((item, index) => {
+                    {data.GET_Articulo.map((item, index) => {
+                      console.log(item)
                       return (
-                        <li className="text-rose-300 cursor-pointer" key={index} onClick={() => showTareas(item.title)}>{index + ' ' + item.title}</li>
+                        <li className="text-rose-300 cursor-pointer" key={index} onClick={() => showTareas(item.Id)}>{index + ' ' + item.Descripcion}</li>
                       )
                     })}
                   </ul>

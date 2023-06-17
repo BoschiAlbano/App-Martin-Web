@@ -9,6 +9,15 @@ const ArticuloCarrito = ({item, modificar, eliminar}) => {
   const AumentarCantidad = (e) => {
     
 
+    if (e.target.value == '') {
+      Swal.fire({
+        icon: 'error',
+        title: 'No puede ser 0.',
+        timer: 2500
+      })
+      return
+    }
+
     if (e.target.value > item.Stock) {
       Swal.fire({
         icon: 'error',

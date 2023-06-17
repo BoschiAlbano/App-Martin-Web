@@ -7,11 +7,11 @@ import Spinner from 'components/Spinner';
 import { IoSend } from 'react-icons/io5'
 import Swal from 'sweetalert2';
 import Link from 'next/link';
-
+import { useRouter } from 'next/router';
 import {useAddPedidos} from 'components/prueba/pedidos/hook'
 
 const Carrito = ({ session }) => {
-
+  const router = useRouter();
   const [store, setValue] = useLocalStorage('Carrito', [])
 
   const [loading, setLoading] = useState(true);
@@ -19,20 +19,32 @@ const Carrito = ({ session }) => {
 
   const showError = (error) => {
     if (error) {
+
       Swal.fire({
         icon: 'error',
         title: error,
+        text: '¿ Desea modificar el stock ? o Borrar el carrito',
+        showCancelButton: true,
+        confirmButtonText: 'Modificar Stock',
+        cancelButtonText: 'Borrar el Carrito'
+      }).then((result) => {
+        if (!result.isConfirmed) {
+          setValue([])
+          setTotal(0)
+        }
       })
+
     }else{
+
       Swal.fire({
         icon: 'success',
         title: 'Pedido, Enviado.',
         timer: 2500
       })
 
-       // Borrar Carrito
-        setValue([])
-        setTotal(0)
+      // Borrar Carrito
+      setValue([])
+      setTotal(0)
     }
   }
 
@@ -63,7 +75,7 @@ const Carrito = ({ session }) => {
       if (total == 0) {
         Swal.fire({
           icon: 'error',
-          title: 'No, Hay Productos en el carrito de compras',
+          title: 'No hay Productos en el carrito de compras',
           timer: 2500
         })
         return
@@ -75,7 +87,7 @@ const Carrito = ({ session }) => {
 
       const datos = {articulos: Arts, usuario: session.user.email}
 
-      crear({variables: datos})
+      await crear({variables: datos})
 
       // Enviar mail o wp
       // let mensaje = 'Buenos dias Albano este es mi Carrito de Compras: \n'

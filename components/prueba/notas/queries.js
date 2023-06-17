@@ -3,28 +3,32 @@ import { gql } from '@apollo/client'
 // Query Sin parametros
 export const Get_Notas = gql`
 query {
-  Get_Notas {
-    id
-    title
-    description
+  GET_Articulo {
+            Id
+            Codigo
+            Descripcion
+            EstaEliminado
+            FotoUrl
+            PrecioVenta
+            Rubro {
+                Id
+                Descripcion
+            }
+            Marca {
+                Id
+                Descripcion
+            }
   }
 }
 `
 // Query con parametros
 export const Get_Notas_By_Title = gql`
-query BuscarPorTitulo_Nota ($title: String!) {
-  GetByTitle_Notas(title: $title) {
-    id
-    title
-    description
-    url
-    category
-    imageUrl
-    Compuesto
-    CompuestoStatico
-    user {
-      name
+  query Query($getArticuloidId: BigInt!) {
+    GET_Articuloid(id: $getArticuloidId) {
+      Id
+      Codigo
+      Stock
+      Descripcion
     }
   }
-}
 `

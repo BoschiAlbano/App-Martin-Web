@@ -72,7 +72,7 @@ model Articulo {
   MarcaId              BigInt
   RubroId              BigInt
   Codigo               Int
-  Descripcion          String?              @db.VarChar(8000)
+  Descripcion          String              @db.VarChar(8000)
   Stock                Int
   PrecioVenta          Decimal              @db.Decimal(18, 2)
   EstaEliminado        Boolean
@@ -86,14 +86,16 @@ model Articulo {
 
 model Marca {
   Id            BigInt     @id(map: "PK_dbo.Marca") @default(autoincrement())
-  Descripcion   String?    @db.VarChar(8000)
+  Codigo        Int       @unique
+  Descripcion   String    @db.VarChar(8000)
   EstaEliminado Boolean
   Articulo      Articulo[]
 }
 
 model Rubro {
   Id            BigInt     @id(map: "PK_dbo.Rubro") @default(autoincrement())
-  Descripcion   String?    @db.VarChar(8000)
+  Codigo        Int       @unique
+  Descripcion   String    @db.VarChar(8000)
   EstaEliminado Boolean
   Articulo      Articulo[]
 }

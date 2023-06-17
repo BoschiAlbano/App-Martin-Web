@@ -21,12 +21,8 @@ export const GET_ARTICULOS = gql`
     }
 `
 
-export const GET_RUBRO_MARCA = gql`
+export const GET_RUBRO = gql`
     query Get_Rubro_Marca {
-    GET_Marca {
-        Id
-        Descripcion
-    }
     GET_Rubro {
         Id
         Descripcion

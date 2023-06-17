@@ -21,6 +21,7 @@ export const typeDefs = gql`
 
   type Marca {
     Id: BigInt!,
+    Codigo: Int!,
     Descripcion: String!,
     EstaEliminado: Boolean,
     Articulo: [Articulo]
@@ -28,6 +29,7 @@ export const typeDefs = gql`
 
   type Rubro {
     Id: BigInt!,
+    Codigo: Int!,
     Descripcion: String!,
     EstaEliminado: Boolean
     Articulo: [Articulo]
@@ -96,32 +98,51 @@ export const typeDefs = gql`
     Descripcion: String
   }
 
+  # Problema de Mayusculas ⛔ en c# la libreria manda todo como minusculas las propiedades ya esta resuelto ✔
   input ArticuloInput {
-    Marca: String!,
-    Rubro: String!,
-    Codigo: Int!,
-    Descripcion: String!,
-    Stock: Int!,
-    EstaEliminado: Boolean,
-    FotoUrl: String,
-    PrecioVenta: Float!,
-    PermiteStockNegativo: Boolean,
+    marca: String!,
+    rubro: String!,
+    codigo: Int!,
+    descripcion: String!,
+    stock: Int!,
+    estaEliminado: Boolean,
+    fotoUrl: String,
+    precioVenta: Float!,
+    permiteStockNegativo: Boolean,
+  }
+
+
+  input Stock_Articulos {
+    codigo: Int!,
+    stock: Int!,
+  }
+
+  input PrecioVenta_Articulos {
+    codigo: Int!,
+    precioVenta: Float!,
   }
 
   type Mutation {
     # Pedidos 
-    ADD_Pedido(usuario: String!, articulos: [ArticuloPedido!]!): Pedido,
-    DELETE_Pedido(Id: String!): Pedido,
+    ADD_Pedido(usuario: String!, articulos: [ArticuloPedido!]!): [Articulo],
+    Delete_Pedido(Id: Int!): Pedido,
+    Cancelar_Pedido(Id: Int!): Boolean,
     # Articulo
-    ADD_Articulo(articulo: ArticuloInput!): Articulo,
-    UPDATE_Articulo(articulo: ArticuloInput!): Articulo,
+    ADD_Articulo(articulo: ArticuloInput): Articulo,
+    Update_Articulo(articulo: ArticuloInput!): Articulo,
+    Delete_Articulo(codigo: Int!, EstaEliminado: Boolean!): Articulo,
     ADD_Stock_Articulo(codigo: Int!, cantidad: Int!): Articulo,
+    Update_Stock_Articulos(lista: [Stock_Articulos!]!): Boolean,
+    Update_PrecioVenta_Articulos(lista: [PrecioVenta_Articulos!]!): Boolean,
+    
     # Marca
-    ADD_Marca(Descripcion: String!): Marca,
-    Update_Marca(Descripcion: String!, EstaEliminado: Boolean!, NewDescripcion: String!): Marca,
+    ADD_Marca(Codigo: Int!, Descripcion: String!): Marca,
+    Update_Marca(Codigo: Int!, Descripcion: String!): Marca,
+    Delete_Marca(Codigo: Int!, EstaEliminado: Boolean!): Marca,
     # Rubro
-    ADD_Rubro(Descripcion: String!): Rubro,
-    Update_Rubro(Descripcion: String!, EstaEliminado: Boolean!, NewDescripcion: String!): Rubro,
+    ADD_Rubro(Codigo: Int!, Descripcion: String!): Rubro,
+    Update_Rubro(Codigo: Int!, Descripcion: String!): Rubro,
+    Delete_Rubro(Codigo: Int!, EstaEliminado: Boolean!): Rubro,
   }
 
 `;

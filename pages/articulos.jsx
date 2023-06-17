@@ -3,13 +3,12 @@ import Head from 'next/head'
 import MenuPaginas from 'components/menu/menuPaginas';
 import { getSession } from 'next-auth/react'
 import Spinner from 'components/Spinner';
-import { useRubroMarca, useArticuloFiltro, useArticulos } from 'components/prueba/articulos/hook'
+import { useRubro, useArticuloFiltro } from 'components/prueba/articulos/hook'
 import Card from 'components/card/index'
 import styles from 'styles/ArticuloCard.module.css'
 import FiltroArt from 'components/filtroArt';
 import { useLocalStorage } from 'components/prueba/localStorage/hook';
 import Swal from 'sweetalert2'
-import {BsFillArrowUpCircleFill} from 'react-icons/bs'
 
 import {FaArrowCircleUp} from 'react-icons/fa' 
 
@@ -64,7 +63,7 @@ const Articulos = ({ session }) => {
   }
 
   // GET
-  const { data, loading, error } = useRubroMarca()
+  const { data, loading, error } = useRubro()
   
   // Estado
   const [dataArticulos, setData] = useState(null);
@@ -86,10 +85,6 @@ const Articulos = ({ session }) => {
   const filtro = ({ keyword = '', rubro = null}) => {
     getData({ variables: { keyword, rubro: rubro == "Todo" ? null : rubro} })
   }
-
-  if (error) return <span className="text-red-600">{error}</span>
-  // if (articulos.error) return <span className="text-red-600">{articulos.error}</span>
-
   
   return (
     <div>
@@ -105,6 +100,10 @@ const Articulos = ({ session }) => {
           {
 
             loading ? <div className="w-full flex flex-col items-center"><Spinner /></div>
+              : error ? <div className="w-full flex flex-col items-center">
+                <Spinner />
+                <span className="text-red-600">{"Error al cargar los filtros"}</span> 
+                </div>
               : <FiltroArt datos={data} filtro={filtro}></FiltroArt>
 
           }
@@ -130,14 +129,6 @@ const Articulos = ({ session }) => {
             });
           }}/>
 
-        {/* <div className='w-[50px] h-[50px] rounded-full Degradado fixed bottom-0 right-0 flex justify-center items-center' onClick={() => {
-            window.scrollTo({
-              top: 0,
-              behavior: 'smooth'
-            });
-          }}
-        >
-        </div> */}
       </MenuPaginas>
     </div>
   );
