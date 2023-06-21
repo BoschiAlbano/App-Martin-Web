@@ -31,9 +31,9 @@ const Navegacion = ({ EsconderMenu, EsconderMenuPatalla }) => {
     }
 
     return (
-        <header className='flex flex-row items-center justify-end h-full'>
+        <header className='flex flex-row items-center justify-end h-full w-full '>
                 
-                <div className="flex place-content-center absolute py-1 px-1 left-0">
+                <div className="flex justify-start items-center left-0 w-full">
 
                     {/* Boton Menu  */}
                     <div className="w-[50px] h-[50px]  mx-1 text-4xl cursor-pointer transition-all duration-300 rounded-full hover:bg-gray-100 hover:text-gray-700 flex justify-center items-center md:hidden" onClick={() => EsconderMenu()}><IoMenuSharp /></div>
@@ -45,7 +45,7 @@ const Navegacion = ({ EsconderMenu, EsconderMenuPatalla }) => {
                 </div> 
                
 
-                <div className="flex justify-end h-full">
+                <div className="flex justify-end h-full  md:w-full w-auto">
 
                     {/* Botones Navegacion */}
                         <div className="items-center divide-x divide-gray-100 border-x border-gray-100 hidden sm:flex">
@@ -62,7 +62,7 @@ const Navegacion = ({ EsconderMenu, EsconderMenuPatalla }) => {
                             </span >
                             <span className="hidden sm:block">
                                 <button className="block h-16 font-[Merienda] border-b-4 border-transparent leading-[4rem] hover:border-current hover:text-white px-3" onClick={() => BtnSalir()}>
-                                    Cerrar Sessin
+                                    Cerrar Session
                                 </button>
                             </span>
                         </div>

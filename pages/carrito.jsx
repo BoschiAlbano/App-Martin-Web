@@ -132,48 +132,54 @@ const Carrito = ({ session }) => {
   
   return (
     <MenuPaginas user={session.user}>
-      <div className="ContenedorCarrito mt-[80px] bg-white grid grid-cols-1 shadow-xl py-6 px-3 place-items-center gap-2">
 
-        <h1 className="text-2xl font-[Merienda] hover:text-[#5E69F1] hover:border-b-[#5E69F1] border-b border-b-black w-full text-center">{loading ? "Tu Carrito" : `Tu Carrito (${store.length})`}</h1>
+      <div className='ContenedorCarrito bg-[#ffffffb0] h-screen'>
+        <div className="mt-[80px] bg-white grid grid-cols-1 shadow-xl py-6 px-3 place-items-center gap-2">
 
-        {loading ? <div className="w-full flex flex-col items-center"><Spinner /></div>
-          : store.map((item, index) => {
-            return (
-              <>
-                <ArticuloCarrito key={index} item={item} modificar={modificarCantidad} eliminar={eliminarArticulo} />
-              </>
-              
-            )
-          })
-        }
-          <div className="w-full flex flex-col justify-end items-end">
+          <h1 className="text-2xl font-[Merienda] hover:text-[#5E69F1] hover:border-b-[#5E69F1] border-b border-b-black w-full text-center">{loading ? "Tu Carrito" : `Tu Carrito (${store.length})`}</h1>
 
-            <div className={`filtro3 border-[2px] overflow-hidden flex justify-between rounded-xl m-1 border-[#EBEBEB] w-[200px] `}>
+          {loading ? <div className="w-full flex flex-col items-center"><Spinner /></div>
+            : store.map((item, index) => {
+              return (
+                <>
+                  <ArticuloCarrito key={index} item={item} modificar={modificarCantidad} eliminar={eliminarArticulo} />
+                </>
+                
+              )
+            })
+          }
+            <div className="w-full flex flex-col justify-end items-end">
 
-              <h1 className="Degradado py-2 px-4 text-xl">Total</h1>
+              <div className={`filtro3 border-[2px] overflow-hidden flex justify-between rounded-xl m-1 border-[#EBEBEB] w-[200px] `}>
 
-              <input className={`bg-[#ffffff] w-full focus:outline-none border-none px-3  text-2xl`} type={'text'} name={'keyword'} value={`$${total}`} onChange={() => { }} />
+                <h1 className="Degradado py-2 px-4 text-xl">Total</h1>
+
+                <input className={`bg-[#ffffff] w-full focus:outline-none border-none px-3  text-2xl`} type={'text'} name={'keyword'} value={`$${total}`} onChange={() => { }} />
+
+              </div>
+
+              <button onClick={() => GuardarYenviarPedido()} type='submit' className="Degradado w-[200px] h-[3rem] p-4 mb-4 group flex items-center overflow-hidden rounded text-white justify-center">
+
+                <div className="text-sm ml-4 font-medium font-[Merienda] transition-all group-hover:mr-1">
+                  Enviar Pedido
+                </div>
+
+                <div className=" translate-x-[8rem] transition-transform duration-300 group-hover:-translate-x-0 group-hover:mr-2 ">
+
+                  <IoSend className="h-5 w-5" />
+
+                </div>
+
+              </button>
 
             </div>
 
-            <button onClick={() => GuardarYenviarPedido()} type='submit' className="Degradado w-[200px] h-[3rem] p-4 mb-4 group flex items-center overflow-hidden rounded text-white justify-center">
+        </div>
 
-              <div className="text-sm ml-4 font-medium font-[Merienda] transition-all group-hover:mr-1">
-                Enviar Pedido
-              </div>
-
-              <div className=" translate-x-[8rem] transition-transform duration-300 group-hover:-translate-x-0 group-hover:mr-2 ">
-
-                <IoSend className="h-5 w-5" />
-
-              </div>
-
-            </button>
-
-          </div>
-
+        <div className="mt-[10px] bg-white grid grid-cols-1 shadow-xl py-6 px-3 place-items-center gap-2">
+          <h1>Una vez enviado el pedido, Estaremos en contacto para coordinar la entrega en un plazo de 24 hs.</h1>
+        </div>
       </div>
-
     </MenuPaginas>
   );
 }

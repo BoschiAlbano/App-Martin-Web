@@ -8,6 +8,7 @@ export const GET_ARTICULOS = gql`
             Descripcion
             EstaEliminado
             FotoUrl
+            Oferta
             PrecioVenta
             Rubro {
                 Id
@@ -42,6 +43,7 @@ export const GET_ARTICULOS_Filtro =gql`
         EstaEliminado
         FotoUrl
         PrecioVenta
+        Oferta
         PermiteStockNegativo
         Rubro {
         Id

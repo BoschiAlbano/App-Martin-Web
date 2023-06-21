@@ -28,7 +28,7 @@ const Index = () => {
                     className="translate-y-8 transform opacity-0 transition-all group-hover:translate-y-0 group-hover:opacity-100"
                   >
                     <p className="text-sm text-white">
-                      Descripcion
+                    
                     </p>
                   </div>
                 </div>
@@ -59,7 +59,7 @@ const Index = () => {
                     className="translate-y-8 transform opacity-0 transition-all group-hover:translate-y-0 group-hover:opacity-100"
                   >
                     <p className="text-sm text-white">
-                      Descripcion
+                      
                     </p>
                   </div>
                 </div>
@@ -90,7 +90,7 @@ const Index = () => {
                     className="translate-y-8 transform opacity-0 transition-all group-hover:translate-y-0 group-hover:opacity-100"
                   >
                     <p className="text-sm text-white">
-                      Descripcion
+                      
                     </p>
                   </div>
                 </div>
@@ -120,7 +120,7 @@ const Index = () => {
                     className="translate-y-8 transform opacity-0 transition-all group-hover:translate-y-0 group-hover:opacity-100"
                   >
                     <p className="text-sm text-white">
-                      Descripcion
+                      
                     </p>
                   </div>
                 </div>

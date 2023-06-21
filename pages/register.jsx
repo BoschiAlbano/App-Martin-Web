@@ -60,12 +60,13 @@ const Register = () => {
     return (
         <Layout title={"Register"}>
 
-            <div className='h[400px] flex flex-col items-center relative '>
+            <div className='flex flex-col items-center'>
+
                 <div>
-                    <h1 className="font-semibold text-[40px]">Register</h1>
+                    <h1 className="font-semibold mt-6 text-[40px]">Register</h1>
                 </div>
 
-                <form className='w-full' onSubmit={handleSubmit(onSubmit)}>
+                <form className='' onSubmit={handleSubmit(onSubmit)}>
 
                     <div className="flex flex-col items-center w-full">
 

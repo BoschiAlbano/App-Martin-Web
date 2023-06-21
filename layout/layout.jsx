@@ -12,19 +12,19 @@ const Layout = ({children, title}) => {
                 <link rel="icon" href="/favicon.ico" />
             </Head>
 
-            <div className=' flex flex-col justify-center items-center h-screen bg-blue-400 p-3'>
+            <div className='ContenedorLayout flex flex-col justify-center items-center h-screen bg-[#ffffff] p-0 sm:p-3'>
                 
                 {/* Contenedor */}
-                <div className=' neumorphismoLogin rounded-md overflow-hidden min-w-[50%] min-h-[50%]'>
+                <div className=' neumorphismoLogin rounded-none sm:rounded-md overflow-hidden bg-[#ffffffc0] w-[100%] h-[100%] lg:w-min-[65%] lg:w-[65%] lg:h-[65%] sm:w-min-[100%] sm:w-[100%] sm:h-[80%] shadow-2xl'>
                     
                     {/* Imagen */}
-                    <div className="bg-gradient-to-r from-blue-500 to-indigo-500 rounded-l-md flex flex-col justify-center items-center w-[auto] relative min-h-[200px]">
+                    <div className="bg-gradient-to-r from-blue-500 to-indigo-500 flex flex-col justify-center items-center w-[auto] relative min-h-[200px]">
                         <Image src={'/assets/layout.png'} layout="fill" objectFit='contain' alt="Distrinova" priority={true} className='p-4'/>
                     </div>
 
                     {/* Login y Register */}
-                    <div className='flex flex-col place-content-start sm:place-content-center sm:col-span-1 row-span-2 overflow-y-auto'>
-                        <div className='text-center relative mt-2 sm:mt-1 '>
+                    <div className='flex justify-center items-start sm:items-center sm:col-span-1 row-span-2 overflow-y-auto'>
+                        <div className='text-center  mt-2 sm:mt-1 '>
                             {children}
                         </div>
                     </div>

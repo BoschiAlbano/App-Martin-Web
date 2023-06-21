@@ -9,15 +9,6 @@ const ArticuloCarrito = ({item, modificar, eliminar}) => {
   const AumentarCantidad = (e) => {
     
 
-    if (e.target.value == '') {
-      Swal.fire({
-        icon: 'error',
-        title: 'No puede ser 0.',
-        timer: 2500
-      })
-      return
-    }
-
     if (e.target.value > item.Stock) {
       Swal.fire({
         icon: 'error',
@@ -44,7 +35,10 @@ const ArticuloCarrito = ({item, modificar, eliminar}) => {
     
     
             <label  className="stock flex items-center gap-2">
-              <span className="text-xl text-gray-600">Stock: {item.Stock}</span>
+              {
+                item.PermiteStockNegativo ? <span className="text-xl text-gray-600">Stock: ❗</span>: <span className="text-xl text-gray-600">Stock: {item.Stock}</span>
+              }
+              
             </label>
 
             <label  className="cantidad flex items-center gap-2">

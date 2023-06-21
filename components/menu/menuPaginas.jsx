@@ -58,7 +58,7 @@ export default function ({ user, children }) {
     /*[Items del menu horizontal]*/
     const datos = [
         { ruta: "/", nombre: "Home", icono: IoHomeOutline, subMenu: [] },
-        { ruta: "/Favoritos", nombre: "Favoritos", icono: IoNewspaperOutline, subMenu: [] },
+        // { ruta: "/Favoritos", nombre: "Favoritos", icono: IoNewspaperOutline, subMenu: [] },
         { ruta: "/articulos", nombre: "Articulos", icono: IoFastFoodOutline, subMenu: [] },
         { ruta: "/carrito", nombre: "Carrito", icono: IoCartOutline, subMenu: [] },
 
@@ -106,7 +106,7 @@ export default function ({ user, children }) {
                     <div className="w-[50px] h-[50px] mx-1 text-4xl cursor-pointer transition-all duration-300 rounded-full hover:bg-gray-100 hover:text-gray-700 flex justify-center items-center right-0" onClick={() => EsconderMenu()}><IoClose /></div>
                 </div>
                 
-                <header className="flex items-start justify-center mt-3 mb-2 py-1 px-1 left-0">
+                <header className="flex items-start justify-center mt-8 mb-2 py-1 px-1 left-0">
 
                     <Link href="/" className="transition ml-3 hover:rotate-2 hover:scale-110 focus:outline-none focus:ring" onClick={() => EsconderMenuPantalla()}>
                         <Image height={100} width={180} src={'/assets/layout.png'} alt={"Logo"} className="h-[auto] p-1" />
@@ -115,7 +115,7 @@ export default function ({ user, children }) {
                 </header>
 
 
-                <div className="flex flex-col justify-between h-full mt-2">
+                <div className="flex flex-col justify-between h-full mt-8">
 
                     <div className='flex flex-col' >
                         <ul id='ScrollMenu' className='overflow-y-auto'>
@@ -125,11 +125,11 @@ export default function ({ user, children }) {
                                     return (
 
                                         _item.subMenu.length == 0
-                                            ? <li key={i}>
+                                            ? <li className="my-4" key={i}>
                                                 <Link href={_item.ruta}>
-                                                    <div className="flex items-center text-black rounded-lg cursor-pointer hover:bg-gray-100 mx-3 my-1 hover:text-gray-700 transition-all duration-300" onClick={() => EsconderMenu()}>
+                                                    <div className=" border-b-2 border-l-2 border-[#ffffff88] flex items-center text-black rounded-lg cursor-pointer hover:bg-gray-100 mx-3 my-1 hover:text-gray-700 transition-all duration-300" onClick={() => EsconderMenu()}>
                                                         <_item.icono className=" text-4xl m-2 text-black p-1" />
-                                                        <h1 className="text-xl font-[Merienda] px-1 text-black">{_item.nombre}</h1>
+                                                        <h1 className="text-xl font-[Merienda] px-1 text-balck">{_item.nombre}</h1>
                                                     </div>
                                                 </Link>
                                             </li>
@@ -149,9 +149,9 @@ export default function ({ user, children }) {
 
 
                                 {/* Cerrar Sesion */}
-                                <div className="flex bg-gray-300 items-center text-black rounded-lg cursor-pointer hover:bg-transparent mx-1 my-1 hover:text-gray-700 transition-all duration-300 w-full" onClick={() => BtnSalir()}>
-                                    <Image className='text-4xl m-2 text-black p-1' src={'/assets/salir.png'} width={40} priority={true} height={40} alt={"Avatar de user"} />
-                                    <h1 className="text-xl px-1 font-[Merienda] text-black">Cerrar Sesion</h1>
+                                <div className="flex border-b-2 border-l-2 border-[#ffffff88] items-center text-black rounded-lg cursor-pointer hover:bg-transparent mx-1 my-1 hover:text-gray-700 transition-all duration-300 w-full" onClick={() => BtnSalir()}>
+                                    <Image className='text-4xl m-2 p-1' src={'/assets/salir.png'} width={40} priority={true} height={40} alt={"Avatar de user"} />
+                                    <h1 className="text-xl px-1 font-[Merienda] text-white">Cerrar Sesion</h1>
                                 </div>
                                 
                         </div>
@@ -162,7 +162,7 @@ export default function ({ user, children }) {
             
 
             {/* Contenedor */}
-            <main ref={MenuRef} className="z-[98] mt-[60px] relative" onClick={() => {EsconderMenuPantalla()}}>
+            <main ref={MenuRef} className="z-[98] relative" onClick={() => {EsconderMenuPantalla()}}>
                 <div className={`${open ? "w-full h-full bg-[rgba(0,0,0,0.3)] absolute z-[100]" : null}`}></div>
 
                 {children}

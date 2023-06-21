@@ -75,6 +75,7 @@ model Articulo {
   Descripcion          String              @db.VarChar(8000)
   Stock                Int
   PrecioVenta          Decimal              @db.Decimal(18, 2)
+  Oferta               Boolean              @default(false)
   EstaEliminado        Boolean
   PermiteStockNegativo Boolean              @default(false, map: "DF__Articulo__Permit__6383C8BA")
   FotoUrl              String?              @db.NVarChar(Max)

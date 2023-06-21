@@ -4,6 +4,8 @@
 
 const Publicas = {
     NEXT_PUBLIC_HOST: "https://distrinova.azurewebsites.net",
+    // NEXT_PUBLIC_HOST: "http://localhost:3000",
+
   };
   
   export default Publicas;

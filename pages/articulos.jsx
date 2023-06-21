@@ -4,7 +4,6 @@ import MenuPaginas from 'components/menu/menuPaginas';
 import { getSession } from 'next-auth/react'
 import Spinner from 'components/Spinner';
 import { useRubro, useArticuloFiltro } from 'components/prueba/articulos/hook'
-import Card from 'components/card/index'
 import styles from 'styles/ArticuloCard.module.css'
 import FiltroArt from 'components/filtroArt';
 import { useLocalStorage } from 'components/prueba/localStorage/hook';
@@ -12,44 +11,70 @@ import Swal from 'sweetalert2'
 
 import {FaArrowCircleUp} from 'react-icons/fa' 
 
+
+import TarjetaPremium from 'components/card/TarjetaPremium';
+
 const Articulos = ({ session }) => {
   const [value, setvalue] = useLocalStorage('Carrito', [])
 
   const AgregarCarrito = (articulo) => {
 
+    console.table(articulo);
+
     try {
 
       // Datos local Storage - id descripcion imagen cantidad precio
-      const { Id, Descripcion, FotoUrl, PrecioVenta, Stock } = articulo
+      const { Id, Descripcion, FotoUrl, PrecioVenta, Stock, PermiteStockNegativo } = articulo
       // buscar si ya existe el art y aumentar la cantidad
       const indice = value.findIndex(art => art.Id === articulo.Id)
 
       if (indice < 0) {
-        if (Stock == 0) {
-          return Swal.fire({
-            icon: 'error',
-            title: 'No hay Stock',
+
+        if (!PermiteStockNegativo) {
+          if (Stock == 0) {
+            return Swal.fire({
+              icon: 'error',
+              title: 'No hay Stock',
+              timer: 2500
+            })
+          }
+
+          // agregar
+          const Add = value
+          Add.push({ Id, Descripcion, FotoUrl, PrecioVenta, Cantidad: 1, Stock, PermiteStockNegativo})
+          setvalue(Add)
+
+          Swal.fire({
+            icon: 'success',
+            title: 'Agregando al Carrito...',
             timer: 2500
           })
+
+          return;
         }
+
         // agregar
         const Add = value
-        Add.push({ Id, Descripcion, FotoUrl, PrecioVenta, Cantidad: 1, Stock})
+        Add.push({ Id, Descripcion, FotoUrl, PrecioVenta, Cantidad: 1, Stock, PermiteStockNegativo})
         setvalue(Add)
+
+        Swal.fire({
+          icon: 'success',
+          title: 'Agregando al Carrito...',
+          timer: 2500
+        })
+        
       } else {
         // modificar cantidad
-        const actualizar = value
-        actualizar[indice].Cantidad += 1
-        setvalue(actualizar)
+        // const actualizar = value
+        // actualizar[indice].Cantidad += 1
+        // setvalue(actualizar)
+        Swal.fire({
+          icon: 'success',
+          title: 'El Articulo ya esta Agregado al Carrito de compras',
+          timer: 2500
+        })
       }
-
-      // Alerta
-
-      Swal.fire({
-        icon: 'success',
-        title: 'Agregando al Carrito...',
-        timer: 2500
-      })
 
     } catch (error) {
       console.log(error.message)
@@ -95,7 +120,7 @@ const Articulos = ({ session }) => {
       </Head>
 
       <MenuPaginas user={session.user}>
-        <div className=" w-[90%] ml-[5%] grid grid-cols-1">
+        <div className=" w-[90%] ml-[5%] grid grid-cols-1 mt-[60px]">
 
           {
 
@@ -113,12 +138,11 @@ const Articulos = ({ session }) => {
               : <div className={styles.contenedor_Articulos_Card}>
                 {dataArticulos.map((item, index) => {
                   return (
-                    <Card key={index} articulo={item} AgregarCarrito={AgregarCarrito} />
+                    <TarjetaPremium key={index} articulo={item} AgregarCarrito={AgregarCarrito} />
                   )
                 })}
               </div>
           }
-
         </div>
 
 

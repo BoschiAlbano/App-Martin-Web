@@ -67,9 +67,9 @@ export default function Login () {
     return (
         <Layout title={"Login"}>
 
-            <div className='flex flex-col items-center relative'>
+            <div className='flex flex-col items-center'>
                 <div>
-                    <h1 className="font-semibold  text-[40px]">Login</h1>
+                    <h1 className="font-semibold  mt-6 text-[40px]">Login</h1>
                 </div>
 
                 <form className='w-full' onSubmit={handleSubmit(onSubmit)}>
