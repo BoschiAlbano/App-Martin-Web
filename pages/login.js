@@ -69,7 +69,7 @@ export default function Login () {
 
             <div className='flex flex-col items-center'>
                 <div>
-                    <h1 className="font-semibold  mt-6 text-[40px]">Login</h1>
+                    <h1 className="font-semibold  mt-6 text-[40px]">Ingresar</h1>
                 </div>
 
                 <form className='w-full' onSubmit={handleSubmit(onSubmit)}>

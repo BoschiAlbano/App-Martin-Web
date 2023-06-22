@@ -141,10 +141,7 @@ const Carrito = ({ session }) => {
           {loading ? <div className="w-full flex flex-col items-center"><Spinner /></div>
             : store.map((item, index) => {
               return (
-                <>
-                  <ArticuloCarrito key={index} item={item} modificar={modificarCantidad} eliminar={eliminarArticulo} />
-                </>
-                
+                <ArticuloCarrito key={index} item={item} modificar={modificarCantidad} eliminar={eliminarArticulo} />
               )
             })
           }

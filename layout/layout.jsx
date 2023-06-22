@@ -1,6 +1,5 @@
 import Image from 'next/image';
 import React from 'react';
-import styles from 'styles/Layout.module.css'
 import Head from 'next/head';
 
 const Layout = ({children, title}) => {
@@ -23,7 +22,7 @@ const Layout = ({children, title}) => {
                     </div>
 
                     {/* Login y Register */}
-                    <div className='flex justify-center items-start sm:items-center sm:col-span-1 row-span-2 overflow-y-auto'>
+                    <div className='flex justify-center items-start sm:items-center sm:col-span-1 row-span-3 sm:row-span-2 overflow-y-auto'>
                         <div className='text-center  mt-2 sm:mt-1 '>
                             {children}
                         </div>

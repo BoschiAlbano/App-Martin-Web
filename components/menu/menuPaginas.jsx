@@ -127,7 +127,7 @@ export default function ({ user, children }) {
                                         _item.subMenu.length == 0
                                             ? <li className="my-4" key={i}>
                                                 <Link href={_item.ruta}>
-                                                    <div className=" border-b-2 border-l-2 border-[#ffffff88] flex items-center text-black rounded-lg cursor-pointer hover:bg-gray-100 mx-3 my-1 hover:text-gray-700 transition-all duration-300" onClick={() => EsconderMenu()}>
+                                                    <div className=" border-b-2 border-l-2 border-r-2 border-[#ffffff88] flex items-center text-black rounded-lg cursor-pointer hover:bg-gray-100 mx-3 my-1 hover:text-gray-700 transition-all duration-300" onClick={() => EsconderMenu()}>
                                                         <_item.icono className=" text-4xl m-2 text-black p-1" />
                                                         <h1 className="text-xl font-[Merienda] px-1 text-balck">{_item.nombre}</h1>
                                                     </div>
@@ -149,7 +149,7 @@ export default function ({ user, children }) {
 
 
                                 {/* Cerrar Sesion */}
-                                <div className="flex border-b-2 border-l-2 border-[#ffffff88] items-center text-black rounded-lg cursor-pointer hover:bg-transparent mx-1 my-1 hover:text-gray-700 transition-all duration-300 w-full" onClick={() => BtnSalir()}>
+                                <div className="flex border-b-2 border-l-2 border-r-2 border-[#ffffff88] items-center text-black rounded-lg cursor-pointer hover:bg-transparent mx-1 my-1 hover:text-gray-700 transition-all duration-300 w-full" onClick={() => BtnSalir()}>
                                     <Image className='text-4xl m-2 p-1' src={'/assets/salir.png'} width={40} priority={true} height={40} alt={"Avatar de user"} />
                                     <h1 className="text-xl px-1 font-[Merienda] text-white">Cerrar Sesion</h1>
                                 </div>

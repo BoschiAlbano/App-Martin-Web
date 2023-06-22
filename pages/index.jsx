@@ -18,9 +18,10 @@ export default function Home({ session }) {
 
       <MenuPaginas user={user}>
 
-        <Banner />
+      <Banner />
 
-        <Rubro/>
+      <Rubro/>
+
 
       </MenuPaginas>
     </div>
