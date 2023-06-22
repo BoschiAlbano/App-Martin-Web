@@ -6,6 +6,7 @@ import {useForm} from 'react-hook-form'
 import { HiAtSymbol, HiFingerPrint, HiUser } from "react-icons/hi";
 import styles from 'styles/Login.module.css'
 import Link from 'next/link';
+import Swal from 'sweetalert2';
 
 import Publicas from 'config';
 
@@ -37,23 +38,40 @@ const Register = () => {
         
         const res = await response.json()
 
-        
-        console.log(res)
-        console.log(data.email)
-
-        if(response.ok){
-            signIn('email', {
-                email: data.email,
-                redirect: false,
-                callbackUrl: Publicas.NEXT_PUBLIC_HOST,
+        if (response.ok) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Te registraste con éxito.',
+                timer: 2500
             })
-            console.log("Si se ejecuta el singIn email")
             router.push("/login")
         }else{
             //msj de error
+            Swal.fire({
+                icon: 'error',
+                title: res.msj,
+                timer: 2500
+            })
             serErrorNextAuth(res.msj)
-            console.log(res.msj)
+            // console.log(res.msj)
         }
+
+        // console.log(res)
+        // console.log(data.email)
+
+        // if(response.ok){
+        //     signIn('email', {
+        //         email: data.email,
+        //         redirect: false,
+        //         callbackUrl: Publicas.NEXT_PUBLIC_HOST,
+        //     })
+        //     console.log("Si se ejecuta el singIn email")
+        //     router.push("/login")
+        // }else{
+        //     //msj de error
+        //     serErrorNextAuth(res.msj)
+        //     console.log(res.msj)
+        // }
 
     }
 

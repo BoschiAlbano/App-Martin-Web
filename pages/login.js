@@ -2,11 +2,11 @@ import React, {useState, useEffect} from 'react';
 import { useRouter } from 'next/router';
 import { signIn, useSession } from 'next-auth/react';
 import Layout from '../layout/layout';
-import Image from 'next/image';
 import {useForm} from 'react-hook-form'
 import { HiAtSymbol, HiFingerPrint } from "react-icons/hi";
 import styles from 'styles/Login.module.css'
 import Link from 'next/link';
+import Swal from 'sweetalert2';
 
 import Publicas from 'config';
 
@@ -41,27 +41,35 @@ export default function Login () {
             redirect: false,
             callbackUrl: Publicas.NEXT_PUBLIC_HOST,
         }).then(response => {
-            console.log(response)
+            // console.log(response)
 
             if (!response.ok) {
-                console.log(response.error)
+                // console.log(response.error)
+                Swal.fire({
+                    icon: 'error',
+                    title: response.error,
+                    timer: 2500
+                })
                 serErrorNextAuth(response.error)
             }
-
-            return router.push("/")
-
+            
         }).catch(error => {
             console.log(error.message)
+            Swal.fire({
+                icon: 'error',
+                title: response.error,
+                timer: 2500
+            })
             serErrorNextAuth(error.message)
         })
     }
     const ReenviarCorreo = () => {
-        signIn('email', {
-            email: getValues('email'),
-            redirect: false,
-            callbackUrl: Publicas.NEXT_PUBLIC_HOST,
-        })
-        alert('Correo Reenviado, verifique su Email')
+        // signIn('email', {
+        //     email: getValues('email'),
+        //     redirect: false,
+        //     callbackUrl: Publicas.NEXT_PUBLIC_HOST,
+        // })
+        // alert('Correo Reenviado, verifique su Email')
     }
 
     return (
@@ -100,6 +108,7 @@ export default function Login () {
                 <div className="h-10 w-80">
                     <div className="flex flex-col items-center w-80 overflow-hidden pt-0 max-h-[25px] mt-5 absolute  ">
                         {(errors.email?.type === 'required' || errors.password?.type === 'required') && <p className="text-red-900">Complete todos los campos</p>}
+
                         {errorNextAuth && <p className="text-red-900">{errorNextAuth}</p>}
                     </div>
                 </div>

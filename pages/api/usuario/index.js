@@ -8,7 +8,7 @@ export default async function usuario(req,res){
     const {body, method} = req
 
 
-    console.log(body)
+    // console.log(body)
 
     switch (method) {
         case "POST":
@@ -35,7 +35,7 @@ export default async function usuario(req,res){
                         data: {...body, password: hashPass}
                     })
 
-                    console.log(userId)
+                    // console.log(userId)
                     
                     const account = await prisma.Account.create({
                         data: {

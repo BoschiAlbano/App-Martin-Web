@@ -56,9 +56,9 @@ export default NextAuth({
             throw new Error("Contraseña no es valida.");
           }
           // Email
-          if(Usuario.emailVerified === null){
-            throw new Error("Verifica el Email.");
-          }
+          // if(Usuario.emailVerified === null){
+          //   throw new Error("Verifica el Email.");
+          // }
 
           return Usuario;
 
