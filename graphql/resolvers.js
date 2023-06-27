@@ -45,8 +45,11 @@ export const resolvers = {
         // Marca
         GET_Marca: async () => {
             const Marca = await prisma.marca.findMany({
+                where: {
+                    EstaEliminado: false,
+                },
                 include: {
-                    Articulo: true
+                    Articulo: true,
                 }
             })
 
@@ -56,7 +59,8 @@ export const resolvers = {
 
             const Marca = await prisma.marca.findFirst({
                 where: {
-                    Id: args.id
+                    Id: args.id,
+                    EstaEliminado: false,
                 },
                 include: {
                     Articulo: {
@@ -72,15 +76,19 @@ export const resolvers = {
         // Rubro
         GET_Rubro: async () => {
             return await prisma.rubro.findMany({
+                where: {
+                    EstaEliminado: false
+                },
                 include: {
-                    Articulo: true
+                    Articulo: true,
                 }
             })
         },
         GET_Rubroid: async (root, args) => {
             return await prisma.rubro.findFirst({
                 where: {
-                    Id: args.id
+                    Id: args.id,
+                    EstaEliminado: false,
                 },
                 include: {
                     Articulo: true
@@ -90,16 +98,20 @@ export const resolvers = {
         // Articulo
         GET_Articulo: async () => {
             return await prisma.articulo.findMany({
+                where: {
+                    EstaEliminado: false,
+                },
                 include: {
                     Marca: true,
-                    Rubro: true
+                    Rubro: true,
                 }
             })
         },
         GET_Articuloid: async (root, args) => {
             return await prisma.articulo.findFirst({
                 where: {
-                    Id: args.id
+                    Id: args.id,
+                    EstaEliminado: false,
                 },
                 include: {
                     Rubro: true,
@@ -118,6 +130,7 @@ export const resolvers = {
                         Descripcion: {
                             contains: keyword
                         },
+                        EstaEliminado: false,
                     },
                     include: {
                         Marca: true,

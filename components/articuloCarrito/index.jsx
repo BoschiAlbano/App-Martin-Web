@@ -8,15 +8,22 @@ const ArticuloCarrito = ({item, modificar, eliminar}) => {
 
   const AumentarCantidad = (e) => {
     
+    console.log(item.PermiteStockNegativo)
 
-    if (e.target.value > item.Stock) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Stock Insuficiente.',
-        timer: 2500
-      })
-      return
+
+    if (!item.PermiteStockNegativo) {
+
+      if (e.target.value > item.Stock) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Stock Insuficiente.',
+          timer: 2500
+        })
+        return
+      }
+      
     }
+
 
     setcantidad(e.target.value)
 

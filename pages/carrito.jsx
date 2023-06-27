@@ -113,16 +113,23 @@ const Carrito = ({ session }) => {
 
     const indice = store.findIndex(art => art.Id === id);
     const actualizar = [...store];
-    if (actualizar[indice].Stock < cantidad) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Stock Insuficiente.',
-        timer: 2500
-      })
-      return
+
+    if (!actualizar[indice].PermiteStockNegativo) {
+
+      if (actualizar[indice].Stock < cantidad) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Stock Insuficiente.',
+          timer: 2500
+        })
+        return
+      }
+
     }
+
     actualizar[indice].Cantidad = cantidad;
     setValue(actualizar);
+
   }
 
   const eliminarArticulo = (id) => {
