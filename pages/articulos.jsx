@@ -108,7 +108,9 @@ const Articulos = ({ session }) => {
   }, [result]);
 
   const filtro = ({ keyword = '', rubro = null}) => {
+
     getData({ variables: { keyword, rubro: rubro == "Todo" ? null : rubro} })
+  
   }
   
   return (
