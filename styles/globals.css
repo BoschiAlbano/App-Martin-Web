@@ -133,8 +133,15 @@ body::-webkit-scrollbar-thumb{
 
 @media (max-width: 640px) {
   .neumorphismoLogin{
-    grid-template-rows: repeat(4, 1fr);
+    grid-template-rows: repeat(5, 1fr);
     grid-template-columns: repeat(1, 1fr);
+  }
+
+  .LayoutImg{
+    grid-row: 1/2;
+  }
+  .LayoutContenido{
+    grid-row: 2/6;
   }
 }
 
@@ -287,12 +294,16 @@ body::-webkit-scrollbar-thumb{
   background-color: #fff;
   position: relative;
   /* box-shadow: 0 25px 50px rgba(0,0,0,0.55); */
-  cursor: pointer;
-  transition: all .5s;
 }
 
-.card_box:hover {
-  transform: scale(1.1);
+.card_box:hover{
+  cursor: pointer;
+  animation:Zoom 0.5s linear both;
+  z-index: 200;
+}
+
+@keyframes Zoom {
+  100%{transform: scale(1.1);}
 }
 
 .card_box span {

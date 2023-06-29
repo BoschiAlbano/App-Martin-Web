@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client'
 import GraphQLBigInt from 'graphql-bigint'
+import moment from 'moment-timezone'
 
 const prisma = new PrismaClient()
 
@@ -195,16 +196,15 @@ export const resolvers = {
         }
     },
     Mutation: {
-        // usar en js 
+        // usar en js ✔
         ADD_Pedido: async (root, args, context) => {
 
             const { articulos, usuario } = args
 
             let _ListaArticulos = []
 
-            const tiempoTranscurrido = Date.now();
-            const hoy = new Date(tiempoTranscurrido);
-            console.log(hoy.toISOString());// ISO 8601 - formato para sql srver dateTime
+            const fecha = Date.now(); // milisegundos
+            const hoy = new Date(fecha); // formato ISO 8601  La "Z" al final indica que la fecha y hora están en la zona horaria UTC (Tiempo Universal Coordinado). Sql server Guardar
 
             let _pedido
             try {
@@ -292,23 +292,6 @@ export const resolvers = {
             } catch (error) {
                 throw new Error(`${error.message}`);
             }
-
-
-
-            console.log("Lista de articulos: ")
-            console.table(_ListaArticulos)
-
-            // const _nuevoPedido = await prisma.pedido.findUnique({
-            //     where: { Id: _pedido.Id },
-            //     include: {
-            //         User: true,
-            //         DetallePedido: {
-            //             include: {
-            //                 Articulo: true,
-            //             }
-            //         }
-            //     }
-            // })
 
             return _ListaArticulos
 
@@ -488,6 +471,10 @@ export const resolvers = {
                 if (!_rubro) { throw { message: `Error, El Rubro ${articulo.rubro} no existe`, } }
 
                 const cod = await prisma.articulo.findUnique({ where: { Codigo: articulo.codigo } })
+
+                console.table(articulo)
+
+
                 if (!cod) {
                     // Articulo no existe lo creo
                     const NewArticulo = await prisma.articulo.create({
@@ -504,7 +491,7 @@ export const resolvers = {
                             PermiteStockNegativo: articulo.permiteStockNegativo,
                         }
                     })
-    
+
                     return NewArticulo
 
                 }
@@ -522,7 +509,7 @@ export const resolvers = {
                         Stock: articulo.stock,
                         EstaEliminado: articulo.estaEliminado,
                         Oferta: articulo.oferta,
-                        FotoUrl: articulo.fotoUrl,
+                        FotoUrl: articulo.fotoUrl != "" ? articulo.fotoUrl : null,
                         PrecioVenta: articulo.precioVenta,
                         PermiteStockNegativo: articulo.permiteStockNegativo,
                     }
@@ -837,7 +824,7 @@ export const resolvers = {
     },
     BigInt: GraphQLBigInt,
     Pedido: {
-        Fecha: (root) => formatDate(root.Fecha)
+        Fecha: (root) => formatDate(root.Fecha) // cuando sale para c#
     },
     // Articulo: {
     //     id: (root) => root.Id
@@ -851,18 +838,22 @@ export const resolvers = {
 
 
 function formatDate(date) {
-
-    console.log(date)
-
+  
     var d = new Date(date),
         month = '' + (d.getMonth() + 1),
         day = '' + d.getDate(),
         year = d.getFullYear();
-
+  
     if (month.length < 2)
-        month = '0' + month;
+      month = '0' + month;
     if (day.length < 2)
-        day = '0' + day;
+      day = '0' + day;
+  
+    const options = { timeZone: 'America/Argentina/Buenos_Aires' }; // Establece la zona horaria de Argentina
+    const hora = d.toLocaleTimeString('es-ES', options);
+    const fecha = `${[year, month, day].join('-')} ${hora}`;
 
-    return `${[year, month, day].join('-')} ${d.toLocaleTimeString()}`;
-}
+  
+    return fecha;
+  }
+  

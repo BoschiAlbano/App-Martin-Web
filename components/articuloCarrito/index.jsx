@@ -34,7 +34,7 @@ const ArticuloCarrito = ({item, modificar, eliminar}) => {
         <div className="ArticuloCarro p-2 justify-items-center items-center hover:bg-slate-200">
     
             {/* Opitimizar imgane cuando tengas host de imgs */}
-            <img src={item.FotoUrl ?? "./assets/ProductoSinFoto.png"} alt={item.Descripcion} className="imagen" />
+            <img loading="lazy" src={item.FotoUrl ?? "./assets/ProductoSinFoto.png"} alt={item.Descripcion} className="imagen" />
     
             <p className='descripcion text-2xl text-gray-600'>{item.Descripcion}</p>
 

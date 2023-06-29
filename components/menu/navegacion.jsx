@@ -11,6 +11,8 @@ const Navegacion = ({ EsconderMenu, EsconderMenuPatalla }) => {
 
     const [store, setValue] = useLocalStorage('Carrito', [])
 
+    const [showWelcome, setshowWelcome] = useLocalStorage('showWelcome', false)
+
     const BtnSalir = () => {
 
         Swal.fire({
@@ -24,6 +26,7 @@ const Navegacion = ({ EsconderMenu, EsconderMenuPatalla }) => {
           }).then((result) => {
             if (result.isConfirmed) {
                 setValue([])
+                setshowWelcome(true)
                 signOut()
             }
           })

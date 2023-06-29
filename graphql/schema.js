@@ -113,10 +113,10 @@ export const typeDefs = gql`
     oferta: Boolean,
   }
 
-
   input Stock_Articulos {
     codigo: Int!,
     stock: Int!,
+    
   }
 
   input PrecioVenta_Articulos {
@@ -129,6 +129,7 @@ export const typeDefs = gql`
     ADD_Pedido(usuario: String!, articulos: [ArticuloPedido!]!): [Articulo],
     Delete_Pedido(Id: Int!): Pedido,
     Cancelar_Pedido(Id: Int!): Boolean,
+    
     # Articulo
     ADD_Articulo(articulo: ArticuloInput): Articulo,
     Update_Articulo(articulo: ArticuloInput!): Articulo,
@@ -145,6 +146,7 @@ export const typeDefs = gql`
     ADD_Rubro(Codigo: Int!, Descripcion: String!): Rubro,
     Update_Rubro(Codigo: Int!, Descripcion: String!): Rubro,
     Delete_Rubro(Codigo: Int!, EstaEliminado: Boolean!): Rubro,
+
   }
 
 `;

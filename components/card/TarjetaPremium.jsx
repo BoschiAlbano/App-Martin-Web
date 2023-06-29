@@ -14,7 +14,7 @@ const TarjetaPremium = ({ articulo, AgregarCarrito }) => {
 
                 <div className='flex flex-col justify-center items-center'>
                 {/* className="object-cover w-full h-auto transition duration-500 hover:scale-150" */}
-                    <img className="rounded-[0.5rem] h-[200px] object-cover" src={articulo.FotoUrl ?? "./assets/ProductoSinFoto.png"}alt={articulo.Descripcion}
+                    <img loading="lazy" className="rounded-[0.5rem] h-[200px] object-cover" src={articulo.FotoUrl ?? "./assets/ProductoSinFoto.png"}alt={articulo.Descripcion}
                     />
 
                     <p className="m-1 text-center text-xl font-medium text-gray-900">{articulo.Descripcion}</p>

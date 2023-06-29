@@ -35,16 +35,22 @@ export default function Login () {
 
     const onSubmit = async (data) => {
 
+        Swal.fire({
+            title: 'Enviando Solicitud...',
+            allowOutsideClick: false,
+            didOpen: () => {
+              Swal.showLoading(); // Mostrar el spinner de carga
+            }
+        });
+
         signIn('credentials', {
             email: data.email,
             password: data.password,
             redirect: false,
             callbackUrl: Publicas.NEXT_PUBLIC_HOST,
         }).then(response => {
-            // console.log(response)
 
             if (!response.ok) {
-                // console.log(response.error)
                 Swal.fire({
                     icon: 'error',
                     title: response.error,

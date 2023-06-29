@@ -9,6 +9,7 @@ const Index = () => {
           <div href="#" className={`${styles.box} ${styles.R1}`}>
             <span href="#" className="group relative h-full block bg-black w-full">
             <Image
+                loading= "lazy"
                 height={600}
                 width={600}
                 alt={"Medicamentos"}

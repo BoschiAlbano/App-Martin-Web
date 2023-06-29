@@ -28,6 +28,14 @@ const Register = () => {
 
         const {Cpassword, ...resto} = data
 
+        Swal.fire({
+            title: 'Enviando Solicitud...',
+            allowOutsideClick: false,
+            didOpen: () => {
+              Swal.showLoading(); // Mostrar el spinner de carga
+            }
+        });
+        
         const response = await fetch(`${Publicas.NEXT_PUBLIC_HOST}/api/usuario`, {
             method: "POST",
             body: JSON.stringify({image: "http://images7.memedroid.com/images/UPLOADED43/5385438d7a708.jpeg", ...resto}),
@@ -53,26 +61,7 @@ const Register = () => {
                 timer: 2500
             })
             serErrorNextAuth(res.msj)
-            // console.log(res.msj)
         }
-
-        // console.log(res)
-        // console.log(data.email)
-
-        // if(response.ok){
-        //     signIn('email', {
-        //         email: data.email,
-        //         redirect: false,
-        //         callbackUrl: Publicas.NEXT_PUBLIC_HOST,
-        //     })
-        //     console.log("Si se ejecuta el singIn email")
-        //     router.push("/login")
-        // }else{
-        //     //msj de error
-        //     serErrorNextAuth(res.msj)
-        //     console.log(res.msj)
-        // }
-
     }
 
     return (
@@ -81,7 +70,7 @@ const Register = () => {
             <div className='flex flex-col items-center'>
 
                 <div>
-                    <h1 className="font-semibold mt-6 text-[40px]">Registrarse</h1>
+                    <h1 className="font-semibold sm:mt-6 mt-0 text-[40px]">Registrarse</h1>
                 </div>
 
                 <form className='' onSubmit={handleSubmit(onSubmit)}>
@@ -140,14 +129,14 @@ const Register = () => {
                             </div>
 
 
-                        <input id={styles.btnLogin} className="Saltar cursor-pointer p-1 m-2 w-80 border-2 border-b-slate-300 rounded-[5px] text-[20px]" type={'submit'} value="Register"/>
+                        <input id={styles.btnLogin} className="Saltar cursor-pointer p-1 m-2 w-80 border-2 border-b-slate-300 rounded-[5px] text-[20px]" type={'submit'} value="Enviar"/>
                     </div>
                 </form>
 
                 <p className='mt-2'>Ya tienes una Cuenta? <Link className="text-blue-600" href={'/login'}>Ingresa a login</Link></p>
 
                 <div className="h-10 w-80">
-                    <div className='flex flex-col items-center w-80 overflow-hidden pt-0 max-h-[25px] mt-1 absolute  '>
+                    <div className='flex flex-col items-center w-80 overflow-hidden pt-0 max-h-[25px] mt-1 relative sm:absolute  '>
                         {(errors.name?.type === 'required' || errors.password?.type === 'required') && <p className=" text-red-900 ">Complete todos los campos</p>}
                         {(errors.Cpassword?.type === 'validate') && <p className=" text-red-900">La Password no coinciden</p>}
                         {errorNextAuth && <p className=" text-red-900">{errorNextAuth}</p>}

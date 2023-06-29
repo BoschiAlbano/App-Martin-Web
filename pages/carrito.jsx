@@ -17,6 +17,8 @@ const Carrito = ({ session }) => {
   const [loading, setLoading] = useState(true);
   const [total, setTotal] = useState(0)
 
+  // const [enviando, setEnviando] = useState(false);
+
   const showError = (error) => {
     if (error) {
 
@@ -38,9 +40,9 @@ const Carrito = ({ session }) => {
 
       Swal.fire({
         icon: 'success',
-        title: 'Pedido, Enviado.',
+        title: 'Pedido enviado exitosamente.',
         timer: 2500
-      })
+      });
 
       // Borrar Carrito
       setValue([])
@@ -48,15 +50,11 @@ const Carrito = ({ session }) => {
     }
   }
 
-  const [ crear ] = useAddPedidos(showError);
+  const [ crear ]= useAddPedidos(showError);
 
 
   useEffect(() => {
     setLoading(true);
-
-    // setTimeout(() => {
-    //   setLoading(false);
-    // }, 1000);
 
     if (store.length !== 0) {
       const tot = store.reduce((acumulador, item) => acumulador + (item.PrecioVenta * item.Cantidad), 0);
@@ -87,17 +85,15 @@ const Carrito = ({ session }) => {
 
       const datos = {articulos: Arts, usuario: session.user.email}
 
-      await crear({variables: datos})
+      Swal.fire({
+        title: 'Enviando pedido...',
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading(); // Mostrar el spinner de carga
+        }
+      });
 
-      // Enviar mail o wp
-      // let mensaje = 'Buenos dias Albano este es mi Carrito de Compras: \n'
-      // store.forEach((item) => {
-      //   mensaje += `${item.descripcion} = ${item.cantidad} unidad \n`
-      // });
-      // mensaje += `Total: ${total}`
-      // const numero = "3816206925";
-      // const url = `https://api.whatsapp.com/send?phone=${numero}&text=${encodeURIComponent(mensaje)}`;
-      // window.open(url, '_system');
+      await crear({variables: datos})
 
     } catch (error) {
       console.log(error.message)

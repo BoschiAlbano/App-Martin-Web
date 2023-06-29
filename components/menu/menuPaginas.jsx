@@ -8,6 +8,7 @@ import MenuDesplegable from 'components/menu/Submenu'
 import Navegacion from './navegacion';
 import { useLocalStorage } from 'components/prueba/localStorage/hook';
 import Swal from 'sweetalert2'
+import Head from 'next/head';
 
 export default function ({ user, children }) {
 
@@ -16,7 +17,22 @@ export default function ({ user, children }) {
     const MenuRef = useRef()
 
     const [store, setValue] = useLocalStorage('Carrito', [])
+    const [showWelcome, setshowWelcome] = useLocalStorage('showWelcome', false)
 
+
+    let tituto = "Distrinova"
+
+    useEffect(() => {
+
+        window.addEventListener('blur', () => {
+          document.title = '¡No te vayas! 😱'
+        })
+    
+        window.addEventListener('focus', () => {
+          document.title = tituto
+        })
+    
+    }, []);
 
     /*[Esconder el menu al presionar el boton menu]*/
     const EsconderMenu = () => {
@@ -86,6 +102,7 @@ export default function ({ user, children }) {
           }).then((result) => {
             if (result.isConfirmed) {
                 setValue([])
+                setshowWelcome(true)
                 signOut()
             }
           })
@@ -94,6 +111,12 @@ export default function ({ user, children }) {
 
     return (
         <>
+            <Head>
+            <title>{tituto}</title>
+            <meta name="description" content="Aplicacion Creada con nextJS" />
+            <link rel="icon" href="/assets/Icono.ico" />
+            </Head>
+
             {/* Encabezado */}
             <div className={`fixed w-full h-[60px] z-[99] top-0 ${background} mx-0`}>
                 <Navegacion EsconderMenu={EsconderMenu} EsconderMenuPatalla={EsconderMenuPantalla} />

@@ -33,6 +33,28 @@ export const useAddPedidos = (showError) => {
     return result
 }
 
+// export const useAddPedidos = (showError) => {
+//     const [cargando, setLoading] = useState(true); // Agregar estado loading
+  
+//     setLoading(true);
+
+//     const result = useMutation(NUEVA_PEDIDO, {
+//       refetchQueries: [{ query: GET_ARTICULOS_Filtro_Todo }],
+//       onCompleted: (completed) => {
+//         // console.log(completed);
+//         setLoading(false); // Establecer loading en false al completar
+//         showError(null);
+//       },
+//       onError: (error) => {
+//         setLoading(false); // Establecer loading en false en caso de error
+//         showError(error.graphQLErrors[0].message);
+//         // console.table(error);
+//       }
+//     });
+  
+//     return {cargando, crear: result[0]}; // Retornar loading junto con el resultado del hook
+// };
+  
 
 export const useDeletePedido = (showError) => {
     const result = useMutation(DELETE_PEDIDO, {
