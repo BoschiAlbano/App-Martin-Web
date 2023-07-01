@@ -11,13 +11,13 @@ const Layout = ({children, title}) => {
                 <link rel="icon" href="/assets/Icono.ico" />
             </Head>
 
-            <div className='ContenedorLayout flex flex-col justify-center items-center h-screen bg-[#ffffff] p-0 sm:p-3'>
+            <div className='sm:grid sm:place-items-center  m-auto h-screen p-0 sm:p-4'>
                 
                 {/* Contenedor */}
-                <div className=' neumorphismoLogin rounded-none sm:rounded-md overflow-hidden bg-[#ffffffc0] w-[100%] h-[100%] lg:w-min-[65%] lg:w-[65%] lg:h-[65%] sm:w-min-[100%] sm:w-[100%] sm:h-[80%] shadow-2xl'>
+                <div className='GrillaLayou rounded-none sm:rounded-md overflow-hidden bg-[#ffffffc0] min-h-[70%] shadow-2xl  lg:w-min-[65%] lg:w-[65%] sm:w-min-[100%] sm:w-[100%]'>
                     
                     {/* Imagen */}
-                    <div className="LayoutImg bg-gradient-to-r from-blue-500 to-indigo-500 flex flex-col justify-center items-center w-[auto] relative min-h-[180px]">
+                    <div className="LayoutImg bg-gradient-to-r from-blue-500 to-indigo-500 w-[auto] items-center  relative min-h-[180px]">
                         <Image src={'/assets/layout.png'} layout="fill" objectFit='contain' alt="Distrinova" priority={true} className='p-4'/>
                     </div>
 

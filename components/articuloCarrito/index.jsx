@@ -7,9 +7,14 @@ const ArticuloCarrito = ({item, modificar, eliminar}) => {
 
 
   const AumentarCantidad = (e) => {
-    
-    console.log(item.PermiteStockNegativo)
 
+    if (e.target.value) {
+      const parsedValue = parseFloat(e.target.value);
+      if (!Number.isInteger(parsedValue)) {
+        console.log("Decimal")
+        return;
+      }
+    }
 
     if (!item.PermiteStockNegativo) {
 
@@ -48,14 +53,14 @@ const ArticuloCarrito = ({item, modificar, eliminar}) => {
               
             </label>
 
-            <label  className="cantidad flex items-center gap-2">
-              <span className="text-xl text-gray-600">Cantidad</span>
+            <label  className="w-full cantidad flex flex-row justify-end items-center gap-2">
+              <span className="text-xl text-gray-600 ml-3">Cantidad</span>
 
               <input
                 type="number"
                 value={cantidad}
                 min={1}
-                max={item.Stock}
+                max={item.PermiteStockNegativo ? null : item.Stock}
                 onChange={(e) => AumentarCantidad(e)}
                 id={`FilterPriceFrom${item.Id}`}
                 className="w-full border border-gray-200 pl-3 hover:border-[#5E69F1] rounded-md shadow-sm focus:outline-none h-[2rem]"

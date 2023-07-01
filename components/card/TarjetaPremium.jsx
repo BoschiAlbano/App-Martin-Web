@@ -4,7 +4,7 @@ import {IoCartOutline} from 'react-icons/io5'
 const TarjetaPremium = ({ articulo, AgregarCarrito }) => {
     return (
         <div className="container mt-4">
-            <div className="card_box shadow-2xl">
+            <div className="card_box shadow-2xl Saltar">
                 
                 {
                     articulo.Oferta ? <span></span> : null

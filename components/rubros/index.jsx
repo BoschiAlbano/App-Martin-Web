@@ -6,15 +6,15 @@ const Index = () => {
     return (
         <div className={styles.Rubros}>
 
-          <div href="#" className={`${styles.box} ${styles.R1}`}>
+          <div href="#" id='RubrosImg' className={`${styles.box} ${styles.R1}`}>
             <span href="#" className="group relative h-full block bg-black w-full">
             <Image
                 loading= "lazy"
-                height={600}
-                width={600}
+                layout="fill"
                 alt={"Medicamentos"}
                 src="/assets/Medicamentos.jpg"
                 className="absolute inset-0 h-full w-full object-cover opacity-75 transition-opacity group-hover:opacity-50"
+
               />
 
               <div className="relative p-8 h-full">
@@ -38,11 +38,10 @@ const Index = () => {
 
           </div>
 
-          <div href="#" className={`${styles.box} ${styles.R2}`}>
+          <div href="#" id='RubrosImg' className={`${styles.box} ${styles.R2}`}>
             <span href="#" className="group relative h-full block bg-black w-full">
               <Image
-                height={600}
-                width={600}
+                layout="fill"
                 alt={"Descartables"}
                 src="/assets/Descartables.jpg"
                 className="absolute inset-0 h-full w-full object-cover opacity-75 transition-opacity group-hover:opacity-50"
@@ -69,11 +68,10 @@ const Index = () => {
 
           </div>
 
-          <div href="#" className={`${styles.box} ${styles.R3}`}>
+          <div href="#" id='RubrosImg' className={`${styles.box} ${styles.R3}`}>
             <span href="#" className="group relative h-full block bg-black w-full">
             <Image
-                height={600}
-                width={600}
+                layout="fill"
                 alt={"Cigarrillos"}
                 src="/assets/Cigarros.jpg"
                 className="absolute inset-0 h-full w-full object-cover opacity-75 transition-opacity group-hover:opacity-50"
@@ -99,11 +97,10 @@ const Index = () => {
             </span>
           </div>
 
-          <div href="#" className={`${styles.box} ${styles.R4}`}>
+          <div href="#"  id='RubrosImg'className={`${styles.box} ${styles.R4}`}>
             <span href="#" className="group relative h-full block bg-black w-full">
             <Image
-                height={600}
-                width={600}
+                layout="fill"
                 alt={"Golosinas"}
                 src="/assets/Golosinas.jpg"
                 className="absolute inset-0 h-full w-full object-cover opacity-75 transition-opacity group-hover:opacity-50"
