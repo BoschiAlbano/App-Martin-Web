@@ -1,13 +1,9 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { HiSearch } from "react-icons/hi";
 
 const FiltroArt = ({ datos, filtro }) => {
   const [DatosFiltro, setDatosFiltro] = useState({ keyword: "", rubro: null});
   const botonRef = useRef(null);
-
-  useEffect(() => {
-    console.log(datos)
-  }, []);
 
   const selectChange = (e) => {
     setDatosFiltro({ ...DatosFiltro, [e.target.name]: e.target.value });

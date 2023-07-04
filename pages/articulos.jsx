@@ -34,46 +34,33 @@ const Articulos = ({ session }) => {
   const AgregarCarrito = (articulo) => {
 
     try {
-      const { Id, Descripcion, FotoUrl, PrecioVenta, Stock, PermiteStockNegativo } = articulo;
+      const { Stock, PermiteStockNegativo } = articulo;
       const indice = value.findIndex((art) => art.Id === articulo.Id);
 
-      if (indice < 0) {
-        if (!PermiteStockNegativo) {
-          if (Stock === 0) {
-            return Swal.fire({
-              icon: 'error',
-              title: 'No hay Stock',
-              timer: 2500
-            });
-          }
-
-          const Add = value.concat({ Id, Descripcion, FotoUrl, PrecioVenta, Cantidad: 1, Stock, PermiteStockNegativo });
-          setValue(Add);
-
-          return Swal.fire({
-            icon: 'success',
-            title: 'Agregando al Carrito...',
-            timer: 2500
-          });
-        }
-
-        const Add = value.concat({ Id, Descripcion, FotoUrl, PrecioVenta, Cantidad: 1, Stock, PermiteStockNegativo });
-        setValue(Add);
-
-        Swal.fire({
-          icon: 'success',
-          title: 'Agregando al Carrito...',
-          timer: 2500
-        });
-      } else {
-        Swal.fire({
+      if (indice > 0) {
+        return Swal.fire({
           icon: 'success',
           title: 'El Articulo ya esta Agregado al Carrito de compras',
           timer: 2500
         });
       }
+
+      if (!PermiteStockNegativo) {
+        if (Stock === 0) {
+          return Swal.fire({
+            icon: 'error',
+            title: 'No hay Stock',
+            timer: 2500
+          });
+        }
+
+        Agregar(articulo)
+
+      }
+
+      Agregar(articulo)
+
     } catch (error) {
-      console.log(error.message);
       Swal.fire({
         icon: 'error',
         title: 'Se Produjo un error Grabe.',
@@ -81,6 +68,20 @@ const Articulos = ({ session }) => {
       });
     }
   };
+
+  const Agregar = (articulo) => {
+
+    const { Id, Descripcion, FotoUrl, PrecioVenta, Stock, PermiteStockNegativo } = articulo;
+
+    const Add = value.concat({ Id, Descripcion, FotoUrl, PrecioVenta, Cantidad: 1, Stock, PermiteStockNegativo });
+    setValue(Add);
+
+    return Swal.fire({
+      icon: 'success',
+      title: 'Agregado al Carrito...',
+      timer: 2500
+    });
+  }
 
   const scrollToTop = () => {
     window.scrollTo({
@@ -120,7 +121,7 @@ const Articulos = ({ session }) => {
         </div>
 
         <FaArrowCircleUp
-          className="Saltar w-[45px] h-[45px] m-2 cursor-pointer rounded-full z-[88] text-[rgb(59,130,246)] fixed bottom-0 right-0 flex justify-center items-center"
+          className="Saltar w-[45px] h-[45px] m-2 cursor-pointer rounded-full z-[300] text-[rgb(59,130,246)] fixed bottom-0 right-0 flex justify-center items-center"
           onClick={scrollToTop}
         />
       </MenuPaginas>

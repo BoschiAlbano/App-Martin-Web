@@ -1,7 +1,28 @@
-import React from 'react';
+import React, { useState, useEffect} from 'react';
 import {IoCartOutline} from 'react-icons/io5'
 
 const TarjetaPremium = ({ articulo, AgregarCarrito }) => {
+
+
+    const [isSmallScreen, setIsSmallScreen] = useState(false);
+
+    useEffect(() => {
+      const handleResize = () => {
+        setIsSmallScreen(window.innerWidth < 640); // Ajusta el tamaño de pantalla según tus necesidades
+      };
+  
+      // Suscribirse al evento de cambio de tamaño de la ventana
+      window.addEventListener('resize', handleResize);
+  
+      // Limpia el evento al desmontar el componente
+      return () => {
+        window.removeEventListener('resize', handleResize);
+      };
+    }, []);
+  
+    const groupClass = isSmallScreen ? '' : 'group';
+
+
     return (
         <div className="container mt-4">
             <div className="card_box shadow-2xl Saltar">
@@ -34,7 +55,7 @@ const TarjetaPremium = ({ articulo, AgregarCarrito }) => {
                     {/* Boton */}
                     <div className="mt-4">
 
-                        <button onClick={() => AgregarCarrito(articulo)} type="button" className="Degradado w-full h-[3rem] p-4 mb-4 group flex items-center overflow-hidden rounded text-white justify-center">
+                        <button onClick={() => AgregarCarrito(articulo)} type="button" className={`Degradado w-full h-[3rem] p-4 mb-4 ${groupClass} flex items-center overflow-hidden rounded text-white justify-center`}>
 
                             <div className="text-sm ml-4 font-medium font-[Merienda] transition-all group-hover:mr-1">
                                 Agregar
