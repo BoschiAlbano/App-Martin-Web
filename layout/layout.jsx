@@ -7,7 +7,7 @@ const Layout = ({children, title}) => {
         <>
             <Head>
                 <title>{title}</title>
-                <meta name="description" content="Aplicacion Creada con nextJS" />
+                <meta name="description" content="Distrinova, Tu destino de compras mayoristas en linea." />
                 <link rel="icon" href="/assets/Icono.ico" />
             </Head>
 
