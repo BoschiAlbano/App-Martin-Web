@@ -1,27 +1,26 @@
-import Head from 'next/head'
 import { getSession } from 'next-auth/react'
 import MenuPaginas from 'components/menu/menuPaginas'
 import Banner from 'components/banner/banner'
 import Rubro from 'components/rubros/index'
-import { useEffect, useState} from 'react'
+import { useEffect} from 'react'
 import { useLocalStorage } from 'components/prueba/localStorage/hook';
-
 import Swal from 'sweetalert2';
-
+import { request } from 'graphql-request' 
 
 export default function Home({ session }) {
 
-  const { user } = session
+  const { name, medicamento } = session
+
+  console.log(session)
 
   const [store, setValue] = useLocalStorage('showWelcome', true)
-
 
   useEffect(() => {
     if (store) {
       Swal.fire({
         icon: 'info',
         title: 'Distrinova',
-        html: `Hola ${user.name} !!! Bienvenido a nuestra pagina web.`,
+        html: `Hola ${name} !!! Bienvenido a nuestra pagina web.`,
         allowOutsideClick: false,
         didOpen: () => {
           Swal.hideLoading();
@@ -35,13 +34,18 @@ export default function Home({ session }) {
   return (
     <div>
 
-      <MenuPaginas user={user}>
-
-      <Banner />
-
-      <Rubro/>
+      <MenuPaginas user={session}>
 
 
+        <Banner/>
+
+        {/* <Carousel/> */}
+
+        {
+          medicamento ? <Rubro medicamento={true}/> : <Rubro medicamento={false}/>
+        }
+
+      
       </MenuPaginas>
     </div>
 
@@ -65,13 +69,54 @@ export async function getServerSideProps(context) {
 
   if (session?.error) {
     console.log(session.error)
+    return;
   }
 
-  console.log(session)
+  const query = `
+  query GetUser($email: String!) {
+    GetUser(email: $email) {
+      id
+      name
+      apellido
+      DNI
+      telefono
+      direccion
+      medicamento
+    }
+  }
+  `;
+
+  const variables = {
+    email: "Boschi.Albano.Jose@gmail.com",
+  };
+
+  const data = await request(`${process.env.NEXTAUTH_URL}/api/graphql`, query, variables);
+
+  // busco el usuario.
+  console.log("Datos de Usuario:")
+  console.log(data.GetUser)
+
+  if (!data.GetUser) {
+
+    context.res.setHeader('Set-Cookie', [
+      'next-auth.session-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT',
+      'next-auth.callback-url=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT',
+      'next-auth.csrf-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT',
+      // Agrega más sentencias 'Set-Cookie' para cada cookie que desees borrar
+    ]);
+
+    return {
+      redirect: {
+        destination: '/login',
+        permanent: false
+      }
+    }
+
+  }
 
   return {
     props: { 
-      session
+      session: data.GetUser
     }
   }
 }

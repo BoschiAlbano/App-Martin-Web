@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import Head from 'next/head';
 import MenuPaginas from 'components/menu/menuPaginas';
 import { getSession } from 'next-auth/react';
 import Spinner from 'components/Spinner';
@@ -8,26 +7,36 @@ import styles from 'styles/ArticuloCard.module.css';
 import FiltroArt from 'components/filtroArt';
 import { useLocalStorage } from 'components/prueba/localStorage/hook';
 import Swal from 'sweetalert2';
-import { FaArrowCircleUp } from 'react-icons/fa';
 import TarjetaPremium from 'components/card/TarjetaPremium';
+import { request } from 'graphql-request' 
 
 const Articulos = ({ session }) => {
   const [value, setValue] = useLocalStorage('Carrito', []);
   const [dataArticulos, setDataArticulos] = useState(null);
-  const { data, loading, error } = useRubro();
+ 
+  const [dataRubro, setDataRubro] = useState(null);
+
+
   const [getData, result] = useArticuloFiltro();
+  const [getRubro, resultRubro] = useRubro();
 
   useEffect(() => {
+    // Aqui
     getData({ variables: { keyword: '', rubro: null } });
+    getRubro({ variables: { medicamento: session.medicamento } })
   }, []);
 
   useEffect(() => {
     if (result.data) {
       setDataArticulos(result.data.FILTRO_Articulo);
     }
-  }, [result]);
+    if (resultRubro.data) {
+      setDataRubro(resultRubro.data.GET_Rubro)
+    }
+  }, [result, resultRubro]);
 
   const filtro = ({ keyword = '', rubro = null }) => {
+    //
     getData({ variables: { keyword, rubro: rubro === 'Todo' ? null : rubro } });
   };
 
@@ -83,29 +92,21 @@ const Articulos = ({ session }) => {
     });
   }
 
-  const scrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth'
-    });
-  };
+
 
   return (
     <div>
-      <MenuPaginas user={session.user}>
+      <MenuPaginas user={session}>
         <div className="w-[90%] ml-[5%] grid grid-cols-1 mt-[60px]">
-          {loading ? (
+
+          {
+            dataRubro === null ? 
             <div className="w-full flex flex-col items-center">
               <Spinner />
             </div>
-          ) : error ? (
-            <div className="w-full flex flex-col items-center">
-              <Spinner />
-              <span className="text-red-600">Error al cargar los filtros</span>
-            </div>
-          ) : (
-            <FiltroArt datos={data} filtro={filtro} />
-          )}
+            :
+            <FiltroArt datos={dataRubro} filtro={filtro} />
+          }
 
           {dataArticulos === null ? (
             <div className="w-full flex flex-col items-center">
@@ -120,10 +121,7 @@ const Articulos = ({ session }) => {
           )}
         </div>
 
-        <FaArrowCircleUp
-          className="Saltar w-[45px] h-[45px] m-2 cursor-pointer rounded-full z-[300] text-[rgb(59,130,246)] fixed bottom-0 right-0 flex justify-center items-center"
-          onClick={scrollToTop}
-        />
+
       </MenuPaginas>
     </div>
   );
@@ -132,22 +130,68 @@ const Articulos = ({ session }) => {
 export default Articulos;
 
 export async function getServerSideProps(context) {
-  const session = await getSession(context);
 
+  const session = await getSession(context)
+  
   if (!session) {
     return {
       redirect: {
         destination: '/login',
         permanent: false
       }
-    };
+    }
   }
 
   if (session?.error) {
-    console.log(session.error);
+    console.log(session.error)
   }
 
-  return {
-    props: { session }
+  const query = `
+  query GetUser($email: String!) {
+    GetUser(email: $email) {
+      id
+      name
+      apellido
+      DNI
+      telefono
+      direccion
+      medicamento
+    }
+  }
+  `;
+
+  const variables = {
+    email: "Boschi.Albano.Jose@gmail.com",
   };
+
+  const data = await request(`${process.env.NEXTAUTH_URL}/api/graphql`, query, variables);
+
+  // busco el usuario.
+  console.log("Datos de Usuario:")
+  console.log(data.GetUser)
+
+  if (!data.GetUser) {
+
+    context.res.setHeader('Set-Cookie', [
+      'next-auth.session-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT',
+      'next-auth.callback-url=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT',
+      'next-auth.csrf-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT',
+      // Agrega más sentencias 'Set-Cookie' para cada cookie que desees borrar
+    ]);
+
+    return {
+      redirect: {
+        destination: '/login',
+        permanent: false
+      }
+    }
+    
+  }
+
+
+  return {
+    props: { 
+      session: data.GetUser
+    }
+  }
 }

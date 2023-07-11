@@ -16,6 +16,7 @@
     "bcrypt": "^5.1.0",
     "graphql": "^16.6.0",
     "graphql-bigint": "^1.0.0",
+    "graphql-request": "^6.1.0",
     "micro-cors": "^0.1.1",
     "moment-timezone": "^0.5.43",
     "next": "13.0.5",

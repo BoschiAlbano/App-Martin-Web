@@ -2,15 +2,19 @@ import React from 'react';
 import styles from 'styles/Home.module.css'
 import Image from 'next/image'
 
-const Index = () => {
-    return (
-        <div className={styles.Rubros}>
+const Index = ({ medicamento }) => {
+  return (
+    <div className={styles.Rubros}>
 
+      {
+        medicamento ?
           <div href="#" id='RubrosImg' className={`${styles.box} ${styles.R1}`}>
             <span href="#" className="group relative h-full block bg-black w-full">
-            <Image
-                loading= "lazy"
-                layout="fill"
+              <Image
+                loading="lazy"
+                width={700}
+                height={700}
+                style={{ objectFit: "cover" }}
                 alt={"Medicamentos"}
                 src="/assets/Medicamentos.jpg"
                 className="absolute inset-0 h-full w-full object-cover opacity-75 transition-opacity group-hover:opacity-50"
@@ -29,7 +33,7 @@ const Index = () => {
                     className="translate-y-8 transform opacity-0 transition-all group-hover:translate-y-0 group-hover:opacity-100"
                   >
                     <p className="text-sm text-white">
-                    
+
                     </p>
                   </div>
                 </div>
@@ -37,14 +41,18 @@ const Index = () => {
             </span>
 
           </div>
-
-          <div href="#" id='RubrosImg' className={`${styles.box} ${styles.R2}`}>
+          :
+          <div href="#" id='RubrosImg' className={`${styles.box} ${styles.R1}`}>
             <span href="#" className="group relative h-full block bg-black w-full">
               <Image
-                layout="fill"
-                alt={"Descartables"}
-                src="/assets/Descartables.jpg"
-                className="absolute inset-0 h-full w-full object-cover opacity-75 transition-opacity group-hover:opacity-50"
+                loading="lazy"
+                width={700}
+                height={700}
+                style={{ objectFit: "cover" }}
+                alt={"Articulos Varios"}
+                src="/assets/Articulos_Varios.png"
+                className="absolute inset-0 h-full w-full opacity-75 transition-opacity group-hover:opacity-50"
+
               />
 
               <div className="relative p-8 h-full">
@@ -52,14 +60,14 @@ const Index = () => {
                   Rubro
                 </p>
 
-                <p className="text-2xl font-bold text-white">Descartables</p>
+                <p className="text-2xl font-bold text-white">Articulos Varios</p>
 
                 <div className="h-full mt-6">
                   <div
                     className="translate-y-8 transform opacity-0 transition-all group-hover:translate-y-0 group-hover:opacity-100"
                   >
                     <p className="text-sm text-white">
-                      
+
                     </p>
                   </div>
                 </div>
@@ -67,67 +75,107 @@ const Index = () => {
             </span>
 
           </div>
+      }
 
-          <div href="#" id='RubrosImg' className={`${styles.box} ${styles.R3}`}>
-            <span href="#" className="group relative h-full block bg-black w-full">
-            <Image
-                layout="fill"
-                alt={"Cigarrillos"}
-                src="/assets/Cigarros.jpg"
-                className="absolute inset-0 h-full w-full object-cover opacity-75 transition-opacity group-hover:opacity-50"
-              />
+      <div href="#" id='RubrosImg' className={`${styles.box} ${styles.R2}`}>
+        <span href="#" className="group relative h-full block bg-black w-full">
+          <Image
+            width={700}
+            height={700}
+            style={{ objectFit: "cover" }}
+            loading="lazy"
+            alt={"Descartables"}
+            src="/assets/Descartables.jpg"
+            className="absolute inset-0 h-full w-full opacity-75 transition-opacity group-hover:opacity-50"
+          />
 
-              <div className="relative p-8 h-full">
-                <p className="text-sm font-medium uppercase tracking-widest text-pink-500">
-                  Rubro
+          <div className="relative p-8 h-full">
+            <p className="text-sm font-medium uppercase tracking-widest text-pink-500">
+              Rubro
+            </p>
+
+            <p className="text-2xl font-bold text-white">Descartables</p>
+
+            <div className="h-full mt-6">
+              <div
+                className="translate-y-8 transform opacity-0 transition-all group-hover:translate-y-0 group-hover:opacity-100"
+              >
+                <p className="text-sm text-white">
+
                 </p>
-
-                <p className="text-2xl font-bold text-white">Cigarrillos</p>
-
-                <div className="h-full mt-6">
-                  <div
-                    className="translate-y-8 transform opacity-0 transition-all group-hover:translate-y-0 group-hover:opacity-100"
-                  >
-                    <p className="text-sm text-white">
-                      
-                    </p>
-                  </div>
-                </div>
               </div>
-            </span>
+            </div>
           </div>
+        </span>
 
-          <div href="#"  id='RubrosImg'className={`${styles.box} ${styles.R4}`}>
-            <span href="#" className="group relative h-full block bg-black w-full">
-            <Image
-                layout="fill"
-                alt={"Golosinas"}
-                src="/assets/Golosinas.jpg"
-                className="absolute inset-0 h-full w-full object-cover opacity-75 transition-opacity group-hover:opacity-50"
-              />
+      </div>
 
-              <div className="relative p-8 h-full">
-                <p className="text-sm font-medium uppercase tracking-widest text-pink-500">
-                  Rubro
+      <div href="#" id='RubrosImg' className={`${styles.box} ${styles.R3}`}>
+        <span href="#" className="group relative h-full block bg-black w-full">
+          <Image
+            width={700}
+            height={700}
+            style={{ objectFit: "cover" }}
+            loading="lazy"
+            alt={"Cigarrillos"}
+            src="/assets/Cigarros.jpg"
+            className="absolute inset-0 h-full w-full opacity-75 transition-opacity group-hover:opacity-50"
+          />
+
+          <div className="relative p-8 h-full">
+            <p className="text-sm font-medium uppercase tracking-widest text-pink-500">
+              Rubro
+            </p>
+
+            <p className="text-2xl font-bold text-white">Cigarrillos</p>
+
+            <div className="h-full mt-6">
+              <div
+                className="translate-y-8 transform opacity-0 transition-all group-hover:translate-y-0 group-hover:opacity-100"
+              >
+                <p className="text-sm text-white">
+
                 </p>
-
-                <p className="text-2xl font-bold text-white">Golocinas</p>
-
-                <div className="h-full mt-6">
-                  <div
-                    className="translate-y-8 transform opacity-0 transition-all group-hover:translate-y-0 group-hover:opacity-100"
-                  >
-                    <p className="text-sm text-white">
-                      
-                    </p>
-                  </div>
-                </div>
               </div>
-            </span>
+            </div>
           </div>
+        </span>
+      </div>
 
-        </div>
-    );
+      <div href="#" id='RubrosImg' className={`${styles.box} ${styles.R4}`}>
+        <span href="#" className="group relative h-full block bg-black w-full">
+          <Image
+            width={700}
+            height={700}
+            style={{ objectFit: "cover" }}
+            alt={"Golosinas"}
+            loading="lazy"
+            src="/assets/Golosinas.jpg"
+            className="absolute inset-0 h-full w-full opacity-75 transition-opacity group-hover:opacity-50"
+          />
+
+          <div className="relative p-8 h-full">
+            <p className="text-sm font-medium uppercase tracking-widest text-pink-500">
+              Rubro
+            </p>
+
+            <p className="text-2xl font-bold text-white">Golocinas</p>
+
+            <div className="h-full mt-6">
+              <div
+                className="translate-y-8 transform opacity-0 transition-all group-hover:translate-y-0 group-hover:opacity-100"
+              >
+                <p className="text-sm text-white">
+
+                </p>
+              </div>
+            </div>
+          </div>
+        </span>
+      </div>
+
+    </div>
+  );
 }
 
 export default Index;

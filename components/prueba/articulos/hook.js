@@ -7,8 +7,10 @@ export const useArticulos = () => {
     return useQuery(GET_ARTICULOS)
 }
 
+// Query con parametros
 export const useRubro = () => {
-    return useQuery(GET_RUBRO)
+    const result = useLazyQuery(GET_RUBRO)
+    return result // devuelve un array con dos posiciones
 }
 
 // Query con parametros

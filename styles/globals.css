@@ -55,7 +55,9 @@ body{
 
 }
 .DegradadoTransparente{
+  /* background: linear-gradient(90deg, #3b83f6d5 0%, #6365f1d7 100%); */
   background: linear-gradient(90deg, #3b83f6d5 0%, #6365f1d7 100%);
+
   transition-property: all;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 300ms;
@@ -343,7 +345,11 @@ body::-webkit-scrollbar-thumb{
 
 
 #RubrosImg{
-  min-height: 200px;
+  min-height: 300px;
 }
 
 /* Spinner */
+
+.oculto {
+  transform: translateY(100%);
+}

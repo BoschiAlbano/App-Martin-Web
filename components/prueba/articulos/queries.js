@@ -23,10 +23,12 @@ export const GET_ARTICULOS = gql`
 `
 
 export const GET_RUBRO = gql`
-    query Get_Rubro_Marca {
-    GET_Rubro {
+    query GetUser($medicamento: Boolean!) {
+    GET_Rubro(Medicamento: $medicamento) {
         Id
+        Codigo
         Descripcion
+        EstaEliminado
     }
     }
 `

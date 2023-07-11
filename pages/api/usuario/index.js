@@ -32,7 +32,7 @@ export default async function usuario(req,res){
                 try {
                     
                     const userId = await prisma.User.create({
-                        data: {...body, password: hashPass}
+                        data: {...body, password: hashPass, medicamento: false}
                     })
 
                     // console.log(userId)

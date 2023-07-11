@@ -16,6 +16,7 @@ export const typeDefs = gql`
     DNI: String,
     telefono: String,
     direccion: String,
+    medicamento: Boolean,
     Pedido: [Pedido]
   }
 
@@ -76,13 +77,13 @@ export const typeDefs = gql`
 
   type Query {
     # Usuario
-    GetUser(name: String!): User,
-    GetUsers(Isverificado: Verificado): [User],
+    GetUser(email: String!): User,
+    GetUsers: [User],
     # Marca 
     GET_Marca: [Marca],
     GET_Marcaid(id: BigInt!): Marca,
     # Rubro 
-    GET_Rubro: [Rubro],
+    GET_Rubro(Medicamento: Boolean!): [Rubro],
     GET_Rubroid(id: BigInt!): Rubro ,
     # Articulo 
     GET_Articulo: [Articulo],
@@ -147,6 +148,8 @@ export const typeDefs = gql`
     Update_Rubro(Codigo: Int!, Descripcion: String!): Rubro,
     Delete_Rubro(Codigo: Int!, EstaEliminado: Boolean!): Rubro,
 
+    # Usuario
+    UsuarioMedicamento(id: String!): Boolean,
   }
 
 `;

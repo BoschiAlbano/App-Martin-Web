@@ -1,6 +1,5 @@
 import { PrismaClient } from '@prisma/client'
 import GraphQLBigInt from 'graphql-bigint'
-import moment from 'moment-timezone'
 
 const prisma = new PrismaClient()
 
@@ -10,38 +9,29 @@ export const resolvers = {
 
             const usuarios = await prisma.user.findFirst({
                 where: {
-                    name: {
-                        contains: args.name
+                    email: {
+                        contains: args.email
                     }
                 },
-                include: { accounts: true }
             })
-
-            console.log(usuarios)
 
             return usuarios
         },
         GetUsers: async (root, args) => {
 
-            let UsuariosVerificados;
-
             try {
 
-                UsuariosVerificados = await prisma.user.findMany({
-                    where: {
-                        emailVerified: args.Isverificado === "Si" ? { not: null } : null
-                    }
-                })
+                const UsuariosVerificados = await prisma.user.findMany()
 
                 if (UsuariosVerificados.length === 0) {
                     throw new Error("No hay Usuarios Registrados")
                 }
 
+                return UsuariosVerificados
+
             } catch (error) {
                 throw new Error(`${error.message}`);
             }
-
-            return UsuariosVerificados
         },
         // Marca
         GET_Marca: async () => {
@@ -75,10 +65,16 @@ export const resolvers = {
             return Marca
         },
         // Rubro
-        GET_Rubro: async () => {
+        GET_Rubro: async (root, args) => {
+
+            const { Medicamento } = args;
+
+            // buscar
+
             return await prisma.rubro.findMany({
                 where: {
-                    EstaEliminado: false
+                    EstaEliminado: false,
+                    Descripcion: Medicamento ? { notIn: ["Indefinido"] } : { notIn: ["Medicamentos", "Indefinido"] }
                 },
                 include: {
                     Articulo: true,
@@ -219,7 +215,7 @@ export const resolvers = {
 
                 // transaccion
                 const _Trans = await prisma.$transaction(async (prisma) => {
-                // Recorrer los pedidos art
+                    // Recorrer los pedidos art
                     for (const art of articulos) {
 
                         // buscar en bd
@@ -233,8 +229,7 @@ export const resolvers = {
                                 throw {
                                     message: `Error no hay Stock Para el articulo: ${art.Descripcion} Stock Actual: ${_ArticuloBD.Stock}`,
                                 };
-                            }else
-                            {
+                            } else {
                                 // descontar stock - actualizar Cantidad 
                                 _ArticuloBD.Stock = _ArticuloBD.Stock - art.Cantidad
 
@@ -243,7 +238,7 @@ export const resolvers = {
                                         Id: _ArticuloBD.Id
                                     },
                                     data: {
-                                        Stock:  _ArticuloBD.Stock
+                                        Stock: _ArticuloBD.Stock
                                     }
                                 })
                             }
@@ -298,17 +293,17 @@ export const resolvers = {
         },
         Delete_Pedido: async (root, args, context) => {
 
-            if (context.isAuthenticated === false) {                 
+            if (context.isAuthenticated === false) {
                 throw new Error(`Error: No estas autorizado.`)
             }
 
             const { Id } = args;
 
             try {
-                
+
                 const _pedido = await prisma.pedido.findUnique({
-                    where:{Id},
-                    include:{
+                    where: { Id },
+                    include: {
                         DetallePedido: true
                     }
                 })
@@ -318,13 +313,13 @@ export const resolvers = {
                 const _Trans = await prisma.$transaction(async (prisma) => {
 
                     // delete el detalle
-                    const detalle =  await prisma.detallePedido.deleteMany({
+                    const detalle = await prisma.detallePedido.deleteMany({
                         where: {
                             PedidoId: Id
                         }
                     })
                     // delete el pedido
-                    const pedido = await prisma.pedido.delete({where: { Id }})
+                    const pedido = await prisma.pedido.delete({ where: { Id } })
                 })
 
                 return _pedido
@@ -337,7 +332,7 @@ export const resolvers = {
         },
         Cancelar_Pedido: async (root, args, context) => {
 
-            if (context.isAuthenticated === false) {                 
+            if (context.isAuthenticated === false) {
                 throw new Error(`Error: No estas autorizado.`)
             }
 
@@ -346,9 +341,9 @@ export const resolvers = {
             // eliminar - detalle de pedido - pedido - articulos actualizar stock (sumar)
 
             try {
-                
+
                 const _pedido = await prisma.pedido.findUnique({
-                    where:{
+                    where: {
                         Id
                     },
                     include: {
@@ -367,7 +362,7 @@ export const resolvers = {
                         }
                     })
                     // Aqui Terminar de hacer el cancelar pedido.... y depues ponerlo en c#
-                    await prisma.pedido.delete({where: { Id: _pedido.Id }})
+                    await prisma.pedido.delete({ where: { Id: _pedido.Id } })
 
                     for (const art of _pedido.DetallePedido) {
 
@@ -397,7 +392,7 @@ export const resolvers = {
         // usar en C# ✔
         ADD_Articulo: async (root, args, context) => {
 
-            if (context.isAuthenticated === false) {                 
+            if (context.isAuthenticated === false) {
                 throw new Error(`Error: No estas autorizado.`)
             }
 
@@ -444,7 +439,7 @@ export const resolvers = {
         },
         Update_Articulo: async (root, args, context) => {
 
-            if (context.isAuthenticated === false) {                 
+            if (context.isAuthenticated === false) {
                 throw new Error(`Error: No estas autorizado.`)
             }
 
@@ -522,7 +517,7 @@ export const resolvers = {
             }
         },
         Delete_Articulo: async (root, args, context) => {
-            if (context.isAuthenticated === false) {                 
+            if (context.isAuthenticated === false) {
                 throw new Error(`Error: No estas autorizado.`)
             }
 
@@ -546,7 +541,7 @@ export const resolvers = {
         },
         ADD_Stock_Articulo: async (root, args, context) => {
 
-            if (context.isAuthenticated === false) {                 
+            if (context.isAuthenticated === false) {
                 throw new Error(`Error: No estas autorizado.`)
             }
 
@@ -562,7 +557,7 @@ export const resolvers = {
         },
         Update_Stock_Articulos: async (root, args, context) => {
 
-            if (context.isAuthenticated === false) {                 
+            if (context.isAuthenticated === false) {
                 throw new Error(`Error: No estas autorizado.`)
             }
 
@@ -595,18 +590,18 @@ export const resolvers = {
             } catch (error) {
                 throw new Error(`${error.message}`);
             }
-            
+
         },
         Update_PrecioVenta_Articulos: async (root, args, context) => {
 
-            if (context.isAuthenticated === false) {                 
+            if (context.isAuthenticated === false) {
                 throw new Error(`Error: No estas autorizado.`)
             }
 
             const { lista } = args
 
             console.table(lista)
-            
+
             try {
                 // transaccion
                 const _Trans = await prisma.$transaction(async (prisma) => {
@@ -632,12 +627,40 @@ export const resolvers = {
             } catch (error) {
                 throw new Error(`${error.message}`);
             }
-            
+
+        },
+        UsuarioMedicamento: async (root, args, context) => {
+
+            if (context.isAuthenticated === false) {
+                throw new Error(`Error: No estas autorizado.`)
+            }
+
+            const { id } = args;
+
+            try {
+
+                const _usuario = await prisma.user.findUnique({where: {id}})
+
+                const actualizar = await prisma.user.update({
+                    where: { id },
+                    data: {
+                        medicamento: !_usuario.medicamento
+                    }
+                })
+
+                if (actualizar) {
+                    return true;
+                }
+
+                return false;
+            } catch (error) {
+                throw new Error(`${error.message}`);
+            }
         },
         // Marca ✔
         ADD_Marca: async (root, args, context) => {
 
-            if (context.isAuthenticated === false) {                 
+            if (context.isAuthenticated === false) {
                 throw new Error(`Error: No estas autorizado.`)
             }
 
@@ -645,7 +668,7 @@ export const resolvers = {
 
             console.log(Codigo)
             console.log(Descripcion)
-            
+
             try {
 
                 const _add = await prisma.marca.create({
@@ -664,12 +687,12 @@ export const resolvers = {
         },
         Update_Marca: async (root, args, context) => {
 
-            if (context.isAuthenticated === false) {                 
+            if (context.isAuthenticated === false) {
                 throw new Error(`Error: No estas autorizado.`)
             }
 
             const { Codigo, Descripcion } = args
-            
+
             try {
 
                 const _marca = await prisma.marca.findUnique({
@@ -685,12 +708,12 @@ export const resolvers = {
                             EstaEliminado: false
                         }
                     })
-    
+
                     return _add
                 }
 
 
-                if(Descripcion == _marca.Descripcion) return _marca
+                if (Descripcion == _marca.Descripcion) return _marca
 
                 const _update = await prisma.marca.update({
                     where: {
@@ -707,8 +730,8 @@ export const resolvers = {
 
         },
         Delete_Marca: async (root, args, context) => {
-            
-            if (context.isAuthenticated === false) {                 
+
+            if (context.isAuthenticated === false) {
                 throw new Error(`Error: No estas autorizado.`)
             }
 
@@ -733,7 +756,7 @@ export const resolvers = {
         // Rubro ✔
         ADD_Rubro: async (root, args, context) => {
 
-            if (context.isAuthenticated === false) {                 
+            if (context.isAuthenticated === false) {
                 throw new Error(`Error: No estas autorizado.`)
             }
 
@@ -758,12 +781,12 @@ export const resolvers = {
         },
         Update_Rubro: async (root, args, context) => {
 
-            if (context.isAuthenticated === false) {                 
+            if (context.isAuthenticated === false) {
                 throw new Error(`Error: No estas autorizado.`)
             }
 
             const { Codigo, Descripcion } = args
-            
+
             try {
 
                 const _rubro = await prisma.rubro.findUnique({
@@ -779,11 +802,11 @@ export const resolvers = {
                             EstaEliminado: false
                         }
                     })
-    
+
                     return _add
                 }
 
-                if(Descripcion == _rubro.Descripcion) return _rubro
+                if (Descripcion == _rubro.Descripcion) return _rubro
 
                 const _update = await prisma.rubro.update({
                     where: {
@@ -799,7 +822,7 @@ export const resolvers = {
             }
         },
         Delete_Rubro: async (root, args, context) => {
-            if (context.isAuthenticated === false) {                 
+            if (context.isAuthenticated === false) {
                 throw new Error(`Error: No estas autorizado.`)
             }
 
@@ -821,6 +844,7 @@ export const resolvers = {
             }
 
         },
+
     },
     BigInt: GraphQLBigInt,
     Pedido: {
@@ -838,22 +862,21 @@ export const resolvers = {
 
 
 function formatDate(date) {
-  
+
     var d = new Date(date),
         month = '' + (d.getMonth() + 1),
         day = '' + d.getDate(),
         year = d.getFullYear();
-  
+
     if (month.length < 2)
-      month = '0' + month;
+        month = '0' + month;
     if (day.length < 2)
-      day = '0' + day;
-  
+        day = '0' + day;
+
     const options = { timeZone: 'America/Argentina/Buenos_Aires' }; // Establece la zona horaria de Argentina
     const hora = d.toLocaleTimeString('es-ES', options);
     const fecha = `${[year, month, day].join('-')} ${hora}`;
 
-  
+
     return fecha;
-  }
-  
+}

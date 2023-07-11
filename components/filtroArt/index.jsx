@@ -29,7 +29,7 @@ const FiltroArt = ({ datos, filtro }) => {
             >
               <option value={"Todo"}>Todo</option>
               {
-                datos.GET_Rubro.map((item, index) => {
+                datos.map((item, index) => {
                   return (
                     <option key={index} value={item.Id}>{item.Descripcion}</option>
                   );
