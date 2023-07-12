@@ -22,6 +22,19 @@ const Carrito = ({ session }) => {
   const showError = (error) => {
     if (error) {
 
+      if (error === 'Error, En el Servidor') {
+
+        Swal.fire({
+          icon: 'error',
+          title: error,
+          text: 'Lo sentimos, Intente nuevamente más tarde. ⏱⏱',
+        });
+
+        setValue([])
+        setTotal(0)
+        return
+      }
+
       Swal.fire({
         icon: 'error',
         title: error,

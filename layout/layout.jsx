@@ -18,7 +18,12 @@ const Layout = ({children, title}) => {
                     
                     {/* Imagen */}
                     <div className="LayoutImg bg-gradient-to-r from-blue-500 to-indigo-500 w-[auto] items-center  relative min-h-[180px]">
-                        <Image src={'/assets/layout.png'} layout="fill" objectFit='contain' alt="Distrinova" priority={true} className='p-4'/>
+                        <Image src={'/assets/layout.png'} 
+                        fill = {true}
+                        style={{ objectFit: "contain" }}
+                        alt="Distrinova" 
+                        priority={true} 
+                        className='p-4'/>
                     </div>
 
                     {/* Login y Register */}

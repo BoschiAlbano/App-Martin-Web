@@ -8,10 +8,11 @@ import {html, text} from "utils/htmlEmail"
 import bcrypt from 'bcrypt'
 
 import { PrismaAdapter } from "@next-auth/prisma-adapter"
-import { PrismaClient } from "@prisma/client";
 
+// import { PrismaClient } from "@prisma/client";
+// const prisma = new PrismaClient()
 
-const prisma = new PrismaClient()
+import prisma from "pirsma";
 
 export default NextAuth({
   adapter: PrismaAdapter(prisma),

@@ -25,8 +25,9 @@ export const useAddPedidos = (showError) => {
             showError(null)
         },
         onError: (error) => {
+            // showError("Error, en el servidor.")
             showError(error.graphQLErrors[0].message)
-            console.table(error)
+            // console.log(error)
         }
     })
 

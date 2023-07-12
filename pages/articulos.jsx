@@ -16,10 +16,10 @@ const Articulos = ({ session }) => {
  
   const [dataRubro, setDataRubro] = useState(null);
 
-
   const [getData, result] = useArticuloFiltro();
   const [getRubro, resultRubro] = useRubro();
 
+  
   useEffect(() => {
     // Aqui
     getData({ variables: { keyword: '', rubro: null } });
@@ -27,12 +27,23 @@ const Articulos = ({ session }) => {
   }, []);
 
   useEffect(() => {
+
     if (result.data) {
       setDataArticulos(result.data.FILTRO_Articulo);
     }
     if (resultRubro.data) {
       setDataRubro(resultRubro.data.GET_Rubro)
     }
+
+    if (resultRubro.error?.message || result.error?.message) 
+    {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error en el Servidor.',
+        timer: 2500
+      });
+    }
+
   }, [result, resultRubro]);
 
   const filtro = ({ keyword = '', rubro = null }) => {
@@ -46,7 +57,7 @@ const Articulos = ({ session }) => {
       const { Stock, PermiteStockNegativo } = articulo;
       const indice = value.findIndex((art) => art.Id === articulo.Id);
 
-      if (indice > 0) {
+      if (indice >= 0) {
         return Swal.fire({
           icon: 'success',
           title: 'El Articulo ya esta Agregado al Carrito de compras',
@@ -101,9 +112,9 @@ const Articulos = ({ session }) => {
 
           {
             dataRubro === null ? 
-            <div className="w-full flex flex-col items-center">
-              <Spinner />
-            </div>
+              <div className="w-full flex flex-col items-center">
+                <Spinner />
+              </div>
             :
             <FiltroArt datos={dataRubro} filtro={filtro} />
           }
@@ -161,14 +172,10 @@ export async function getServerSideProps(context) {
   `;
 
   const variables = {
-    email: "Boschi.Albano.Jose@gmail.com",
+    email: session.user.email,
   };
 
   const data = await request(`${process.env.NEXTAUTH_URL}/api/graphql`, query, variables);
-
-  // busco el usuario.
-  console.log("Datos de Usuario:")
-  console.log(data.GetUser)
 
   if (!data.GetUser) {
 

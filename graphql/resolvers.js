@@ -1,7 +1,8 @@
-import { PrismaClient } from '@prisma/client'
 import GraphQLBigInt from 'graphql-bigint'
 
-const prisma = new PrismaClient()
+// import { PrismaClient } from '@prisma/client'
+// const prisma = new PrismaClient()
+import prisma from 'pirsma'
 
 export const resolvers = {
     Query: {
@@ -69,8 +70,7 @@ export const resolvers = {
 
             const { Medicamento } = args;
 
-            // buscar
-
+            // buscar            
             return await prisma.rubro.findMany({
                 where: {
                     EstaEliminado: false,
@@ -199,15 +199,21 @@ export const resolvers = {
 
             let _ListaArticulos = []
 
+
+
             const fecha = Date.now(); // milisegundos
             const hoy = new Date(fecha); // formato ISO 8601  La "Z" al final indica que la fecha y hora están en la zona horaria UTC (Tiempo Universal Coordinado). Sql server Guardar
 
             let _pedido
             try {
-
                 // Buscar Otra vez el usu para asociar al pedido - tengo email i es unico
                 const _Usu = await prisma.user.findUnique({ where: { email: usuario } })
-                if (_Usu === null) throw new Error(`El usuario no Existe: ${usuario}`)
+                if (_Usu === null){
+                    throw {
+                        message: `El usuario no Existe: ${usuario}`,
+                        bandera: true
+                    }
+                } 
 
                 // Creamos los detalles en memoria
                 let _DetallePedidos = []
@@ -220,7 +226,12 @@ export const resolvers = {
 
                         // buscar en bd
                         const _ArticuloBD = await prisma.articulo.findUnique({ where: { Id: art.Id } })
-                        if (_ArticuloBD === null) throw new Error(`Codigo de Articulo no Existe: ${art.Descripcion}`)
+                        if (_ArticuloBD === null){
+                            throw{
+                                message: `Codigo de Articulo no Existe: ${art.Descripcion}`,
+                                bandera: true
+                            }
+                        }
 
                         // comprobar si hay stock
                         if (!_ArticuloBD.PermiteStockNegativo) {
@@ -228,6 +239,7 @@ export const resolvers = {
                             if (_ArticuloBD.Stock < art.Cantidad) {
                                 throw {
                                     message: `Error no hay Stock Para el articulo: ${art.Descripcion} Stock Actual: ${_ArticuloBD.Stock}`,
+                                    bandera: true
                                 };
                             } else {
                                 // descontar stock - actualizar Cantidad 
@@ -285,7 +297,11 @@ export const resolvers = {
                 })
 
             } catch (error) {
-                throw new Error(`${error.message}`);
+                
+                if (error.bandera) {
+                    throw new Error(`${error.message}`);
+                }
+                throw new Error(`Error, En el Servidor`);
             }
 
             return _ListaArticulos

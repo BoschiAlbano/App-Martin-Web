@@ -72,6 +72,7 @@ export async function getServerSideProps(context) {
     return;
   }
 
+
   const query = `
   query GetUser($email: String!) {
     GetUser(email: $email) {
@@ -87,14 +88,14 @@ export async function getServerSideProps(context) {
   `;
 
   const variables = {
-    email: "Boschi.Albano.Jose@gmail.com",
+    email: session.user.email,
   };
 
   const data = await request(`${process.env.NEXTAUTH_URL}/api/graphql`, query, variables);
 
   // busco el usuario.
-  console.log("Datos de Usuario:")
-  console.log(data.GetUser)
+  // console.log("Datos de Usuario:")
+  // console.log(data.GetUser)
 
   if (!data.GetUser) {
 
