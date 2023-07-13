@@ -53,7 +53,7 @@ const Carrito = ({ session }) => {
 
       Swal.fire({
         icon: 'success',
-        title: 'Pedido enviado exitosamente.',
+        title: 'Pedido enviado con éxito..',
         timer: 2500
       });
 
@@ -112,7 +112,7 @@ const Carrito = ({ session }) => {
       console.log(error.message)
         Swal.fire({
           icon: 'error',
-          title: 'Se Produjo un error Grabe.',
+          title: 'Se Produjo un error Grave.',
           timer: 2500
         })
     }

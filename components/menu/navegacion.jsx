@@ -16,7 +16,7 @@ const Navegacion = () => {
     const BtnSalir = () => {
 
         Swal.fire({
-            title: '¿Estas Seguro que quieres cerrar session?',
+            title: '¿Estás Seguro de que quieres cerrar sesión?',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#86F09B',

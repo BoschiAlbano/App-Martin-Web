@@ -89,6 +89,7 @@ export const typeDefs = gql`
     GET_Articulo: [Articulo],
     GET_Articuloid(id: BigInt!): Articulo,
     FILTRO_Articulo(rubro: BigInt, keyword: String): [Articulo]
+    GET_Articulos_Oferta(medicamento: Boolean!): [Articulo],
     # Pedidos 
     GET_Pedidos: [Pedido],
     GET_Pedido_Usuario(email: String!, ): [Pedido]
@@ -138,7 +139,6 @@ export const typeDefs = gql`
     ADD_Stock_Articulo(codigo: Int!, cantidad: Int!): Articulo,
     Update_Stock_Articulos(lista: [Stock_Articulos!]!): Boolean,
     Update_PrecioVenta_Articulos(lista: [PrecioVenta_Articulos!]!): Boolean,
-    
     # Marca
     ADD_Marca(Codigo: Int!, Descripcion: String!): Marca,
     Update_Marca(Codigo: Int!, Descripcion: String!): Marca,

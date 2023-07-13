@@ -22,7 +22,6 @@ const TarjetaPremium = ({ articulo, AgregarCarrito }) => {
   
     const groupClass = isSmallScreen ? '' : 'group';
 
-
     return (
         <div className="container mt-4">
             <div className="card_box shadow-2xl Saltar">

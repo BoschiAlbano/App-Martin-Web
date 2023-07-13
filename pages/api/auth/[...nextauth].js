@@ -98,12 +98,15 @@ export default NextAuth({
     error: '/login',
   },
   // database: process.env.MONGODB_URI,
-  session: {strategy: 'jwt'},
+  session: {
+    maxAge: 3600,// 1 hora
+    strategy: 'jwt'
+  },
   jwt: {
     secret: process.env.NEXTAUTH_JWT_SECRET
   },
   secret: process.env.NEXTAUTH_SECRET,
-  debug: true
+  debug: true,
 })
 
 /*ERROR*/

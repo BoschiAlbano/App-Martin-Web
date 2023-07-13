@@ -153,6 +153,40 @@ export const resolvers = {
 
             return datos
         },
+        GET_Articulos_Oferta: async (root, args) => {
+
+            const { medicamento } = args;
+
+            try {
+                
+                if (!medicamento) {
+
+                    const rubro = await prisma.rubro.findFirst({where: { Descripcion: "Medicamentos"}})
+                    
+                    console.table(rubro)
+
+                    return await prisma.articulo.findMany({
+                        where: {
+                            EstaEliminado: false,
+                            Oferta: true,
+                            RubroId: {not: rubro.Id}
+                        }
+                    })
+                }
+    
+                return await prisma.articulo.findMany({
+                    where: {
+                        EstaEliminado: false,
+                        Oferta: true,
+                    }
+                })
+
+            } catch (error) {
+                throw new Error(`${error.message}`);
+            }
+
+
+        },
         // Pedidos
         GET_Pedidos: async (root, args) => {
 

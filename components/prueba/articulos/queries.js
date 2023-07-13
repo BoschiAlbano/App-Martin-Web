@@ -60,3 +60,18 @@ export const GET_ARTICULOS_Filtro =gql`
     }
 }
 `
+
+export const GET_ARTICULOS_Oferta =gql`
+    query GET_Articulos_Oferta($medicamento: Boolean!) {
+    GET_Articulos_Oferta(medicamento: $medicamento) {
+        Id
+        Descripcion
+        Stock
+        FotoUrl
+        PrecioVenta
+        PermiteStockNegativo
+        Oferta
+        MarcaId
+    }
+    }
+`

@@ -7,15 +7,23 @@ import { useLocalStorage } from 'components/prueba/localStorage/hook';
 import Swal from 'sweetalert2';
 import { request } from 'graphql-request' 
 
+import Carousel from 'components/Carrucel'
+import { useArticuloOferta } from 'components/prueba/articulos/hook'
+
 export default function Home({ session }) {
 
   const { name, medicamento } = session
 
-  console.log(session)
-
   const [store, setValue] = useLocalStorage('showWelcome', true)
 
+
+  const [getOfertas, resultOfertas] = useArticuloOferta();
+
+
   useEffect(() => {
+
+    getOfertas({ variables: { medicamento: session.medicamento } })
+    
     if (store) {
       Swal.fire({
         icon: 'info',
@@ -36,14 +44,18 @@ export default function Home({ session }) {
 
       <MenuPaginas user={session}>
 
+        <div className="Degradado_Banner">
 
-        <Banner/>
+          <Banner/>
 
-        {/* <Carousel/> */}
 
-        {
-          medicamento ? <Rubro medicamento={true}/> : <Rubro medicamento={false}/>
-        }
+          {resultOfertas.data ? <Carousel products={resultOfertas.data.GET_Articulos_Oferta}/> : null}
+
+          {
+            medicamento ? <Rubro medicamento={true}/> : <Rubro medicamento={false}/>
+          }
+
+        </div>
 
       
       </MenuPaginas>

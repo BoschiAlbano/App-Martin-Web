@@ -7,7 +7,7 @@ import { HiAtSymbol, HiFingerPrint } from "react-icons/hi";
 import styles from 'styles/Login.module.css'
 import Link from 'next/link';
 import Swal from 'sweetalert2';
-
+import { useLocalStorage } from 'components/prueba/localStorage/hook';
 import Publicas from 'config';
 
 export default function Login () {
@@ -17,6 +17,12 @@ export default function Login () {
     const [errorNextAuth, serErrorNextAuth] = useState('')
 
     const { register, handleSubmit, formState: {errors}, watch, getValues } = useForm()
+
+    const [store, setValue] = useLocalStorage('showWelcome', true)
+
+    useEffect(() => {
+        setValue(true)
+    },[])
 
     /*[Logiado]*/
     const {data, status} = useSession()
@@ -58,7 +64,7 @@ export default function Login () {
                 })
                 serErrorNextAuth(response.error)
             }
-            
+
         }).catch(error => {
             console.log(error.message)
             Swal.fire({
