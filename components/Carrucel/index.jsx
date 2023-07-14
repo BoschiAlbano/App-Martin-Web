@@ -47,7 +47,7 @@ var settings = {
 
 
 const Carousel = ({ products }) => {
-
+  
   const [value, setValue] = useLocalStorage('Carrito', []);
 
   const AgregarCarrito = (articulo) => {
@@ -103,12 +103,15 @@ const Carousel = ({ products }) => {
   }
 
   return (
+    
+
     <div className=" flex flex-col justify-center">
+      {products.length >= 5 ? <div>
       <h1 className="text-center sm:text-[3rem] text-[1.5rem] font-[merienda] my-3">Ofertas del Dia</h1>
       <Slider {...settings}>
         {products.map((articulo) => (
           <div className="" key={articulo.Id}>
-            <div className="card_box_Oferta relative mx-3 my-2 shadow-2xl Saltar bg-[#FFFFFF]  rounded-lg">
+            <div className="card_box_Oferta relative mx-3 my-2 mt-3 shadow-2xl Saltar bg-[#FFFFFF]  rounded-lg">
                     
             {
                 articulo.Oferta ? <span></span> : null
@@ -158,6 +161,8 @@ const Carousel = ({ products }) => {
           </div>
         ))}
       </Slider>
+      </div>
+      : null}
     </div>
   )
 
