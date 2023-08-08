@@ -10,7 +10,10 @@ import { request } from 'graphql-request'
 import Carousel from 'components/Carrucel'
 import { useArticuloOferta } from 'components/prueba/articulos/hook'
 
-export default function Home({ session }) {
+import Spinner from 'components/Spinner'
+import Link from 'next/link'
+
+export default function Home({ session, rubros }) {
 
   const { name, medicamento } = session
 
@@ -44,16 +47,36 @@ export default function Home({ session }) {
 
       <MenuPaginas user={session}>
 
-        <div className="Degradado_Banner">
+        <div className="Degradado_Banner h-full">
 
           <Banner/>
-
-
-          {resultOfertas.data ? <Carousel products={resultOfertas.data.GET_Articulos_Oferta}/> : null}
-
-          {
+          {/* {
             medicamento ? <Rubro medicamento={true}/> : <Rubro medicamento={false}/>
-          }
+          } */}
+          {/* <Rubro medicamento={medicamento} /> */}
+          
+
+
+          <div className="flex sm:flex-col-reverse flex-col mt-5">
+
+            {resultOfertas.data
+            ? <Carousel products={resultOfertas.data.GET_Articulos_Oferta}/> 
+            : <div className="w-full flex flex-col items-center mt-3"> <Spinner/></div>}
+
+            <section>
+              {/* <h1 className="text-center sm:text-[3rem] text-[1.5rem] font-[merienda] my-3">Conoce nuestros rubros</h1> */}
+
+              <div className="flex w-full sm:w-auto sm:h-auto flex-row flex-wrap gap-3 sm:gap-5 justify-center items-center mt-3 mb-10">
+                {rubros.map((item, index) => (
+                    <Link className='button p-2 border-black rounded-xl border-[4px]' href={`articulos/${item.Id}/${item.Descripcion}`} key={index}>{item.Descripcion}</Link>
+                ))}
+              </div>
+
+            </section>
+
+          </div>
+
+
 
         </div>
 
@@ -68,6 +91,7 @@ export default function Home({ session }) {
 
 export async function getServerSideProps(context) {
 
+  //#region Session
   const session = await getSession(context)
   
   if (!session) {
@@ -83,8 +107,9 @@ export async function getServerSideProps(context) {
     console.log(session.error)
     return;
   }
-
-
+  //#endregion
+  
+  //#region GET User
   const query = `
   query GetUser($email: String!) {
     GetUser(email: $email) {
@@ -105,10 +130,6 @@ export async function getServerSideProps(context) {
 
   const data = await request(`${process.env.NEXTAUTH_URL}/api/graphql`, query, variables);
 
-  // busco el usuario.
-  // console.log("Datos de Usuario:")
-  // console.log(data.GetUser)
-
   if (!data.GetUser) {
 
     context.res.setHeader('Set-Cookie', [
@@ -126,10 +147,34 @@ export async function getServerSideProps(context) {
     }
 
   }
+ //#endregion
+  
+  //#region Get Rubros
+  const query2 = `
+    query GetUser($medicamento: Boolean!) {
+      GET_Rubro(Medicamento: $medicamento) {
+          Id
+          Codigo
+          Descripcion
+          EstaEliminado
+      }
+      }
+  `
 
-  return {
+  const variables2 = {
+    medicamento: data.GetUser.medicamento,
+  };
+
+
+  const data2 = await request(`${process.env.NEXTAUTH_URL}/api/graphql`, query2, variables2);
+
+  console.log(data2.GET_Rubro)
+
+  //#endregion
+ return {
     props: { 
-      session: data.GetUser
+      session: data.GetUser,
+      rubros: data2.GET_Rubro
     }
   }
 }

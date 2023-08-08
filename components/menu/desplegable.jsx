@@ -11,7 +11,7 @@ import Swal from 'sweetalert2'
     /*[Items del menu horizontal]*/
     const datos = [
         { ruta: "/", nombre: "Home", icono: IoHomeOutline, subMenu: [] },
-        { ruta: "/articulos", nombre: "Articulos", icono: IoFastFoodOutline, subMenu: [] },
+        { ruta: "/articulos/0/Todo", nombre: "Articulos", icono: IoFastFoodOutline, subMenu: [] },
         { ruta: "/carrito", nombre: "Carrito", icono: IoCartOutline, subMenu: [] },
     ]
 
@@ -27,7 +27,6 @@ const Desplegable = ({open, EsconderMenu, EsconderMenuPantalla, setValue, setsho
         const EventoMenu = () => {
             const _menu = MenuRef.current
             const { y } = _menu.getBoundingClientRect();
-            console.log(y)
             const _background = y <= 0 ? 'Degradado' : 'DegradadoTransparente'
             setbackground(_background)
             SetOcultar(true)

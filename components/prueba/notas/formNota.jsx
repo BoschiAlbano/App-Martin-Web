@@ -30,7 +30,6 @@ const FormNota = () => {
     }
 
     const modificar = () => {
-        console.log(nota)
 
         actializar({variables: {...nota}})
         setnota({id:'', title: '', description: '', url: '', user:''})

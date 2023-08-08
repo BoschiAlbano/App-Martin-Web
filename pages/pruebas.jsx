@@ -24,7 +24,6 @@ const Pruebas = ({ session }) => {
   }
   useEffect(() => {
     if (result.data) {
-      console.log(nota)
       setNota(result.data.GET_Articuloid)
     }
   }, [result]);
@@ -51,7 +50,6 @@ const Pruebas = ({ session }) => {
                   ? <h1>Cargando...</h1>
                   : <ul>
                     {data.GET_Articulo.map((item, index) => {
-                      console.log(item)
                       return (
                         <li className="text-rose-300 cursor-pointer" key={index} onClick={() => showTareas(item.Id)}>{index + ' ' + item.Descripcion}</li>
                       )

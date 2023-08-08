@@ -47,6 +47,7 @@ export const typeDefs = gql`
     FotoUrl: String,
     PrecioVenta: Float,
     Oferta: Boolean,
+    Descuento: Float,
     PermiteStockNegativo: Boolean,
     Rubro: Rubro,
     Marca: Marca,
@@ -113,6 +114,7 @@ export const typeDefs = gql`
     precioVenta: Float!,
     permiteStockNegativo: Boolean,
     oferta: Boolean,
+    descuento: Float,
   }
 
   input Stock_Articulos {

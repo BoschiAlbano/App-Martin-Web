@@ -5,6 +5,7 @@ import 'slick-carousel/slick/slick-theme.css';
 import Swal from 'sweetalert2';
 import { useLocalStorage } from 'components/prueba/localStorage/hook';
 import {IoCartOutline} from 'react-icons/io5'
+import Publicas from 'config';
 
 var settings = {
   dots: false,
@@ -50,12 +51,12 @@ const Carousel = ({ products }) => {
   
   const [value, setValue] = useLocalStorage('Carrito', []);
 
-  const AgregarCarrito = (articulo) => {
 
+  const AgregarCarrito = (articulo) => {
     try {
       const { Stock, PermiteStockNegativo } = articulo;
       const indice = value.findIndex((art) => art.Id === articulo.Id);
-
+  
       if (indice >= 0) {
         return Swal.fire({
           icon: 'success',
@@ -63,37 +64,67 @@ const Carousel = ({ products }) => {
           timer: 2500
         });
       }
-
-      if (!PermiteStockNegativo) {
-        if (Stock === 0) {
-          return Swal.fire({
-            icon: 'error',
-            title: 'No hay Stock',
-            timer: 2500
-          });
-        }
-
-        Agregar(articulo)
-
+  
+      if (!PermiteStockNegativo && Stock === 0) {
+        return Swal.fire({
+          icon: 'error',
+          title: 'No hay Stock',
+          timer: 2500
+        });
       }
-
-      Agregar(articulo)
-
+  
+      if (PermiteStockNegativo || Stock > 0) {
+        mostrarAlertaCantidad(articulo); // Llama a la función para ingresar la cantidad
+      }
     } catch (error) {
       Swal.fire({
         icon: 'error',
-        title: 'Se Produjo un error Grabe.',
+        title: 'Se Produjo un error Grave.',
         timer: 2500
       });
     }
   };
+  
+  const mostrarAlertaCantidad = (articulo) => {
+    const { Stock, PermiteStockNegativo } = articulo;
+  
+    Swal.fire({
+      title: 'Ingrese la cantidad',
+      input: 'number',
+      showCancelButton: true,
+      confirmButtonText: 'Agregar',
+      cancelButtonText: 'Cancelar',
+      inputValidator: (value) => {
+        if (!value || value < 1) {
+          return 'Por favor, ingrese una cantidad válida.';
+        }
+        if (!PermiteStockNegativo) {
+          if (value > Stock) {
+            return 'La cantidad ingresada supera el stock disponible.';
+          }
+        }
 
-  const Agregar = (articulo) => {
+      },
+    }).then((result) => {
+      if (result.isConfirmed) {
 
-    const { Id, Descripcion, FotoUrl, PrecioVenta, Stock, PermiteStockNegativo } = articulo;
+        Agregar(articulo, parseInt(result.value));
+      }
+    });
+  };
+  
+  const Agregar = (articulo, Cantidad ) => {
 
-    const Add = value.concat({ Id, Descripcion, FotoUrl, PrecioVenta, Cantidad: 1, Stock, PermiteStockNegativo });
+
+    const { Id, Descripcion, FotoUrl, PrecioVenta, Stock, PermiteStockNegativo, Descuento } = articulo;
+
+    let _Descuento = PrecioVenta - (PrecioVenta * (Descuento / 100 ))
+
+    const Add = value.concat({ Id, Descripcion, FotoUrl, PrecioVenta: _Descuento, Cantidad, Stock, PermiteStockNegativo });
     setValue(Add);
+
+
+    // pedir Cantidad: 
 
     return Swal.fire({
       icon: 'success',
@@ -102,31 +133,91 @@ const Carousel = ({ products }) => {
     });
   }
 
+  // const AgregarCarrito = (articulo) => {
+
+  //   try {
+  //     const { Stock, PermiteStockNegativo } = articulo;
+  //     const indice = value.findIndex((art) => art.Id === articulo.Id);
+
+  //     if (indice >= 0) {
+  //       return Swal.fire({
+  //         icon: 'success',
+  //         title: 'El Articulo ya esta Agregado al Carrito de compras',
+  //         timer: 2500
+  //       });
+  //     }
+
+  //     if (!PermiteStockNegativo) {
+  //       if (Stock === 0) {
+  //         return Swal.fire({
+  //           icon: 'error',
+  //           title: 'No hay Stock',
+  //           timer: 2500
+  //         });
+  //       }
+
+  //       Agregar(articulo)
+
+  //     }
+
+  //     Agregar(articulo)
+
+  //   } catch (error) {
+  //     Swal.fire({
+  //       icon: 'error',
+  //       title: 'Se Produjo un error Grabe.',
+  //       timer: 2500
+  //     });
+  //   }
+  // };
+
+  // const Agregar = (articulo) => {
+
+  //   const { Id, Descripcion, FotoUrl, PrecioVenta, Stock, PermiteStockNegativo } = articulo;
+
+  //   const Add = value.concat({ Id, Descripcion, FotoUrl, PrecioVenta, Cantidad: 1, Stock, PermiteStockNegativo });
+  //   setValue(Add);
+
+  //   return Swal.fire({
+  //     icon: 'success',
+  //     title: 'Agregado al Carrito...',
+  //     timer: 2500
+  //   });
+  // }
+
   return (
     
 
     <div className=" flex flex-col justify-center">
       {products.length >= 5 ? <div>
-      <h1 className="text-center sm:text-[3rem] text-[1.5rem] font-[merienda] my-3">Ofertas del Dia</h1>
+      <h1 className="text-center sm:text-[3rem] text-[1.5rem] font-[merienda] my-5">Productos en Oferta</h1>
       <Slider {...settings}>
         {products.map((articulo) => (
           <div className="" key={articulo.Id}>
-            <div className="card_box_Oferta relative mx-3 my-2 mt-3 shadow-2xl Saltar bg-[#FFFFFF]  rounded-lg">
+            <div className="card_box_Oferta relative mx-3 my-2 mt-3 shadow-1xl mb-5 Saltar bg-[#FFFFFF]  rounded-lg">
                     
             {
-                articulo.Oferta ? <span></span> : null
+                articulo.Oferta ? <span className='span'></span> : null
             }
 
             <div className='flex flex-col justify-center items-center'>
             {/* className="object-cover w-full h-auto transition duration-500 hover:scale-150" */}
-                <img loading="lazy" className="rounded-[0.5rem] h-[200px]  object-contain" src={articulo.FotoUrl ?? "./assets/ProductoSinFoto.png"}alt={articulo.Descripcion}
+                <img loading="lazy" className="rounded-[0.5rem] h-[200px]  object-contain" src={articulo.FotoUrl ?? `${Publicas.NEXT_PUBLIC_HOST}/assets/ProductoSinFoto.png`} alt={articulo.Descripcion}
                 />
 
                 <p className="m-1 text-center text-xl font-medium text-gray-900 ">{articulo.Descripcion}</p>
 
-                <p className="mt-1.5 text-center  font-[Merienda]  text-gray-700">{`Precio: $${articulo.PrecioVenta}`}</p>
+                <p className="mt-1.5 text-center flex gap-2 font-[Merienda]  text-gray-700">
+                Antes: 
+                    <s className=''>{` $${articulo.PrecioVenta}`}</s>
+                    <span className="text-rose-500">{` %${articulo.Descuento ?? 0}`}</span>
+                </p>
 
-                
+                <p className="mt-1.5 text-xl text-center flex gap-2 font-[Merienda]  text-gray-700">
+                Ahora: 
+                  <span className="text-green-500">{` $${(articulo.PrecioVenta - articulo.PrecioVenta * (articulo.Descuento / 100)).toFixed(2)}`}</span>
+                </p>
+
 
                 {
                 articulo.Stock ? <p className="text-black ">{`Stock: ${articulo.Stock}`}</p>

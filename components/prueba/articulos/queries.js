@@ -46,6 +46,7 @@ export const GET_ARTICULOS_Filtro =gql`
         FotoUrl
         PrecioVenta
         Oferta
+        Descuento
         PermiteStockNegativo
         Rubro {
         Id
@@ -72,6 +73,7 @@ export const GET_ARTICULOS_Oferta =gql`
         PermiteStockNegativo
         Oferta
         MarcaId
+        Descuento
     }
     }
 `

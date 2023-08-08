@@ -3,14 +3,15 @@ import MenuPaginas from 'components/menu/menuPaginas';
 import { getSession } from 'next-auth/react';
 import Spinner from 'components/Spinner';
 import { useRubro, useArticuloFiltro } from 'components/prueba/articulos/hook';
-import styles from 'styles/ArticuloCard.module.css';
 import FiltroArt from 'components/filtroArt';
 import { useLocalStorage } from 'components/prueba/localStorage/hook';
 import Swal from 'sweetalert2';
 import TarjetaPremium from 'components/card/TarjetaPremium';
 import { request } from 'graphql-request' 
+import Masonry from 'react-masonry-css';
 
-const Articulos = ({ session }) => {
+
+const Articulos = ({ session, rubro }) => {
   const [value, setValue] = useLocalStorage('Carrito', []);
   const [dataArticulos, setDataArticulos] = useState(null);
  
@@ -22,7 +23,8 @@ const Articulos = ({ session }) => {
   
   useEffect(() => {
     // Aqui
-    getData({ variables: { keyword: '', rubro: null } });
+    //getData({ variables: { keyword: '', rubro: null } });
+    getData({ variables: { keyword: '', rubro: rubro.id == null || rubro.descripcion === "Todo" ? null : rubro.id } });
     getRubro({ variables: { medicamento: session.medicamento } })
   }, []);
 
@@ -52,11 +54,10 @@ const Articulos = ({ session }) => {
   };
 
   const AgregarCarrito = (articulo) => {
-
     try {
       const { Stock, PermiteStockNegativo } = articulo;
       const indice = value.findIndex((art) => art.Id === articulo.Id);
-
+  
       if (indice >= 0) {
         return Swal.fire({
           icon: 'success',
@@ -64,37 +65,69 @@ const Articulos = ({ session }) => {
           timer: 2500
         });
       }
-
-      if (!PermiteStockNegativo) {
-        if (Stock === 0) {
-          return Swal.fire({
-            icon: 'error',
-            title: 'No hay Stock',
-            timer: 2500
-          });
-        }
-
-        Agregar(articulo)
-
+  
+      if (!PermiteStockNegativo && Stock === 0) {
+        return Swal.fire({
+          icon: 'error',
+          title: 'No hay Stock',
+          timer: 2500
+        });
       }
-
-      Agregar(articulo)
-
+  
+      if (PermiteStockNegativo || Stock > 0) {
+        mostrarAlertaCantidad(articulo); // Llama a la función para ingresar la cantidad
+      }
     } catch (error) {
       Swal.fire({
         icon: 'error',
-        title: 'Se Produjo un error Grabe.',
+        title: 'Se Produjo un error Grave.',
         timer: 2500
       });
     }
   };
+  
+  const mostrarAlertaCantidad = (articulo) => {
+    const { Stock, PermiteStockNegativo } = articulo;
+  
+    Swal.fire({
+      title: 'Ingrese la cantidad',
+      input: 'number',
+      showCancelButton: true,
+      confirmButtonText: 'Agregar',
+      cancelButtonText: 'Cancelar',
+      inputValidator: (value) => {
+        if (!value || value < 1) {
+          return 'Por favor, ingrese una cantidad válida.';
+        }
+        if (!PermiteStockNegativo) {
+          if (value > Stock) {
+            return 'La cantidad ingresada supera el stock disponible.';
+          }
+        }
 
-  const Agregar = (articulo) => {
+      },
+    }).then((result) => {
+      if (result.isConfirmed) {
 
-    const { Id, Descripcion, FotoUrl, PrecioVenta, Stock, PermiteStockNegativo } = articulo;
+        Agregar(articulo, parseInt(result.value));
+      }
+    });
+  };
+  
 
-    const Add = value.concat({ Id, Descripcion, FotoUrl, PrecioVenta, Cantidad: 1, Stock, PermiteStockNegativo });
+  
+  const Agregar = (articulo, Cantidad ) => {
+
+
+    const { Id, Descripcion, FotoUrl, PrecioVenta, Stock, PermiteStockNegativo, Descuento } = articulo;
+
+    let _Descuento = PrecioVenta - (PrecioVenta * (Descuento / 100 ))
+
+    const Add = value.concat({ Id, Descripcion, FotoUrl, PrecioVenta: _Descuento, Cantidad, Stock, PermiteStockNegativo });
     setValue(Add);
+
+
+    // pedir Cantidad: 
 
     return Swal.fire({
       icon: 'success',
@@ -103,8 +136,6 @@ const Articulos = ({ session }) => {
     });
   }
 
-
-
   return (
     <div>
       <MenuPaginas user={session}>
@@ -112,25 +143,35 @@ const Articulos = ({ session }) => {
 
           {
             dataRubro === null ? 
-              <div className="w-full flex flex-col items-center">
+              <div className="w-full flex flex-col items-center mt-3">
                 <Spinner />
               </div>
             :
-            <FiltroArt datos={dataRubro} filtro={filtro} />
+            <FiltroArt datos={dataRubro} filtro={filtro} rubroSeleccionado={rubro} />
           }
-
+          
+            
           {dataArticulos === null ? (
             <div className="w-full flex flex-col items-center">
               <Spinner />
             </div>
           ) : (
-            <div className={styles.contenedor_Articulos_Card}>
+            <Masonry
+              breakpointCols={{
+                default: 5, // Número de columnas en el mosaico por defecto
+                1100: 3, // Número de columnas cuando la ventana tiene un ancho de 1100px o menos
+                700: 2, // Número de columnas cuando la ventana tiene un ancho de 700px o menos
+                500: 1, // Número de columnas cuando la ventana tiene un ancho de 500px o menos
+              }}
+              className="my-masonry-grid"
+              columnClassName="my-masonry-grid_column"
+            >
               {dataArticulos.map((item, index) => (
                 <TarjetaPremium key={index} articulo={item} AgregarCarrito={AgregarCarrito} />
               ))}
-            </div>
+            </Masonry>
           )}
-        </div>
+        </div> 
 
 
       </MenuPaginas>
@@ -142,6 +183,9 @@ export default Articulos;
 
 export async function getServerSideProps(context) {
 
+
+
+  //#region Session
   const session = await getSession(context)
   
   if (!session) {
@@ -156,7 +200,9 @@ export async function getServerSideProps(context) {
   if (session?.error) {
     console.log(session.error)
   }
-
+  //#endregion
+  
+  //#region Usuario
   const query = `
   query GetUser($email: String!) {
     GetUser(email: $email) {
@@ -195,10 +241,16 @@ export async function getServerSideProps(context) {
     
   }
 
+  //#endregion
+
+  const { rubro } = context.query;
+
+  const [id = null, descripcion = "Todo"] = rubro || [];
 
   return {
     props: { 
-      session: data.GetUser
+      session: data.GetUser,
+      rubro: { id, descripcion }
     }
   }
 }

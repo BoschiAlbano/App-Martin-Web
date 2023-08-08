@@ -69,35 +69,35 @@ model MigrationHistory {
 }
 
 model Articulo {
-  Id                   BigInt               @id(map: "PK_dbo.Articulo") @default(autoincrement())
+  Id                   BigInt          @id(map: "PK_dbo.Articulo") @default(autoincrement())
   MarcaId              BigInt
   RubroId              BigInt
-  Codigo               Int
-  Descripcion          String              @db.VarChar(8000)
+  Codigo               Int             @unique
+  Descripcion          String          @db.VarChar(8000)
   Stock                Int
-  PrecioVenta          Decimal              @db.Decimal(18, 2)
-  Oferta               Boolean              @default(false)
+  PrecioVenta          Decimal         @db.Decimal(18, 2)
   EstaEliminado        Boolean
-  PermiteStockNegativo Boolean              @default(false, map: "DF__Articulo__Permit__6383C8BA")
-  FotoUrl              String?              @db.NVarChar(Max)
-  Marca                Marca                @relation(fields: [MarcaId], references: [Id], onUpdate: NoAction, map: "FK_dbo.Articulo_dbo.Marca_MarcaId")
-  Rubro                Rubro                @relation(fields: [RubroId], references: [Id], onUpdate: NoAction, map: "FK_dbo.Articulo_dbo.Rubro_RubroId")
+  PermiteStockNegativo Boolean         @default(false, map: "DF__Articulo__Permit__6383C8BA")
+  FotoUrl              String?         @db.NVarChar(Max)
+  Oferta               Boolean         @default(false)
+  Descuento            Decimal?        @default(0, map: "DF_Articulo_Descuento") @db.Decimal(18, 2)
+  Marca                Marca           @relation(fields: [MarcaId], references: [Id], onUpdate: NoAction, map: "FK_dbo.Articulo_dbo.Marca_MarcaId")
+  Rubro                Rubro           @relation(fields: [RubroId], references: [Id], onUpdate: NoAction, map: "FK_dbo.Articulo_dbo.Rubro_RubroId")
   DetallePedido        DetallePedido[]
-  @@unique([Codigo])
 }
 
 model Marca {
   Id            BigInt     @id(map: "PK_dbo.Marca") @default(autoincrement())
-  Codigo        Int       @unique
-  Descripcion   String    @db.VarChar(8000)
+  Codigo        Int        @unique
+  Descripcion   String     @db.VarChar(8000)
   EstaEliminado Boolean
   Articulo      Articulo[]
 }
 
 model Rubro {
   Id            BigInt     @id(map: "PK_dbo.Rubro") @default(autoincrement())
-  Codigo        Int       @unique
-  Descripcion   String    @db.VarChar(8000)
+  Codigo        Int        @unique
+  Descripcion   String     @db.VarChar(8000)
   EstaEliminado Boolean
   Articulo      Articulo[]
 }

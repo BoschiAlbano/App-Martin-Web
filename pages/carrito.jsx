@@ -109,7 +109,6 @@ const Carrito = ({ session }) => {
       await crear({variables: datos})
 
     } catch (error) {
-      console.log(error.message)
         Swal.fire({
           icon: 'error',
           title: 'Se Produjo un error Grave.',

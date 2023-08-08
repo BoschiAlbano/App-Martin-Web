@@ -16,7 +16,6 @@ const apolloServer = new ApolloServer({typeDefs, resolvers,
     return {isAuthenticated: true}
   },
   formatError: (error) => {
-    console.log(error.message)
     return error;
   }
 })

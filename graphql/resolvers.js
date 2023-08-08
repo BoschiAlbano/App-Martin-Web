@@ -119,8 +119,6 @@ export const resolvers = {
         FILTRO_Articulo: async (root, args) => {
             const { keyword, rubro } = args
             let datos;
-            console.log(rubro)
-
             if (rubro == null) {
                 datos = await prisma.articulo.findMany({
                     where: {
@@ -162,24 +160,26 @@ export const resolvers = {
                 if (!medicamento) {
 
                     const rubro = await prisma.rubro.findFirst({where: { Descripcion: "Medicamentos"}})
-                    
-                    console.table(rubro)
 
-                    return await prisma.articulo.findMany({
+                    var data =  await prisma.articulo.findMany({
                         where: {
                             EstaEliminado: false,
                             Oferta: true,
                             RubroId: {not: rubro.Id}
                         }
                     })
+
+                    return data
                 }
     
-                return await prisma.articulo.findMany({
+                var data = await prisma.articulo.findMany({
                     where: {
                         EstaEliminado: false,
                         Oferta: true,
                     }
                 })
+
+                return data
 
             } catch (error) {
                 throw new Error(`${error.message}`);
@@ -291,15 +291,20 @@ export const resolvers = {
                         }
 
                         // total y detalle
-                        _Total += art.Cantidad * _ArticuloBD.PrecioVenta
+                        let _descuento;
+                        const precioConDescuento = _ArticuloBD.Descuento == null
+                        ? _ArticuloBD.PrecioVenta
+                        : _ArticuloBD.PrecioVenta - (_ArticuloBD.PrecioVenta * (_ArticuloBD.Descuento / 100));
+
+                        _Total += art.Cantidad * precioConDescuento;
 
                         _DetallePedidos.push({
                             ArticuloId: _ArticuloBD.Id,
                             Codigo: _ArticuloBD.Codigo.toString(),
                             Descripcion: _ArticuloBD.Descripcion,
                             Cantidad: art.Cantidad,
-                            Precio: _ArticuloBD.PrecioVenta,
-                            SubTotal: art.Cantidad * _ArticuloBD.PrecioVenta,
+                            Precio: precioConDescuento,
+                            SubTotal: art.Cantidad * precioConDescuento,
                             EstaEliminado: false,
                         })
 
@@ -430,11 +435,8 @@ export const resolvers = {
                     }
                 })
 
-                console.log("Sin Errores")
-
                 return true;
             } catch (error) {
-                console.log("Error")
                 throw new Error(`${error.message}`);
             }
 
@@ -477,6 +479,7 @@ export const resolvers = {
                         FotoUrl: articulo.fotoUrl != "" ? articulo.fotoUrl : null,
                         PrecioVenta: articulo.precioVenta,
                         PermiteStockNegativo: articulo.permiteStockNegativo,
+                        Descuento: articulo.descuento,
                     }
                 })
 
@@ -534,6 +537,7 @@ export const resolvers = {
                             FotoUrl: articulo.fotoUrl != "" ? articulo.fotoUrl : null,
                             PrecioVenta: articulo.precioVenta,
                             PermiteStockNegativo: articulo.permiteStockNegativo,
+                            Descuento: articulo.descuento,
                         }
                     })
 
@@ -557,6 +561,7 @@ export const resolvers = {
                         FotoUrl: articulo.fotoUrl != "" ? articulo.fotoUrl : null,
                         PrecioVenta: articulo.precioVenta,
                         PermiteStockNegativo: articulo.permiteStockNegativo,
+                        Descuento: articulo.descuento,
                     }
                 })
 

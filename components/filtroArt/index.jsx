@@ -1,7 +1,7 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { HiSearch } from "react-icons/hi";
 
-const FiltroArt = ({ datos, filtro }) => {
+const FiltroArt = ({ datos, filtro, rubroSeleccionado }) => {
   const [DatosFiltro, setDatosFiltro] = useState({ keyword: "", rubro: null});
   const botonRef = useRef(null);
 
@@ -9,6 +9,13 @@ const FiltroArt = ({ datos, filtro }) => {
     setDatosFiltro({ ...DatosFiltro, [e.target.name]: e.target.value });
     botonRef.current.focus(); // Hacer Focus al Buscar
   };
+
+
+  useEffect(() => {
+    // Actualizar el estado DatosFiltro si cambia el valor de rubroSeleccionado en propiedades.
+    setDatosFiltro({ ...DatosFiltro, rubro: rubroSeleccionado.id });
+  }, [rubroSeleccionado]);
+
 
   const filtrar = (e) => {
     e.preventDefault();
@@ -25,6 +32,7 @@ const FiltroArt = ({ datos, filtro }) => {
               className="rounded-sm w-full text-xl focus:outline-none border-none"
               name="rubro"
               id=""
+              value={DatosFiltro.rubro}
               onChange={(e) => selectChange(e)}
             >
               <option value={"Todo"}>Todo</option>

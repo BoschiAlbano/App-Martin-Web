@@ -20,8 +20,6 @@ export const useAddTarea = (showError) => {
     const result = useMutation(NUEVA_NOTA, {
         refetchQueries: [ { query: Get_Notas } ],
         onError: (error) => {
-            console.log(error)
-            console.log(error.graphQLErrors[0].message)
             showError(error.graphQLErrors[0].message)
         }
     })
@@ -33,7 +31,6 @@ export const useUpdateNota = (showError) => {
     const result = useMutation(UPDATE_NOTA, {
         // refetchQueries: [ { query: Get_Notas } ],
         onError: (error) => {
-            console.log(error.graphQLErrors[0].message)
             showError(error.graphQLErrors[0].message)
         }
     })

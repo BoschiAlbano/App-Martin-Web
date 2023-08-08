@@ -4,9 +4,10 @@ class MyDocument extends Document {
   render() {
     return (
       <Html lang="es">
-        <Head>
-            {/* <link href='https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css' rel='stylesheet'/> */}
-        </Head>
+          <Head>
+            <meta name="description" content="Distrinova, Tu destino de compras mayoristas en linea." />
+            <link rel="icon" href="/assets/Icono.ico" />
+          </Head>
         <body>
           <Main />
           <NextScript />

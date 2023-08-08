@@ -13,7 +13,7 @@ import { FaArrowCircleUp } from 'react-icons/fa';
 /*[Items del menu horizontal]*/
 const datos = [
     { ruta: "/", nombre: "Home", icono: IoHomeOutline, subMenu: [] },
-    { ruta: "/articulos", nombre: "Articulos", icono: IoFastFoodOutline, subMenu: [] },
+    { ruta: "/articulos/0/Todo", nombre: "Articulos", icono: IoFastFoodOutline, subMenu: [] },
     { ruta: "/carrito", nombre: "Carrito", icono: IoCartOutline, subMenu: [] },
 ]
 

@@ -11,7 +11,6 @@ const ArticuloCarrito = ({item, modificar, eliminar}) => {
     if (e.target.value) {
       const parsedValue = parseFloat(e.target.value);
       if (!Number.isInteger(parsedValue)) {
-        console.log("Decimal")
         return;
       }
     }

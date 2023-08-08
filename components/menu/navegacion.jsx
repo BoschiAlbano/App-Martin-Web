@@ -59,7 +59,7 @@ const Navegacion = () => {
                                 </Link>
                             </span>
                             <span className="hidden sm:block">
-                                <Link href="/articulos" className="block h-16 font-[Merienda] border-b-4 border-transparent leading-[4rem] hover:border-current hover:text-white px-3">
+                                <Link href="/articulos/0/Todo" className="block h-16 font-[Merienda] border-b-4 border-transparent leading-[4rem] hover:border-current hover:text-white px-3">
                                     Articulos
                                 </Link>
                             </span >

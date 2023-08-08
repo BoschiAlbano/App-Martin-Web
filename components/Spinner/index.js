@@ -6,10 +6,22 @@ import { InfinitySpin } from  'react-loader-spinner'
 
 export default function Spinner(){
 
-  return(
-    <InfinitySpin 
-      width='150'
-      color="#407FF6"
-    />
+  return (
+    
+    <div className="loader">
+      <span className="loader-text">Cargando..</span>
+        <span className="load"></span>
+    </div>
+
   )
 }
+
+// export default function Spinner(){
+
+//   return(
+//     <InfinitySpin 
+//       width='150'
+//       color="#407FF6"
+//     />
+//   )
+// }

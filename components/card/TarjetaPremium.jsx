@@ -1,5 +1,6 @@
 import React, { useState, useEffect} from 'react';
 import {IoCartOutline} from 'react-icons/io5'
+import Publicas from 'config';
 
 const TarjetaPremium = ({ articulo, AgregarCarrito }) => {
 
@@ -27,21 +28,44 @@ const TarjetaPremium = ({ articulo, AgregarCarrito }) => {
             <div className="card_box shadow-2xl Saltar">
                 
                 {
-                    articulo.Oferta ? <span></span> : null
+                    articulo.Oferta ? <span className='span'></span> : null
                 }
 
 
 
                 <div className='flex flex-col justify-center items-center'>
                 {/* className="object-cover w-full h-auto transition duration-500 hover:scale-150" */}
-                    <img loading="lazy" className="rounded-[0.5rem] h-[200px] object-cover" src={articulo.FotoUrl ?? "./assets/ProductoSinFoto.png"}alt={articulo.Descripcion}
+                    <img loading="lazy" className="rounded-[0.5rem] h-[200px] object-cover" src={articulo.FotoUrl ?? `${Publicas.NEXT_PUBLIC_HOST}/assets/ProductoSinFoto.png`} alt={articulo.Descripcion}
                     />
 
                     <p className="m-1 text-center text-xl font-medium text-gray-900">{articulo.Descripcion}</p>
 
-                    <p className="mt-1.5 text-center  font-[Merienda]  text-gray-700">{`Precio: $${articulo.PrecioVenta}`}</p>
 
-                    
+                    {
+                    articulo.Oferta ? 
+
+                        <>
+                            <p className="mt-1.5 text-center flex gap-2 font-[Merienda]  text-gray-700">
+                            Antes: 
+                                <s className=''>{` $${articulo.PrecioVenta}`}</s>
+                                <span className="text-rose-500">{` %${articulo.Descuento ?? 0}`}</span>
+                            </p>
+
+                            <p className="mt-1.5 text-xl text-center flex gap-2 font-[Merienda]  text-gray-700">
+                            Ahora: 
+                            <span className="text-green-500">{` $${(articulo.PrecioVenta - articulo.PrecioVenta * (articulo.Descuento / 100)).toFixed(2)}`}</span>
+                            </p>
+                        </>
+                     : 
+                     <>
+                        <p className="mt-1.5 text-xl text-center flex gap-2 font-[Merienda]  text-gray-700">
+                        Precio: 
+                        <span className="text-green-500">{` $${articulo.PrecioVenta.toFixed(2)}`}</span>
+                        </p>
+                     </>
+                    //  <p className="mt-1.5 text-center  font-[Merienda]  text-gray-700">{`Precio: $${articulo.PrecioVenta}`}</p>
+
+                    }
 
                     {
                     articulo.Stock ? <p className="text-black ">{`Stock: ${articulo.Stock}`}</p>
