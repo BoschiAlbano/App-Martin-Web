@@ -117,25 +117,53 @@ export const resolvers = {
             })
         },
         FILTRO_Articulo: async (root, args) => {
-            const { keyword, rubro } = args
+            const { keyword, rubro, medicamento} = args
             let datos;
-            if (rubro == null) {
-                datos = await prisma.articulo.findMany({
-                    where: {
-                        Descripcion: {
-                            contains: keyword
-                        },
-                        EstaEliminado: false,
-                    },
-                    include: {
-                        Marca: true,
-                        Rubro: true
-                    }
-                })
 
-                return datos
+            // Sin Rubro
+            if (rubro == null) {
+
+                // Con medicamentos
+                if (medicamento) {
+                    datos = await prisma.articulo.findMany({
+                        where: {
+                            Descripcion: {
+                                contains: keyword
+                            },
+                            EstaEliminado: false,
+                        },
+                        include: {
+                            Marca: true,
+                            Rubro: true
+                        }
+                    })
+    
+                    return datos
+                }else // Sin medicamentos
+                {
+                    const MedicamentoId = await prisma.rubro.findFirst({where: { Descripcion: "Medicamentos"}})
+                    console.log(MedicamentoId)
+
+                    datos = await prisma.articulo.findMany({
+                        where: {
+                            Descripcion: {
+                                contains: keyword
+                            },
+                            EstaEliminado: false,
+                            RubroId: {not: MedicamentoId.Id}
+                        },
+                        include: {
+                            Marca: true,
+                            Rubro: true
+                        }
+                    })
+    
+                    return datos
+                }
+
             }
 
+            // Por rubro
             datos = await prisma.articulo.findMany({
                 where: {
                     Descripcion: {

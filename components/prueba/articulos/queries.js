@@ -34,8 +34,8 @@ export const GET_RUBRO = gql`
 `
 
 export const GET_ARTICULOS_Filtro =gql`
-    query Query($rubro: BigInt, $keyword: String) {
-    FILTRO_Articulo(rubro: $rubro, keyword: $keyword) {
+    query Query($rubro: BigInt, $keyword: String, $medicamento: Boolean!) {
+    FILTRO_Articulo(rubro: $rubro, keyword: $keyword, medicamento: $medicamento) {
         Id
         MarcaId
         RubroId

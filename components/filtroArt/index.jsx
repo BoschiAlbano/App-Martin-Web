@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { HiSearch } from "react-icons/hi";
 
 const FiltroArt = ({ datos, filtro, rubroSeleccionado }) => {
-  const [DatosFiltro, setDatosFiltro] = useState({ keyword: "", rubro: null});
+  const [DatosFiltro, setDatosFiltro] = useState({ keyword: "", rubro: "Todo"});
   const botonRef = useRef(null);
 
   const selectChange = (e) => {
@@ -18,7 +18,7 @@ const FiltroArt = ({ datos, filtro, rubroSeleccionado }) => {
 
 
   const filtrar = (e) => {
-    e.preventDefault();
+    e.preventDefault();  
     filtro(DatosFiltro);
   };
 

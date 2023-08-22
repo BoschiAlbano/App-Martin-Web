@@ -24,7 +24,7 @@ const Articulos = ({ session, rubro }) => {
   useEffect(() => {
     // Aqui
     //getData({ variables: { keyword: '', rubro: null } });
-    getData({ variables: { keyword: '', rubro: rubro.id == null || rubro.descripcion === "Todo" ? null : rubro.id } });
+    getData({ variables: { keyword: '', rubro: rubro.id == null || rubro.descripcion === "Todo" ? null : rubro.id, medicamento: session.medicamento} });
     getRubro({ variables: { medicamento: session.medicamento } })
   }, []);
 
@@ -50,7 +50,7 @@ const Articulos = ({ session, rubro }) => {
 
   const filtro = ({ keyword = '', rubro = null }) => {
     //
-    getData({ variables: { keyword, rubro: rubro === 'Todo' ? null : rubro } });
+    getData({ variables: { keyword, rubro: rubro === 'Todo' ? null : rubro, medicamento: session.medicamento} });
   };
 
   const AgregarCarrito = (articulo) => {

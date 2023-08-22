@@ -4,7 +4,7 @@
 
 const Publicas = {
     NEXT_PUBLIC_HOST: "https://distrinova-martin.azurewebsites.net",
-    // NEXT_PUBLIC_HOST: "http://localhost:3000",
+    //NEXT_PUBLIC_HOST: "http://localhost:3000",
 
   };
   

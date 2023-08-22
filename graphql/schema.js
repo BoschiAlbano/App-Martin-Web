@@ -17,6 +17,7 @@ export const typeDefs = gql`
     telefono: String,
     direccion: String,
     medicamento: Boolean,
+    email: String,
     Pedido: [Pedido]
   }
 
@@ -89,7 +90,7 @@ export const typeDefs = gql`
     # Articulo 
     GET_Articulo: [Articulo],
     GET_Articuloid(id: BigInt!): Articulo,
-    FILTRO_Articulo(rubro: BigInt, keyword: String): [Articulo]
+    FILTRO_Articulo(rubro: BigInt, keyword: String, medicamento: Boolean!): [Articulo]
     GET_Articulos_Oferta(medicamento: Boolean!): [Articulo],
     # Pedidos 
     GET_Pedidos: [Pedido],

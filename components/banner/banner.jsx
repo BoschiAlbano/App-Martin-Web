@@ -20,7 +20,7 @@ const Banner = () => {
                         {/* Tarjeta */}
                         <div className="rounded-2xl bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 p-1 shadow-xl transition rotate-2 hover:-rotate-2 scale-110 focus:outline-none focus:ring m-5">
 
-                            <Link className=" flex flex-col justify-center items-center text-center rounded-xl bg-white py-6 sm:py-8 " href="/articulos/0/Todo">
+                            <Link className=" flex flex-col justify-center items-center text-center rounded-xl bg-white py-6 sm:py-8 " href="/articulos/Todo">
 
                                 <div className=" sm:px-2">
                                     <h3 className="text-2xl font-bold text-gray-900">¡Bienvenidos a Distrinova! 👋👋</h3>
