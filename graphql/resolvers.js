@@ -1,35 +1,31 @@
-import GraphQLBigInt from 'graphql-bigint'
+import GraphQLBigInt from 'graphql-bigint';
 
 // import { PrismaClient } from '@prisma/client'
 // const prisma = new PrismaClient()
-import prisma from 'pirsma'
+import prisma from 'pirsma';
 
 export const resolvers = {
     Query: {
         GetUser: async (root, args) => {
-
             const usuarios = await prisma.user.findFirst({
                 where: {
                     email: {
-                        contains: args.email
-                    }
+                        contains: args.email,
+                    },
                 },
-            })
+            });
 
-            return usuarios
+            return usuarios;
         },
         GetUsers: async (root, args) => {
-
             try {
-
-                const UsuariosVerificados = await prisma.user.findMany()
+                const UsuariosVerificados = await prisma.user.findMany();
 
                 if (UsuariosVerificados.length === 0) {
-                    throw new Error("No hay Usuarios Registrados")
+                    throw new Error('No hay Usuarios Registrados');
                 }
 
-                return UsuariosVerificados
-
+                return UsuariosVerificados;
             } catch (error) {
                 throw new Error(`${error.message}`);
             }
@@ -42,13 +38,12 @@ export const resolvers = {
                 },
                 include: {
                     Articulo: true,
-                }
-            })
+                },
+            });
 
-            return Marca
+            return Marca;
         },
         GET_Marcaid: async (root, args) => {
-
             const Marca = await prisma.marca.findFirst({
                 where: {
                     Id: args.id,
@@ -57,29 +52,30 @@ export const resolvers = {
                 include: {
                     Articulo: {
                         include: {
-                            Marca: true
-                        }
+                            Marca: true,
+                        },
                     },
-                }
-            })
+                },
+            });
 
-            return Marca
+            return Marca;
         },
         // Rubro
         GET_Rubro: async (root, args) => {
-
             const { Medicamento } = args;
 
-            // buscar            
+            // buscar
             return await prisma.rubro.findMany({
                 where: {
                     EstaEliminado: false,
-                    Descripcion: Medicamento ? { notIn: ["Indefinido"] } : { notIn: ["Medicamentos", "Indefinido"] }
+                    Descripcion: Medicamento
+                        ? { notIn: ['Indefinido'] }
+                        : { notIn: ['Medicamentos', 'Indefinido'] },
                 },
                 include: {
                     Articulo: true,
-                }
-            })
+                },
+            });
         },
         GET_Rubroid: async (root, args) => {
             return await prisma.rubro.findFirst({
@@ -88,9 +84,9 @@ export const resolvers = {
                     EstaEliminado: false,
                 },
                 include: {
-                    Articulo: true
-                }
-            })
+                    Articulo: true,
+                },
+            });
         },
         // Articulo
         GET_Articulo: async () => {
@@ -101,8 +97,11 @@ export const resolvers = {
                 include: {
                     Marca: true,
                     Rubro: true,
-                }
-            })
+                },
+                orderBy: {
+                    Descripcion: 'asc',
+                },
+            });
         },
         GET_Articuloid: async (root, args) => {
             return await prisma.articulo.findFirst({
@@ -112,217 +111,222 @@ export const resolvers = {
                 },
                 include: {
                     Rubro: true,
-                    Marca: true
-                }
-            })
+                    Marca: true,
+                },
+            });
         },
         FILTRO_Articulo: async (root, args) => {
-            const { keyword, rubro, medicamento} = args
+            const { keyword, rubro, medicamento } = args;
             let datos;
 
             // Sin Rubro
             if (rubro == null) {
-
                 // Con medicamentos
                 if (medicamento) {
                     datos = await prisma.articulo.findMany({
                         where: {
                             Descripcion: {
-                                contains: keyword
+                                contains: keyword,
                             },
                             EstaEliminado: false,
                         },
                         include: {
                             Marca: true,
-                            Rubro: true
-                        }
-                    })
-    
-                    return datos
-                }else // Sin medicamentos
-                {
-                    const MedicamentoId = await prisma.rubro.findFirst({where: { Descripcion: "Medicamentos"}})
-                    console.log(MedicamentoId)
+                            Rubro: true,
+                        },
+                        orderBy: {
+                            Descripcion: 'asc',
+                        },
+                    });
+
+                    return datos;
+                } // Sin medicamentos
+                else {
+                    const MedicamentoId = await prisma.rubro.findFirst({
+                        where: { Descripcion: 'Medicamentos' },
+                    });
+                    console.log(MedicamentoId);
 
                     datos = await prisma.articulo.findMany({
                         where: {
                             Descripcion: {
-                                contains: keyword
+                                contains: keyword,
                             },
                             EstaEliminado: false,
-                            RubroId: {not: MedicamentoId.Id}
+                            RubroId: { not: MedicamentoId.Id },
                         },
                         include: {
                             Marca: true,
-                            Rubro: true
-                        }
-                    })
-    
-                    return datos
-                }
+                            Rubro: true,
+                        },
+                        orderBy: {
+                            Descripcion: 'asc',
+                        },
+                    });
 
+                    return datos;
+                }
             }
 
             // Por rubro
             datos = await prisma.articulo.findMany({
                 where: {
                     Descripcion: {
-                        contains: keyword
+                        contains: keyword,
                     },
-                    RubroId: rubro
+                    RubroId: rubro,
                 },
                 include: {
                     Marca: true,
-                    Rubro: true
-                }
-            })
+                    Rubro: true,
+                },
+                orderBy: {
+                    Descripcion: 'asc',
+                },
+            });
 
-            return datos
+            return datos;
         },
         GET_Articulos_Oferta: async (root, args) => {
-
             const { medicamento } = args;
 
             try {
-                
                 if (!medicamento) {
+                    const rubro = await prisma.rubro.findFirst({
+                        where: { Descripcion: 'Medicamentos' },
+                    });
 
-                    const rubro = await prisma.rubro.findFirst({where: { Descripcion: "Medicamentos"}})
-
-                    var data =  await prisma.articulo.findMany({
+                    var data = await prisma.articulo.findMany({
                         where: {
                             EstaEliminado: false,
                             Oferta: true,
-                            RubroId: {not: rubro.Id}
-                        }
-                    })
+                            RubroId: { not: rubro.Id },
+                        },
+                    });
 
-                    return data
+                    return data;
                 }
-    
+
                 var data = await prisma.articulo.findMany({
                     where: {
                         EstaEliminado: false,
                         Oferta: true,
-                    }
-                })
+                    },
+                });
 
-                return data
-
+                return data;
             } catch (error) {
                 throw new Error(`${error.message}`);
             }
-
-
         },
         // Pedidos
         GET_Pedidos: async (root, args) => {
-
             const _get = await prisma.pedido.findMany({
                 where: { Estado: false },
                 include: {
                     User: true,
-                    DetallePedido: true
-                }
-            })
+                    DetallePedido: true,
+                },
+            });
 
-            return _get
+            return _get;
         },
         GET_Pedido_Usuario: async (root, args) => {
-
-            const { email } = args
+            const { email } = args;
 
             try {
-
                 // buscar el usuario
-                const _usu = await prisma.user.findUnique({ where: { email } })
-                if (!_usu) { throw { message: `El usuario ${email} no esta registrado` } }
+                const _usu = await prisma.user.findUnique({ where: { email } });
+                if (!_usu) {
+                    throw { message: `El usuario ${email} no esta registrado` };
+                }
 
                 const _get = await prisma.pedido.findMany({
                     where: { UserId: _usu.id },
                     include: {
-                        DetallePedido: true
-                    }
-                })
+                        DetallePedido: true,
+                    },
+                });
 
-                return _get
-
+                return _get;
             } catch (error) {
                 throw new Error(`${error.message}`);
             }
-
-        }
+        },
     },
     Mutation: {
         // usar en js ✔
         ADD_Pedido: async (root, args, context) => {
+            const { articulos, usuario } = args;
 
-            const { articulos, usuario } = args
-
-            let _ListaArticulos = []
-
-
+            let _ListaArticulos = [];
 
             const fecha = Date.now(); // milisegundos
             const hoy = new Date(fecha); // formato ISO 8601  La "Z" al final indica que la fecha y hora están en la zona horaria UTC (Tiempo Universal Coordinado). Sql server Guardar
 
-            let _pedido
+            let _pedido;
             try {
                 // Buscar Otra vez el usu para asociar al pedido - tengo email i es unico
-                const _Usu = await prisma.user.findUnique({ where: { email: usuario } })
-                if (_Usu === null){
+                const _Usu = await prisma.user.findUnique({
+                    where: { email: usuario },
+                });
+                if (_Usu === null) {
                     throw {
                         message: `El usuario no Existe: ${usuario}`,
-                        bandera: true
-                    }
-                } 
+                        bandera: true,
+                    };
+                }
 
                 // Creamos los detalles en memoria
-                let _DetallePedidos = []
-                let _Total = 0
+                let _DetallePedidos = [];
+                let _Total = 0;
 
                 // transaccion
                 const _Trans = await prisma.$transaction(async (prisma) => {
                     // Recorrer los pedidos art
                     for (const art of articulos) {
-
                         // buscar en bd
-                        const _ArticuloBD = await prisma.articulo.findUnique({ where: { Id: art.Id } })
-                        if (_ArticuloBD === null){
-                            throw{
+                        const _ArticuloBD = await prisma.articulo.findUnique({
+                            where: { Id: art.Id },
+                        });
+                        if (_ArticuloBD === null) {
+                            throw {
                                 message: `Codigo de Articulo no Existe: ${art.Descripcion}`,
-                                bandera: true
-                            }
+                                bandera: true,
+                            };
                         }
 
                         // comprobar si hay stock
                         if (!_ArticuloBD.PermiteStockNegativo) {
-
                             if (_ArticuloBD.Stock < art.Cantidad) {
                                 throw {
                                     message: `Error no hay Stock Para el articulo: ${art.Descripcion} Stock Actual: ${_ArticuloBD.Stock}`,
-                                    bandera: true
+                                    bandera: true,
                                 };
                             } else {
-                                // descontar stock - actualizar Cantidad 
-                                _ArticuloBD.Stock = _ArticuloBD.Stock - art.Cantidad
+                                // descontar stock - actualizar Cantidad
+                                _ArticuloBD.Stock =
+                                    _ArticuloBD.Stock - art.Cantidad;
 
                                 await prisma.articulo.update({
                                     where: {
-                                        Id: _ArticuloBD.Id
+                                        Id: _ArticuloBD.Id,
                                     },
                                     data: {
-                                        Stock: _ArticuloBD.Stock
-                                    }
-                                })
+                                        Stock: _ArticuloBD.Stock,
+                                    },
+                                });
                             }
                         }
 
                         // total y detalle
                         let _descuento;
-                        const precioConDescuento = _ArticuloBD.Descuento == null
-                        ? _ArticuloBD.PrecioVenta
-                        : _ArticuloBD.PrecioVenta - (_ArticuloBD.PrecioVenta * (_ArticuloBD.Descuento / 100));
+                        const precioConDescuento =
+                            _ArticuloBD.Descuento == null
+                                ? _ArticuloBD.PrecioVenta
+                                : _ArticuloBD.PrecioVenta -
+                                  _ArticuloBD.PrecioVenta *
+                                      (_ArticuloBD.Descuento / 100);
 
                         _Total += art.Cantidad * precioConDescuento;
 
@@ -334,10 +338,10 @@ export const resolvers = {
                             Precio: precioConDescuento,
                             SubTotal: art.Cantidad * precioConDescuento,
                             EstaEliminado: false,
-                        })
+                        });
 
-                        _ListaArticulos.push(_ArticuloBD)
-                    };
+                        _ListaArticulos.push(_ArticuloBD);
+                    }
 
                     // Crear el pedido
                     _pedido = await prisma.pedido.create({
@@ -347,9 +351,9 @@ export const resolvers = {
                             SubTotal: _Total,
                             Descuento: 0,
                             Total: _Total,
-                            Estado: false
-                        }
-                    })
+                            Estado: false,
+                        },
+                    });
 
                     for (const art of _DetallePedidos) {
                         // Crear el detalle
@@ -357,66 +361,61 @@ export const resolvers = {
                             data: {
                                 ...art,
                                 PedidoId: _pedido.Id,
-                            }
-                        })
+                            },
+                        });
                     }
-
-                })
-
+                });
             } catch (error) {
-                
                 if (error.bandera) {
                     throw new Error(`${error.message}`);
                 }
                 throw new Error(`Error, En el Servidor`);
             }
 
-            return _ListaArticulos
-
+            return _ListaArticulos;
         },
         Delete_Pedido: async (root, args, context) => {
-
             if (context.isAuthenticated === false) {
-                throw new Error(`Error: No estas autorizado.`)
+                throw new Error(`Error: No estas autorizado.`);
             }
 
             const { Id } = args;
 
             try {
-
                 const _pedido = await prisma.pedido.findUnique({
                     where: { Id },
                     include: {
-                        DetallePedido: true
-                    }
-                })
+                        DetallePedido: true,
+                    },
+                });
 
-                if (!_pedido) { throw { message: `Error, El pedido con Codigo ${Id} no existe`, } }
+                if (!_pedido) {
+                    throw {
+                        message: `Error, El pedido con Codigo ${Id} no existe`,
+                    };
+                }
 
                 const _Trans = await prisma.$transaction(async (prisma) => {
-
                     // delete el detalle
                     const detalle = await prisma.detallePedido.deleteMany({
                         where: {
-                            PedidoId: Id
-                        }
-                    })
+                            PedidoId: Id,
+                        },
+                    });
                     // delete el pedido
-                    const pedido = await prisma.pedido.delete({ where: { Id } })
-                })
+                    const pedido = await prisma.pedido.delete({
+                        where: { Id },
+                    });
+                });
 
-                return _pedido
-
+                return _pedido;
             } catch (error) {
                 throw new Error(`${error.message}`);
             }
-
-
         },
         Cancelar_Pedido: async (root, args, context) => {
-
             if (context.isAuthenticated === false) {
-                throw new Error(`Error: No estas autorizado.`)
+                throw new Error(`Error: No estas autorizado.`);
             }
 
             const { Id } = args;
@@ -424,59 +423,56 @@ export const resolvers = {
             // eliminar - detalle de pedido - pedido - articulos actualizar stock (sumar)
 
             try {
-
                 const _pedido = await prisma.pedido.findUnique({
                     where: {
-                        Id
+                        Id,
                     },
                     include: {
-                        DetallePedido: true
-                    }
-                })
+                        DetallePedido: true,
+                    },
+                });
 
-                if (!_pedido) { throw { message: `Error, El pedido con Codigo ${Id} no existe`, } }
-
+                if (!_pedido) {
+                    throw {
+                        message: `Error, El pedido con Codigo ${Id} no existe`,
+                    };
+                }
 
                 const _Trans = await prisma.$transaction(async (prisma) => {
-
                     await prisma.detallePedido.deleteMany({
                         where: {
-                            PedidoId: _pedido.Id
-                        }
-                    })
+                            PedidoId: _pedido.Id,
+                        },
+                    });
                     // Aqui Terminar de hacer el cancelar pedido.... y depues ponerlo en c#
-                    await prisma.pedido.delete({ where: { Id: _pedido.Id } })
+                    await prisma.pedido.delete({ where: { Id: _pedido.Id } });
 
                     for (const art of _pedido.DetallePedido) {
-
                         await prisma.articulo.update({
                             where: {
-                                Id: art.ArticuloId
+                                Id: art.ArticuloId,
                             },
                             data: {
                                 Stock: {
-                                    increment: art.Cantidad
-                                }
-                            }
-                        })
-
+                                    increment: art.Cantidad,
+                                },
+                            },
+                        });
                     }
-                })
+                });
 
                 return true;
             } catch (error) {
                 throw new Error(`${error.message}`);
             }
-
         },
         // usar en C# ✔
         ADD_Articulo: async (root, args, context) => {
-
             if (context.isAuthenticated === false) {
-                throw new Error(`Error: No estas autorizado.`)
+                throw new Error(`Error: No estas autorizado.`);
             }
 
-            const { articulo } = args
+            const { articulo } = args;
 
             try {
                 // Marca
@@ -485,7 +481,11 @@ export const resolvers = {
                         Descripcion: articulo.marca,
                     },
                 });
-                if (!_marca) { throw { message: `Error, La Marca ${articulo.marca} no existe`, } }
+                if (!_marca) {
+                    throw {
+                        message: `Error, La Marca ${articulo.marca} no existe`,
+                    };
+                }
 
                 // Rubro
                 const _rubro = await prisma.rubro.findFirst({
@@ -493,7 +493,11 @@ export const resolvers = {
                         Descripcion: articulo.rubro,
                     },
                 });
-                if (!_rubro) { throw { message: `Error, El Rubro ${articulo.Rubro} no existe`, } }
+                if (!_rubro) {
+                    throw {
+                        message: `Error, El Rubro ${articulo.Rubro} no existe`,
+                    };
+                }
 
                 const NewArticulo = await prisma.articulo.create({
                     data: {
@@ -504,39 +508,40 @@ export const resolvers = {
                         Stock: articulo.stock,
                         EstaEliminado: articulo.estaEliminado,
                         Oferta: articulo.oferta,
-                        FotoUrl: articulo.fotoUrl != "" ? articulo.fotoUrl : null,
+                        FotoUrl:
+                            articulo.fotoUrl != '' ? articulo.fotoUrl : null,
                         PrecioVenta: articulo.precioVenta,
                         PermiteStockNegativo: articulo.permiteStockNegativo,
                         Descuento: articulo.descuento,
-                    }
-                })
+                    },
+                });
 
-                return NewArticulo
-
+                return NewArticulo;
             } catch (error) {
                 throw new Error(`${error.message}`);
             }
-
         },
         Update_Articulo: async (root, args, context) => {
-
             if (context.isAuthenticated === false) {
-                throw new Error(`Error: No estas autorizado.`)
+                throw new Error(`Error: No estas autorizado.`);
             }
 
-            const { articulo } = args
+            const { articulo } = args;
 
             // marca y rubro -> MarcaId y RubroId
 
             try {
-
                 // Marca
                 const _marca = await prisma.marca.findFirst({
                     where: {
                         Descripcion: articulo.marca,
                     },
                 });
-                if (!_marca) { throw { message: `Error, La Marca ${articulo.marca} no existe`, } }
+                if (!_marca) {
+                    throw {
+                        message: `Error, La Marca ${articulo.marca} no existe`,
+                    };
+                }
 
                 // Rubro
                 const _rubro = await prisma.rubro.findFirst({
@@ -544,12 +549,17 @@ export const resolvers = {
                         Descripcion: articulo.rubro,
                     },
                 });
-                if (!_rubro) { throw { message: `Error, El Rubro ${articulo.rubro} no existe`, } }
+                if (!_rubro) {
+                    throw {
+                        message: `Error, El Rubro ${articulo.rubro} no existe`,
+                    };
+                }
 
-                const cod = await prisma.articulo.findUnique({ where: { Codigo: articulo.codigo } })
+                const cod = await prisma.articulo.findUnique({
+                    where: { Codigo: articulo.codigo },
+                });
 
-                console.table(articulo)
-
+                console.table(articulo);
 
                 if (!cod) {
                     // Articulo no existe lo creo
@@ -562,21 +572,23 @@ export const resolvers = {
                             Stock: articulo.stock,
                             EstaEliminado: articulo.estaEliminado,
                             Oferta: articulo.oferta,
-                            FotoUrl: articulo.fotoUrl != "" ? articulo.fotoUrl : null,
+                            FotoUrl:
+                                articulo.fotoUrl != ''
+                                    ? articulo.fotoUrl
+                                    : null,
                             PrecioVenta: articulo.precioVenta,
                             PermiteStockNegativo: articulo.permiteStockNegativo,
                             Descuento: articulo.descuento,
-                        }
-                    })
+                        },
+                    });
 
-                    return NewArticulo
-
+                    return NewArticulo;
                 }
 
                 // Actualizo
                 const _update = await prisma.articulo.update({
                     where: {
-                        Codigo: articulo.codigo
+                        Codigo: articulo.codigo,
                     },
                     data: {
                         MarcaId: _marca.Id,
@@ -586,150 +598,136 @@ export const resolvers = {
                         Stock: articulo.stock,
                         EstaEliminado: articulo.estaEliminado,
                         Oferta: articulo.oferta,
-                        FotoUrl: articulo.fotoUrl != "" ? articulo.fotoUrl : null,
+                        FotoUrl:
+                            articulo.fotoUrl != '' ? articulo.fotoUrl : null,
                         PrecioVenta: articulo.precioVenta,
                         PermiteStockNegativo: articulo.permiteStockNegativo,
                         Descuento: articulo.descuento,
-                    }
-                })
+                    },
+                });
 
-                return _update
-
+                return _update;
             } catch (error) {
                 throw new Error(`${error.message}`);
             }
         },
         Delete_Articulo: async (root, args, context) => {
             if (context.isAuthenticated === false) {
-                throw new Error(`Error: No estas autorizado.`)
+                throw new Error(`Error: No estas autorizado.`);
             }
 
-            const { codigo, EstaEliminado } = args
+            const { codigo, EstaEliminado } = args;
 
             try {
-
                 const _delete = await prisma.articulo.update({
                     where: {
-                        Codigo: codigo
+                        Codigo: codigo,
                     },
                     data: { EstaEliminado },
-                })
+                });
 
-                return _delete
-
+                return _delete;
             } catch (error) {
                 throw new Error(`${error.message}`);
             }
-
         },
         ADD_Stock_Articulo: async (root, args, context) => {
-
             if (context.isAuthenticated === false) {
-                throw new Error(`Error: No estas autorizado.`)
+                throw new Error(`Error: No estas autorizado.`);
             }
 
             // desde c# mandar el total de stock
             const update = await prisma.articulo.update({
                 where: {
-                    Codigo: args.codigo
+                    Codigo: args.codigo,
                 },
                 data: { Stock: args.cantidad },
-            })
+            });
 
-            return update
+            return update;
         },
         Update_Stock_Articulos: async (root, args, context) => {
-
             if (context.isAuthenticated === false) {
-                throw new Error(`Error: No estas autorizado.`)
+                throw new Error(`Error: No estas autorizado.`);
             }
 
-            const { lista } = args
+            const { lista } = args;
 
-            console.table(lista)
+            console.table(lista);
 
             try {
                 // transaccion
                 const _Trans = await prisma.$transaction(async (prisma) => {
-
                     for (const art of lista) {
                         // Crear el detalle
                         await prisma.articulo.update({
                             where: {
-                                Codigo: art.codigo
+                                Codigo: art.codigo,
                             },
                             data: {
-                                Stock: art.stock
-                            }
-                        })
+                                Stock: art.stock,
+                            },
+                        });
                     }
+                });
 
-                })
+                console.log(_Trans);
 
-                console.log(_Trans)
-
-                return true
-
+                return true;
             } catch (error) {
                 throw new Error(`${error.message}`);
             }
-
         },
         Update_PrecioVenta_Articulos: async (root, args, context) => {
-
             if (context.isAuthenticated === false) {
-                throw new Error(`Error: No estas autorizado.`)
+                throw new Error(`Error: No estas autorizado.`);
             }
 
-            const { lista } = args
+            const { lista } = args;
 
-            console.table(lista)
+            console.table(lista);
 
             try {
                 // transaccion
                 const _Trans = await prisma.$transaction(async (prisma) => {
-
                     for (const art of lista) {
                         // Crear el detalle
                         await prisma.articulo.update({
                             where: {
-                                Codigo: art.codigo
+                                Codigo: art.codigo,
                             },
                             data: {
-                                PrecioVenta: art.precioVenta
-                            }
-                        })
+                                PrecioVenta: art.precioVenta,
+                            },
+                        });
                     }
+                });
 
-                })
+                console.log(_Trans);
 
-                console.log(_Trans)
-
-                return true
-
+                return true;
             } catch (error) {
                 throw new Error(`${error.message}`);
             }
-
         },
         UsuarioMedicamento: async (root, args, context) => {
-
             if (context.isAuthenticated === false) {
-                throw new Error(`Error: No estas autorizado.`)
+                throw new Error(`Error: No estas autorizado.`);
             }
 
             const { id } = args;
 
             try {
-
-                const _usuario = await prisma.user.findUnique({where: {id}})
+                const _usuario = await prisma.user.findUnique({
+                    where: { id },
+                });
 
                 const actualizar = await prisma.user.update({
                     where: { id },
                     data: {
-                        medicamento: !_usuario.medicamento
-                    }
-                })
+                        medicamento: !_usuario.medicamento,
+                    },
+                });
 
                 if (actualizar) {
                     return true;
@@ -742,45 +740,40 @@ export const resolvers = {
         },
         // Marca ✔
         ADD_Marca: async (root, args, context) => {
-
             if (context.isAuthenticated === false) {
-                throw new Error(`Error: No estas autorizado.`)
+                throw new Error(`Error: No estas autorizado.`);
             }
 
-            const { Codigo, Descripcion } = args
+            const { Codigo, Descripcion } = args;
 
-            console.log(Codigo)
-            console.log(Descripcion)
+            console.log(Codigo);
+            console.log(Descripcion);
 
             try {
-
                 const _add = await prisma.marca.create({
                     data: {
                         Codigo,
                         Descripcion,
-                        EstaEliminado: false
-                    }
-                })
+                        EstaEliminado: false,
+                    },
+                });
 
-                return _add
-
+                return _add;
             } catch (error) {
                 throw new Error(`${error.message}`);
             }
         },
         Update_Marca: async (root, args, context) => {
-
             if (context.isAuthenticated === false) {
-                throw new Error(`Error: No estas autorizado.`)
+                throw new Error(`Error: No estas autorizado.`);
             }
 
-            const { Codigo, Descripcion } = args
+            const { Codigo, Descripcion } = args;
 
             try {
-
                 const _marca = await prisma.marca.findUnique({
-                    where: { Codigo }
-                })
+                    where: { Codigo },
+                });
 
                 if (_marca == null) {
                     // no existe - la creo
@@ -788,93 +781,80 @@ export const resolvers = {
                         data: {
                             Codigo,
                             Descripcion,
-                            EstaEliminado: false
-                        }
-                    })
+                            EstaEliminado: false,
+                        },
+                    });
 
-                    return _add
+                    return _add;
                 }
 
-
-                if (Descripcion == _marca.Descripcion) return _marca
+                if (Descripcion == _marca.Descripcion) return _marca;
 
                 const _update = await prisma.marca.update({
                     where: {
-                        Id: _marca.Id
+                        Id: _marca.Id,
                     },
                     data: { Descripcion },
-                })
+                });
 
-                return _update
-
+                return _update;
             } catch (error) {
                 throw new Error(`${error.message}`);
             }
-
         },
         Delete_Marca: async (root, args, context) => {
-
             if (context.isAuthenticated === false) {
-                throw new Error(`Error: No estas autorizado.`)
+                throw new Error(`Error: No estas autorizado.`);
             }
 
-            const { Codigo, EstaEliminado } = args
+            const { Codigo, EstaEliminado } = args;
 
             try {
-
                 const _update = await prisma.marca.update({
                     where: {
-                        Codigo
+                        Codigo,
                     },
                     data: { EstaEliminado },
-                })
+                });
 
-                return _update
-
+                return _update;
             } catch (error) {
                 throw new Error(`${error.message}`);
             }
-
         },
         // Rubro ✔
         ADD_Rubro: async (root, args, context) => {
-
             if (context.isAuthenticated === false) {
-                throw new Error(`Error: No estas autorizado.`)
+                throw new Error(`Error: No estas autorizado.`);
             }
 
-            const { Codigo, Descripcion } = args
+            const { Codigo, Descripcion } = args;
 
             try {
-
                 const _add = await prisma.rubro.create({
                     data: {
                         Codigo,
                         Descripcion,
-                        EstaEliminado: false
-                    }
-                })
+                        EstaEliminado: false,
+                    },
+                });
 
-                return _add
-
+                return _add;
             } catch (error) {
                 throw new Error(`${error.message}`);
             }
-
         },
         Update_Rubro: async (root, args, context) => {
-
             if (context.isAuthenticated === false) {
-                throw new Error(`Error: No estas autorizado.`)
+                throw new Error(`Error: No estas autorizado.`);
             }
 
-            const { Codigo, Descripcion } = args
+            const { Codigo, Descripcion } = args;
 
             try {
-
                 const _rubro = await prisma.rubro.findUnique({
-                    where: { Codigo }
-                })
+                    where: { Codigo },
+                });
 
                 if (!_rubro) {
                     // no existe - lo creo
@@ -882,56 +862,51 @@ export const resolvers = {
                         data: {
                             Codigo,
                             Descripcion,
-                            EstaEliminado: false
-                        }
-                    })
+                            EstaEliminado: false,
+                        },
+                    });
 
-                    return _add
+                    return _add;
                 }
 
-                if (Descripcion == _rubro.Descripcion) return _rubro
+                if (Descripcion == _rubro.Descripcion) return _rubro;
 
                 const _update = await prisma.rubro.update({
                     where: {
-                        Id: _rubro.Id
+                        Id: _rubro.Id,
                     },
                     data: { Descripcion },
-                })
+                });
 
-                return _update
-
+                return _update;
             } catch (error) {
                 throw new Error(`${error.message}`);
             }
         },
         Delete_Rubro: async (root, args, context) => {
             if (context.isAuthenticated === false) {
-                throw new Error(`Error: No estas autorizado.`)
+                throw new Error(`Error: No estas autorizado.`);
             }
 
-            const { Codigo, EstaEliminado } = args
+            const { Codigo, EstaEliminado } = args;
 
             try {
-
                 const _update = await prisma.rubro.update({
                     where: {
-                        Codigo
+                        Codigo,
                     },
                     data: { EstaEliminado },
-                })
+                });
 
-                return _update
-
+                return _update;
             } catch (error) {
                 throw new Error(`${error.message}`);
             }
-
         },
-
     },
     BigInt: GraphQLBigInt,
     Pedido: {
-        Fecha: (root) => formatDate(root.Fecha) // cuando sale para c#
+        Fecha: (root) => formatDate(root.Fecha), // cuando sale para c#
     },
     // Articulo: {
     //     id: (root) => root.Id
@@ -941,25 +916,20 @@ export const resolvers = {
     //     Compuesto: (root) => `${root.title}, ${root.description}`,
     //     CompuestoStatico: () => 'Dato Estatico no calculado'
     // }
-}
-
+};
 
 function formatDate(date) {
-
     var d = new Date(date),
         month = '' + (d.getMonth() + 1),
         day = '' + d.getDate(),
         year = d.getFullYear();
 
-    if (month.length < 2)
-        month = '0' + month;
-    if (day.length < 2)
-        day = '0' + day;
+    if (month.length < 2) month = '0' + month;
+    if (day.length < 2) day = '0' + day;
 
     const options = { timeZone: 'America/Argentina/Buenos_Aires' }; // Establece la zona horaria de Argentina
     const hora = d.toLocaleTimeString('es-ES', options);
     const fecha = `${[year, month, day].join('-')} ${hora}`;
-
 
     return fecha;
 }
