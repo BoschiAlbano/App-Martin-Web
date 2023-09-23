@@ -17,7 +17,11 @@ export const resolvers = {
 
             return usuarios;
         },
-        GetUsers: async (root, args) => {
+        GetUsers: async (root, args, context) => {
+            if (context.isAuthenticated === false) {
+                throw new Error(`Error: No estas autorizado.`);
+            }
+
             try {
                 const UsuariosVerificados = await prisma.user.findMany();
 
@@ -175,6 +179,7 @@ export const resolvers = {
                         contains: keyword,
                     },
                     RubroId: rubro,
+                    EstaEliminado: false,
                 },
                 include: {
                     Marca: true,
@@ -728,6 +733,29 @@ export const resolvers = {
                         medicamento: !_usuario.medicamento,
                     },
                 });
+
+                if (actualizar) {
+                    return true;
+                }
+
+                return false;
+            } catch (error) {
+                throw new Error(`${error.message}`);
+            }
+        },
+        Delete_User: async (root, args, context) => {
+            if (context.isAuthenticated === false) {
+                throw new Error(`Error: No estas autorizado.`);
+            }
+
+            const { id } = args;
+
+            try {
+                // const _usuario = await prisma.user.findUnique({
+                //     where: { id },
+                // });
+
+                const actualizar = await prisma.user.delete({ where: { id } });
 
                 if (actualizar) {
                     return true;
