@@ -1,8 +1,8 @@
-import GraphQLBigInt from 'graphql-bigint';
+import GraphQLBigInt from "graphql-bigint";
 
 // import { PrismaClient } from '@prisma/client'
 // const prisma = new PrismaClient()
-import prisma from 'pirsma';
+import prisma from "pirsma";
 
 export const resolvers = {
     Query: {
@@ -26,7 +26,7 @@ export const resolvers = {
                 const UsuariosVerificados = await prisma.user.findMany();
 
                 if (UsuariosVerificados.length === 0) {
-                    throw new Error('No hay Usuarios Registrados');
+                    throw new Error("No hay Usuarios Registrados");
                 }
 
                 return UsuariosVerificados;
@@ -73,8 +73,8 @@ export const resolvers = {
                 where: {
                     EstaEliminado: false,
                     Descripcion: Medicamento
-                        ? { notIn: ['Indefinido'] }
-                        : { notIn: ['Medicamentos', 'Indefinido'] },
+                        ? { notIn: ["Indefinido"] }
+                        : { notIn: ["Medicamentos", "Indefinido"] },
                 },
                 include: {
                     Articulo: true,
@@ -103,7 +103,7 @@ export const resolvers = {
                     Rubro: true,
                 },
                 orderBy: {
-                    Descripcion: 'asc',
+                    Descripcion: "asc",
                 },
             });
         },
@@ -139,7 +139,7 @@ export const resolvers = {
                             Rubro: true,
                         },
                         orderBy: {
-                            Descripcion: 'asc',
+                            Descripcion: "asc",
                         },
                     });
 
@@ -147,7 +147,7 @@ export const resolvers = {
                 } // Sin medicamentos
                 else {
                     const MedicamentoId = await prisma.rubro.findFirst({
-                        where: { Descripcion: 'Medicamentos' },
+                        where: { Descripcion: "Medicamentos" },
                     });
                     console.log(MedicamentoId);
 
@@ -164,7 +164,7 @@ export const resolvers = {
                             Rubro: true,
                         },
                         orderBy: {
-                            Descripcion: 'asc',
+                            Descripcion: "asc",
                         },
                     });
 
@@ -186,7 +186,7 @@ export const resolvers = {
                     Rubro: true,
                 },
                 orderBy: {
-                    Descripcion: 'asc',
+                    Descripcion: "asc",
                 },
             });
 
@@ -198,7 +198,7 @@ export const resolvers = {
             try {
                 if (!medicamento) {
                     const rubro = await prisma.rubro.findFirst({
-                        where: { Descripcion: 'Medicamentos' },
+                        where: { Descripcion: "Medicamentos" },
                     });
 
                     var data = await prisma.articulo.findMany({
@@ -269,38 +269,47 @@ export const resolvers = {
             const fecha = Date.now(); // milisegundos
             const hoy = new Date(fecha); // formato ISO 8601  La "Z" al final indica que la fecha y hora están en la zona horaria UTC (Tiempo Universal Coordinado). Sql server Guardar
 
-            let _pedido;
             try {
-                // Buscar Otra vez el usu para asociar al pedido - tengo email i es unico
-                const _Usu = await prisma.user.findUnique({
-                    where: { email: usuario },
+                // 😭 Modificar para guardar un comprobrante y detalle de comprobante en estado pendiende de pago. descontar el stock
+
+                // Buscar el cliente.
+                // Crear Comprobrante. (Obtener siguiente numero de comprobante)
+                // Crear el detalle de comprobante (Descontar stock)
+
+                //#region CLIENTE
+                const _Usu = await prisma.persona.findFirst({
+                    where: {
+                        Mail: usuario,
+                    },
                 });
+
                 if (_Usu === null) {
                     throw {
                         message: `El usuario no Existe: ${usuario}`,
                         bandera: true,
                     };
                 }
+                //#endregion
 
                 // Creamos los detalles en memoria
-                let _DetallePedidos = [];
+                let _DetalleComprobantes = [];
                 let _Total = 0;
 
                 // transaccion
                 const _Trans = await prisma.$transaction(async (prisma) => {
-                    // Recorrer los pedidos art
+                    //#region Articulos - Stock - Total - Lista de Detalle Comprobante
                     for (const art of articulos) {
-                        // buscar en bd
+                        // buscar articulo en la base de datos
                         const _ArticuloBD = await prisma.articulo.findUnique({
                             where: { Id: art.Id },
                         });
+                        // si no existe error
                         if (_ArticuloBD === null) {
                             throw {
                                 message: `Codigo de Articulo no Existe: ${art.Descripcion}`,
                                 bandera: true,
                             };
                         }
-
                         // comprobar si hay stock
                         if (!_ArticuloBD.PermiteStockNegativo) {
                             if (_ArticuloBD.Stock < art.Cantidad) {
@@ -324,8 +333,7 @@ export const resolvers = {
                             }
                         }
 
-                        // total y detalle
-                        let _descuento;
+                        // Total
                         const precioConDescuento =
                             _ArticuloBD.Descuento == null
                                 ? _ArticuloBD.PrecioVenta
@@ -335,42 +343,77 @@ export const resolvers = {
 
                         _Total += art.Cantidad * precioConDescuento;
 
-                        _DetallePedidos.push({
+                        // Detalle comprobante lista memoria
+                        _DetalleComprobantes.push({
                             ArticuloId: _ArticuloBD.Id,
                             Codigo: _ArticuloBD.Codigo.toString(),
                             Descripcion: _ArticuloBD.Descripcion,
                             Cantidad: art.Cantidad,
                             Precio: precioConDescuento,
+                            PrecioCosto: _ArticuloBD.PrecioCosto,
                             SubTotal: art.Cantidad * precioConDescuento,
+                            Dto: 0,
                             EstaEliminado: false,
                         });
 
+                        // Guardar en lista
                         _ListaArticulos.push(_ArticuloBD);
                     }
 
-                    // Crear el pedido
-                    _pedido = await prisma.pedido.create({
+                    //#region COMPROBANTE
+                    // 1 - Emplreado - el primer empleado es el que factura en el sistema. (modificar en caso que tengas un empreado propio para la web)
+                    const _empleado = await prisma.persona_Empleado.findFirst({
+                        where: { Legajo: 1 },
+                        include: { Usuario: true },
+                    });
+
+                    if (_empleado === null) {
+                        throw {
+                            message: `Error, no hay empreado asignado en el sistema...`,
+                            bandera: true,
+                        };
+                    }
+                    // 2 - Obtener Siguiente numero comprobante
+
+                    const Numero = await prisma.comprobante.findFirst({
+                        orderBy: { Numero: "desc" },
+                    });
+
+                    // fin -
+                    const _Comprobante = await prisma.comprobante.create({
                         data: {
-                            UserId: _Usu.id,
+                            EmpleadoId: _empleado.Id,
+                            UsuarioId: _empleado.Usuario[0].Id,
                             Fecha: hoy,
+                            Numero: Numero ? Numero.Numero + 1 : 1,
                             SubTotal: _Total,
                             Descuento: 0,
                             Total: _Total,
-                            Estado: false,
+                            TipoComprobante: 3,
+                            Efectivo: 0,
+                            CuentaCorriente: 0,
+                            Estado: 1,
+                            ClienteId: _Usu.Id,
+                            PagoCuentaCorriente: false,
+                            EstaEliminado: false,
                         },
                     });
+                    //#endregion
 
-                    for (const art of _DetallePedidos) {
+                    //#region DETALLE DE PEDIDOS
+                    for (const art of _DetalleComprobantes) {
                         // Crear el detalle
-                        await prisma.detallePedido.create({
+                        await prisma.detalleComprobante.create({
                             data: {
                                 ...art,
-                                PedidoId: _pedido.Id,
+                                ComprobanteId: _Comprobante.Id,
                             },
                         });
                     }
+                    //#endregion
                 });
             } catch (error) {
+                console.log(error.message);
                 if (error.bandera) {
                     throw new Error(`${error.message}`);
                 }
@@ -378,98 +421,6 @@ export const resolvers = {
             }
 
             return _ListaArticulos;
-        },
-        Delete_Pedido: async (root, args, context) => {
-            if (context.isAuthenticated === false) {
-                throw new Error(`Error: No estas autorizado.`);
-            }
-
-            const { Id } = args;
-
-            try {
-                const _pedido = await prisma.pedido.findUnique({
-                    where: { Id },
-                    include: {
-                        DetallePedido: true,
-                    },
-                });
-
-                if (!_pedido) {
-                    throw {
-                        message: `Error, El pedido con Codigo ${Id} no existe`,
-                    };
-                }
-
-                const _Trans = await prisma.$transaction(async (prisma) => {
-                    // delete el detalle
-                    const detalle = await prisma.detallePedido.deleteMany({
-                        where: {
-                            PedidoId: Id,
-                        },
-                    });
-                    // delete el pedido
-                    const pedido = await prisma.pedido.delete({
-                        where: { Id },
-                    });
-                });
-
-                return _pedido;
-            } catch (error) {
-                throw new Error(`${error.message}`);
-            }
-        },
-        Cancelar_Pedido: async (root, args, context) => {
-            if (context.isAuthenticated === false) {
-                throw new Error(`Error: No estas autorizado.`);
-            }
-
-            const { Id } = args;
-
-            // eliminar - detalle de pedido - pedido - articulos actualizar stock (sumar)
-
-            try {
-                const _pedido = await prisma.pedido.findUnique({
-                    where: {
-                        Id,
-                    },
-                    include: {
-                        DetallePedido: true,
-                    },
-                });
-
-                if (!_pedido) {
-                    throw {
-                        message: `Error, El pedido con Codigo ${Id} no existe`,
-                    };
-                }
-
-                const _Trans = await prisma.$transaction(async (prisma) => {
-                    await prisma.detallePedido.deleteMany({
-                        where: {
-                            PedidoId: _pedido.Id,
-                        },
-                    });
-                    // Aqui Terminar de hacer el cancelar pedido.... y depues ponerlo en c#
-                    await prisma.pedido.delete({ where: { Id: _pedido.Id } });
-
-                    for (const art of _pedido.DetallePedido) {
-                        await prisma.articulo.update({
-                            where: {
-                                Id: art.ArticuloId,
-                            },
-                            data: {
-                                Stock: {
-                                    increment: art.Cantidad,
-                                },
-                            },
-                        });
-                    }
-                });
-
-                return true;
-            } catch (error) {
-                throw new Error(`${error.message}`);
-            }
         },
         // usar en C# ✔
         ADD_Articulo: async (root, args, context) => {
@@ -514,7 +465,7 @@ export const resolvers = {
                         EstaEliminado: articulo.estaEliminado,
                         Oferta: articulo.oferta,
                         FotoUrl:
-                            articulo.fotoUrl != '' ? articulo.fotoUrl : null,
+                            articulo.fotoUrl != "" ? articulo.fotoUrl : null,
                         PrecioVenta: articulo.precioVenta,
                         PermiteStockNegativo: articulo.permiteStockNegativo,
                         Descuento: articulo.descuento,
@@ -578,7 +529,7 @@ export const resolvers = {
                             EstaEliminado: articulo.estaEliminado,
                             Oferta: articulo.oferta,
                             FotoUrl:
-                                articulo.fotoUrl != ''
+                                articulo.fotoUrl != ""
                                     ? articulo.fotoUrl
                                     : null,
                             PrecioVenta: articulo.precioVenta,
@@ -604,7 +555,7 @@ export const resolvers = {
                         EstaEliminado: articulo.estaEliminado,
                         Oferta: articulo.oferta,
                         FotoUrl:
-                            articulo.fotoUrl != '' ? articulo.fotoUrl : null,
+                            articulo.fotoUrl != "" ? articulo.fotoUrl : null,
                         PrecioVenta: articulo.precioVenta,
                         PermiteStockNegativo: articulo.permiteStockNegativo,
                         Descuento: articulo.descuento,
@@ -948,16 +899,16 @@ export const resolvers = {
 
 function formatDate(date) {
     var d = new Date(date),
-        month = '' + (d.getMonth() + 1),
-        day = '' + d.getDate(),
+        month = "" + (d.getMonth() + 1),
+        day = "" + d.getDate(),
         year = d.getFullYear();
 
-    if (month.length < 2) month = '0' + month;
-    if (day.length < 2) day = '0' + day;
+    if (month.length < 2) month = "0" + month;
+    if (day.length < 2) day = "0" + day;
 
-    const options = { timeZone: 'America/Argentina/Buenos_Aires' }; // Establece la zona horaria de Argentina
-    const hora = d.toLocaleTimeString('es-ES', options);
-    const fecha = `${[year, month, day].join('-')} ${hora}`;
+    const options = { timeZone: "America/Argentina/Buenos_Aires" }; // Establece la zona horaria de Argentina
+    const hora = d.toLocaleTimeString("es-ES", options);
+    const fecha = `${[year, month, day].join("-")} ${hora}`;
 
     return fecha;
 }

@@ -1,4 +1,4 @@
-import { gql } from 'apollo-server-micro';
+import { gql } from "apollo-server-micro";
 
 export const typeDefs = gql`
     scalar BigInt
@@ -134,8 +134,6 @@ export const typeDefs = gql`
     type Mutation {
         # Pedidos
         ADD_Pedido(usuario: String!, articulos: [ArticuloPedido!]!): [Articulo]
-        Delete_Pedido(Id: Int!): Pedido
-        Cancelar_Pedido(Id: Int!): Boolean
 
         # Articulo
         ADD_Articulo(articulo: ArticuloInput): Articulo

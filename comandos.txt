@@ -9,3 +9,142 @@ Generar las migraciones
 por cada migracion que se haga usamos
     npx prisma generate
 para actualizar el cliente de PrismaClient
+
+
+
+
+#### Esquema ####
+
+------------------------------ esquema db web api --------------------------
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model MigrationHistory {
+  MigrationId    String @db.NVarChar(150)
+  ContextKey     String @db.NVarChar(300)
+  Model          Bytes
+  ProductVersion String @db.NVarChar(32)
+
+  @@id([MigrationId, ContextKey], map: "PK_dbo.__MigrationHistory")
+  @@map("__MigrationHistory")
+}
+
+model sysdiagrams {
+  name         String @db.NVarChar(128)
+  principal_id Int
+  diagram_id   Int    @id(map: "PK__sysdiagr__C2B05B61BBC64596") @default(autoincrement())
+  version      Int?
+  definition   Bytes?
+
+  @@unique([principal_id, name], map: "UK_principal_name")
+}
+
+// no nesecito
+
+model Articulo {
+  Id                   BigInt          @id(map: "PK_dbo.Articulo") @default(autoincrement())
+  MarcaId              BigInt
+  RubroId              BigInt
+  Codigo               Int             @unique
+  Descripcion          String          @db.VarChar(8000)
+  Stock                Int
+  PrecioVenta          Decimal         @db.Decimal(18, 2)
+  EstaEliminado        Boolean
+  PermiteStockNegativo Boolean         @default(false, map: "DF__Articulo__Permit__6383C8BA")
+  FotoUrl              String?         @db.NVarChar(Max)
+  Oferta               Boolean         @default(false)
+  Descuento            Decimal?        @default(0, map: "DF_Articulo_Descuento") @db.Decimal(18, 2)
+  Marca                Marca           @relation(fields: [MarcaId], references: [Id], onUpdate: NoAction, map: "FK_dbo.Articulo_dbo.Marca_MarcaId")
+  Rubro                Rubro           @relation(fields: [RubroId], references: [Id], onUpdate: NoAction, map: "FK_dbo.Articulo_dbo.Rubro_RubroId")
+  DetallePedido        DetallePedido[]
+}
+
+model Marca {
+  Id            BigInt     @id(map: "PK_dbo.Marca") @default(autoincrement())
+  Codigo        Int        @unique
+  Descripcion   String     @db.VarChar(8000)
+  EstaEliminado Boolean
+  Articulo      Articulo[]
+}
+
+model Rubro {
+  Id            BigInt     @id(map: "PK_dbo.Rubro") @default(autoincrement())
+  Codigo        Int        @unique
+  Descripcion   String     @db.VarChar(8000)
+  EstaEliminado Boolean
+  Articulo      Articulo[]
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?   @db.Text
+  apellido      String?
+  DNI           String?   @db.NVarChar(100)
+  telefono      String?   @db.NVarChar(100)
+  direccion     String?   @db.NVarChar(100)
+  medicamento   Boolean   @default(false)
+  accounts      Account[]
+  Pedido        Pedido[]
+  sessions      Session[]
+}
+
+model DetallePedido {
+  Id            BigInt    @id(map: "PK__DetalleP__3214EC075882C4F2") @default(autoincrement())
+  PedidoId      BigInt?
+  ArticuloId    BigInt?
+  Codigo        String?   @db.VarChar(8000)
+  Descripcion   String?   @db.VarChar(8000)
+  Cantidad      Int
+  Precio        Decimal   @db.Decimal(18, 2)
+  SubTotal      Decimal   @db.Decimal(18, 2)
+  EstaEliminado Boolean?  @default(false, map: "DF__DetallePe__EstaE__18EBB532")
+  Articulo      Articulo? @relation(fields: [ArticuloId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK__DetallePe__Artic__07C12930")
+  Pedido        Pedido?   @relation(fields: [PedidoId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK__DetallePe__Pedid__06CD04F7")
+}
+
+model Pedido {
+  Id            BigInt          @id(map: "PK__Pedido__3214EC07C4562EC0") @default(autoincrement())
+  UserId        String
+  Fecha         DateTime?       @db.DateTime
+  SubTotal      Decimal?        @db.Decimal(18, 2)
+  Descuento     Decimal?        @db.Decimal(18, 2)
+  Total         Decimal?        @db.Decimal(18, 2)
+  Estado        Boolean?
+  DetallePedido DetallePedido[]
+  User          User            @relation(fields: [UserId], references: [id], onUpdate: NoAction, map: "FK__Pedido__UserId__02FC7413")
+}
