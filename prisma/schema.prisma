@@ -178,6 +178,7 @@ model Persona_Cliente {
   Deuda             Decimal       @default(0, map: "DF__Persona_C__Deuda__06CD04F7") @db.Decimal(18, 2)
   Password          String?       @db.VarChar(8000)
   Medicamento       Boolean       @default(false, map: "DF__Persona_C__Medic__0E6E26BF")
+  EmpleadoLegajo    Int           @default(0, map: "DF__Persona_C__Emple__17F790F9")
   Comprobante       Comprobante[]
   Persona           Persona       @relation(fields: [Id], references: [Id], onUpdate: NoAction, map: "FK_dbo.Persona_Cliente_dbo.Persona_Id")
 

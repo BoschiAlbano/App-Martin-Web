@@ -11,7 +11,7 @@ import Masonry from "react-masonry-css";
 import { BorrarCookies, eliminarBigIntYDecimal } from "utils/metodos";
 import prisma from "pirsma";
 
-const Articulos = ({ session, rubro }) => {
+const Articulos = ({ persona, rubro }) => {
     console.log(rubro);
 
     const [value, setValue] = useLocalStorage("Carrito", []);
@@ -32,16 +32,35 @@ const Articulos = ({ session, rubro }) => {
             const Parametrorubro =
                 rubro.descripcion === "Todo" ? null : rubro.id;
 
-            getRubro({
-                variables: { medicamento: session.Persona_Cliente.Medicamento },
-            });
-            getArticulo({
-                variables: {
-                    keyword: "",
-                    rubro: Parametrorubro,
-                    medicamento: session.Persona_Cliente.Medicamento,
-                },
-            });
+            if (persona.Roll === 3) {
+                // Preventista
+                getRubro({
+                    variables: {
+                        medicamento: true,
+                    },
+                });
+                getArticulo({
+                    variables: {
+                        keyword: "",
+                        rubro: Parametrorubro,
+                        medicamento: true,
+                    },
+                });
+            } else {
+                // Cleinte
+                getRubro({
+                    variables: {
+                        medicamento: persona.Persona_Cliente.Medicamento,
+                    },
+                });
+                getArticulo({
+                    variables: {
+                        keyword: "",
+                        rubro: Parametrorubro,
+                        medicamento: persona.Persona_Cliente.Medicamento,
+                    },
+                });
+            }
         }
 
         Consultar();
@@ -50,13 +69,25 @@ const Articulos = ({ session, rubro }) => {
     const filtro = ({ keyword = "", rubro = null }) => {
         console.log(rubro);
 
-        getArticulo({
-            variables: {
-                keyword,
-                rubro: rubro === "Todo" || rubro === "0" ? null : rubro,
-                medicamento: session.Persona_Cliente.Medicamento,
-            },
-        });
+        if (persona.Roll === 3) {
+            // Preventista
+            getArticulo({
+                variables: {
+                    keyword,
+                    rubro: rubro === "Todo" || rubro === "0" ? null : rubro,
+                    medicamento: true,
+                },
+            });
+        } else {
+            // Cliente
+            getArticulo({
+                variables: {
+                    keyword,
+                    rubro: rubro === "Todo" || rubro === "0" ? null : rubro,
+                    medicamento: persona.Persona_Cliente.Medicamento,
+                },
+            });
+        }
     };
 
     const AgregarCarrito = (articulo) => {
@@ -122,7 +153,7 @@ const Articulos = ({ session, rubro }) => {
         const {
             Id,
             Descripcion,
-            FotoUrl,
+            URL,
             PrecioVenta,
             Stock,
             PermiteStockNegativo,
@@ -134,7 +165,7 @@ const Articulos = ({ session, rubro }) => {
         const Add = value.concat({
             Id,
             Descripcion,
-            FotoUrl,
+            URL,
             PrecioVenta: _Descuento.toFixed(2),
             Cantidad,
             Stock,
@@ -153,7 +184,7 @@ const Articulos = ({ session, rubro }) => {
 
     return (
         <div>
-            <MenuPaginas>
+            <MenuPaginas preventista={persona.Roll === 3 ? true : false}>
                 <div className="w-[90%] ml-[5%] grid grid-cols-1 mt-[60px]">
                     {!Rubros?.GET_Rubro ? (
                         <div className="w-full flex flex-col items-center mt-3">
@@ -200,8 +231,8 @@ const Articulos = ({ session, rubro }) => {
 export default Articulos;
 
 export async function getServerSideProps(context) {
-    console.log("entra3");
     //#region Session
+    console.log("Entra cuantas");
     const session = await getSession(context);
 
     if (!session) {
@@ -214,86 +245,75 @@ export async function getServerSideProps(context) {
         };
     }
 
-    console.log(session.user);
-
     if (session?.error) {
         console.log(session.error);
         BorrarCookies(context);
-        return;
+        return {
+            redirect: {
+                destination: "/login",
+                permanent: false,
+            },
+        };
     }
+
+    console.log(session.user);
+
     //#endregion
 
+    //#region Obtener todos los datos de la persona y pasarlos por props
     const Mail = session.user.email;
-    //#region Obtener todos los datos del usuario y pasarlos por props
-    const cliente = await prisma.persona.findFirst({
+
+    const _persona = await prisma.persona.findFirst({
         where: {
             Mail,
         },
-        include: { Persona_Cliente: true },
+        include: {
+            Persona_Cliente: true,
+            Persona_Empleado: {
+                select: { Foto: false, Id: true, Legajo: true },
+            },
+        },
     });
 
-    console.log(cliente);
+    // sin persona
+    if (!_persona) {
+        BorrarCookies(context);
+        return {
+            redirect: {
+                destination: "/login",
+                permanent: false,
+            },
+        };
+    }
+
+    console.log(_persona);
+
+    // Persona sin Cliente / Empleado
+    if (!_persona.Persona_Cliente && !_persona.Persona_Empleado) {
+        BorrarCookies(context);
+        return {
+            redirect: {
+                destination: "/login",
+                permanent: false,
+            },
+        };
+    }
+
     //#endregion
 
+    //#region Obtener parametros rubro
     const { rubro } = context.query;
     // const [id = null, descripcion = "Todo"] = rubro || [];
     const [id, descripcion] = rubro;
 
     console.log(rubro);
     console.log(id, descripcion);
+    //#endregion
 
     return {
         props: {
-            session: eliminarBigIntYDecimal(cliente),
+            persona: eliminarBigIntYDecimal(_persona),
             rubro: { id, descripcion },
         },
     };
 }
-
-/*
-
-  //#region Usuario
-  const query = `
-  query GetUser($email: String!) {
-    GetUser(email: $email) {
-      id
-      name
-      apellido
-      DNI
-      telefono
-      direccion
-      medicamento
-    }
-  }
-  `;
-
-  const variables = {
-    email: session.user.email,
-  };
-
-  const data = await request(`${process.env.NEXTAUTH_URL}/api/graphql`, query, variables);
-
-  if (!data.GetUser) {
-
-    context.res.setHeader('Set-Cookie', [
-      'next-auth.session-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT',
-      'next-auth.callback-url=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT',
-      'next-auth.csrf-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT',
-      // Agrega más sentencias 'Set-Cookie' para cada cookie que desees borrar
-    ]);
-
-    return {
-      redirect: {
-        destination: '/login',
-        permanent: false
-      }
-    }
-    
-  }
-
-  //#endregion
-
-  const { rubro } = context.query;
-
-  const [id = null, descripcion = "Todo"] = rubro || [];
-*/

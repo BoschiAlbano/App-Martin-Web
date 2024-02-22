@@ -1,11 +1,9 @@
 import { getSession } from "next-auth/react";
 import MenuPaginas from "components/menu/menuPaginas";
 import Banner from "components/banner/banner";
-import Rubro from "components/rubros/index";
 import { useEffect } from "react";
 import { useLocalStorage } from "components/prueba/localStorage/hook";
 import Swal from "sweetalert2";
-
 import Carousel from "components/Carrucel";
 import { useArticuloOferta } from "components/prueba/articulos/hook";
 
@@ -16,18 +14,24 @@ import prisma from "pirsma";
 
 import { BorrarCookies, eliminarBigIntYDecimal } from "utils/metodos";
 
-export default function Home({ Cliente, Rubros }) {
-    const { Nombre, Apellido } = Cliente;
+export default function Home({ Persona, Rubros }) {
+    const { Nombre, Apellido } = Persona;
     const [store, setValue] = useLocalStorage("showWelcome", true);
 
     const [getOfertas, resultOfertas] = useArticuloOferta();
 
-    console.log(Rubros);
-
     useEffect(() => {
-        getOfertas({
-            variables: { medicamento: Cliente.Persona_Cliente.Medicamento },
-        });
+        if (Persona.Roll === 3) {
+            // preventista
+            getOfertas({
+                variables: { medicamento: true },
+            });
+        } else {
+            // cliente
+            getOfertas({
+                variables: { medicamento: Persona.Persona_Cliente.Medicamento },
+            });
+        }
 
         if (store) {
             Swal.fire({
@@ -46,18 +50,31 @@ export default function Home({ Cliente, Rubros }) {
 
     return (
         <div>
-            <MenuPaginas>
-                <div className="Degradado_Banner h-full">
+            <MenuPaginas preventista={Persona.Roll === 3 ? true : false}>
+                <div className=" min-h-screen h-full Degradado_Banner">
                     <Banner />
-                    {/* {
-            medicamento ? <Rubro medicamento={true}/> : <Rubro medicamento={false}/>
-          } */}
-                    {/* <Rubro medicamento={medicamento} /> */}
 
-                    <div className="flex sm:flex-col-reverse flex-col mt-5">
+                    <div className="flex flex-col mt-5 ">
+                        <section>
+                            {/* <h1 className="block text-2xl font-[Merienda] border-b-4 border-transparent px-3 my-10">
+                                Rubros
+                            </h1> */}
+                            <div className="flex w-full sm:flex-row flex-col flex-wrap gap-3 sm:gap-5 justify-center items-center mt-3 mb-10">
+                                {Rubros.map((item, index) => (
+                                    <Link
+                                        className="button w-[85%] sm:w-auto p-2 border-black rounded-xl border-[4px]"
+                                        href={`articulos/${item.Id}/${item.Descripcion}`}
+                                        key={index}
+                                    >
+                                        {item.Descripcion}
+                                    </Link>
+                                ))}
+                            </div>
+                        </section>
+
                         {resultOfertas.data ? (
                             <Carousel
-                                products={
+                                articulos={
                                     resultOfertas.data.GET_Articulos_Oferta
                                 }
                             />
@@ -67,23 +84,36 @@ export default function Home({ Cliente, Rubros }) {
                                 <Spinner />
                             </div>
                         )}
-
-                        <section>
-                            {/* <h1 className="text-center sm:text-[3rem] text-[1.5rem] font-[merienda] my-3">Conoce nuestros rubros</h1> */}
+                    </div>
+                    {/* 
+                    {Persona.Roll !== 3 ? null : (
+                        <div className=" w-full flex flex-col justify-center items-center">
+                            <h1 className="block text-2xl font-[Merienda] border-b-4 border-transparent px-3 my-10">
+                                Preventista
+                            </h1>
 
                             <div className="flex w-full sm:w-auto sm:h-auto flex-row flex-wrap gap-3 sm:gap-5 justify-center items-center mt-3 mb-10">
-                                {Rubros.map((item, index) => (
-                                    <Link
-                                        className="button p-2 border-black rounded-xl border-[4px]"
-                                        href={`articulos/${item.Id}/${item.Descripcion}`}
-                                        key={index}
-                                    >
-                                        {item.Descripcion}
-                                    </Link>
-                                ))}
+                                <Link
+                                    href={"/preventista/catalogo"}
+                                    className="button w-[85%] sm:w-auto p-2 border-black rounded-xl border-[4px]"
+                                >
+                                    Catalogo
+                                </Link>
+                                <Link
+                                    href={"/preventista/cliente"}
+                                    className="button w-[85%] sm:w-auto p-2 border-black rounded-xl border-[4px]"
+                                >
+                                    Clientes
+                                </Link>
+                                <Link
+                                    href={"/preventista/comprobante"}
+                                    className="button w-[85%] sm:w-auto p-2 border-black rounded-xl border-[4px]"
+                                >
+                                    Comprobantes
+                                </Link>
                             </div>
-                        </section>
-                    </div>
+                        </div>
+                    )} */}
                 </div>
             </MenuPaginas>
         </div>
@@ -105,8 +135,6 @@ export async function getServerSideProps(context) {
         };
     }
 
-    console.log(session.user);
-
     if (session?.error) {
         console.log(session.error);
         BorrarCookies(context);
@@ -117,18 +145,28 @@ export async function getServerSideProps(context) {
             },
         };
     }
+
+    console.log(session.user);
+
     //#endregion
 
+    //#region Obtener todos los datos de la persona y pasarlos por props
     const Mail = session.user.email;
-    //#region Obtener todos los datos del usuario y pasarlos por props
-    const cliente = await prisma.persona.findFirst({
+
+    const _persona = await prisma.persona.findFirst({
         where: {
             Mail,
         },
-        include: { Persona_Cliente: true },
+        include: {
+            Persona_Cliente: true,
+            Persona_Empleado: {
+                select: { Foto: false, Id: true, Legajo: true },
+            },
+        },
     });
 
-    if (cliente == null) {
+    // sin persona
+    if (!_persona) {
         BorrarCookies(context);
         return {
             redirect: {
@@ -137,98 +175,52 @@ export async function getServerSideProps(context) {
             },
         };
     }
-    console.log(cliente);
+
+    console.log(_persona);
+
+    // Persona sin Cliente / Empleado
+    if (!_persona.Persona_Cliente && !_persona.Persona_Empleado) {
+        BorrarCookies(context);
+        return {
+            redirect: {
+                destination: "/login",
+                permanent: false,
+            },
+        };
+    }
 
     //#endregion
 
-    //#region Obtener todos los datos del rubros y pasarlos por props dependiendo el cliente por Medicamentos.
-    const Rubros = await prisma.rubro.findMany({
-        where: {
-            EstaEliminado: false,
-            Descripcion: cliente.Persona_Cliente.Medicamento
-                ? { notIn: ["Indefinido"] }
-                : { notIn: ["Medicamentos", "Indefinido"] },
-        },
-        // include: {
-        //     Articulo: true,
-        // },
-    });
-    console.log(Rubros);
+    //#region Obtener todos los datos del rubros y pasarlos por props dependiendo el cliente por Medicamentos o Empleado.
 
+    let Rubros = [];
+    if (_persona.Roll === 3) {
+        // Preventista
+        Rubros = await prisma.rubro.findMany({
+            where: {
+                EstaEliminado: false,
+                Descripcion: { notIn: ["Indefinido"] },
+            },
+        });
+        console.log(Rubros);
+    } else {
+        // cliente
+        Rubros = await prisma.rubro.findMany({
+            where: {
+                EstaEliminado: false,
+                Descripcion: _persona.Persona_Cliente.Medicamento
+                    ? { notIn: ["Indefinido"] }
+                    : { notIn: ["Medicamentos", "Indefinido"] },
+            },
+        });
+        console.log(Rubros);
+    }
     //#endregion
 
     return {
         props: {
-            Cliente: eliminarBigIntYDecimal(cliente),
+            Persona: eliminarBigIntYDecimal(_persona),
             Rubros: eliminarBigIntYDecimal(Rubros),
         },
     };
 }
-
-//#region GET User
-//   const query = `
-// query GetUser($email: String!) {
-//   GetUser(email: $email) {
-//     id
-//     name
-//     apellido
-//     DNI
-//     telefono
-//     direccion
-//     medicamento
-//   }
-// }
-// `;
-
-//   const variables = {
-//       email: session.user.email,
-//   };
-
-//   const data = await request(
-//       `${process.env.NEXTAUTH_URL}/api/graphql`,
-//       query,
-//       variables
-//   );
-
-//   if (!data.GetUser) {
-//       context.res.setHeader("Set-Cookie", [
-//           "next-auth.session-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT",
-//           "next-auth.callback-url=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT",
-//           "next-auth.csrf-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT",
-//           // Agrega más sentencias 'Set-Cookie' para cada cookie que desees borrar
-//       ]);
-
-//       return {
-//           redirect: {
-//               destination: "/login",
-//               permanent: false,
-//           },
-//       };
-//   }
-//#endregion
-
-//#region Get Rubros
-//   const query2 = `
-//   query GetUser($medicamento: Boolean!) {
-//     GET_Rubro(Medicamento: $medicamento) {
-//         Id
-//         Codigo
-//         Descripcion
-//         EstaEliminado
-//     }
-//     }
-// `;
-
-//   const variables2 = {
-//       medicamento: data.GetUser.medicamento,
-//   };
-
-//   const data2 = await request(
-//       `${process.env.NEXTAUTH_URL}/api/graphql`,
-//       query2,
-//       variables2
-//   );
-
-//   console.log(data2.GET_Rubro);
-
-//#endregion

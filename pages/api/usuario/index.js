@@ -1,8 +1,3 @@
-import { hash } from "bcrypt";
-
-// import { PrismaClient } from "@prisma/client";
-// const prisma = new PrismaClient()
-
 import prisma from "pirsma";
 
 export default async function usuario(req, res) {
@@ -26,45 +21,49 @@ export default async function usuario(req, res) {
                     return;
                 }
 
-                const hashPass = await hash(body.password, 12);
+                // Encriptar en js y desencriptar en c# (Proximamente) 😭
+                const hashPass = body.password;
 
-                // Creamos el cliente y Persona_Cliente / account
+                // Traer el primer legajo (1° empleado "Martin")
+                const empleado = await prisma.persona_Empleado.findFirst();
+
+                if (!empleado) {
+                    res.status(500).json({
+                        msj: "Error, no te puedes registrar, no hay empleados en el sistema",
+                    });
+                    return;
+                }
+
                 try {
-                    const userId = await prisma.persona.create({
-                        // data: {...body, password: hashPass, medicamento: false}
-                        data: {
-                            Apellido: body.apellido,
-                            Nombre: body.nombre,
-                            Dni: body.DNI,
-                            Direccion: body.direccion,
-                            Telefono: body.telefono,
-                            Mail: body.email,
-                            LocalidadId: 1,
-                            EstaEliminado: false,
-                            Roll: 2,
-                        },
-                    });
+                    const _Trans = await prisma.$transaction(async (prisma) => {
+                        const userId = await prisma.persona.create({
+                            data: {
+                                Apellido: body.apellido,
+                                Nombre: body.nombre,
+                                Dni: body.DNI,
+                                Direccion: body.direccion,
+                                Telefono: body.telefono,
+                                Mail: body.email,
+                                LocalidadId: 1,
+                                EstaEliminado: false,
+                                Roll: 2,
+                            },
+                        });
 
-                    const presonClient = await prisma.persona_Cliente.create({
-                        data: {
-                            Id: userId.Id,
-                            ActivarCtaCte: true,
-                            TieneLimiteCompra: false,
-                            MontoMaximoCtaCte: 0,
-                            Deuda: 0,
-                            Medicamento: false,
-                            Password: hashPass,
-                        },
+                        const presonClient =
+                            await prisma.persona_Cliente.create({
+                                data: {
+                                    Id: userId.Id,
+                                    ActivarCtaCte: true,
+                                    TieneLimiteCompra: false,
+                                    MontoMaximoCtaCte: 0,
+                                    Deuda: 0,
+                                    Medicamento: false,
+                                    Password: hashPass,
+                                    EmpleadoLegajo: empleado.Legajo, // Este es el legajo 1 del 1° empleado sistema martin
+                                },
+                            });
                     });
-
-                    // const account = await prisma.Account.create({
-                    //     data: {
-                    //         userId: userId.Id,
-                    //         type: "oauth",
-                    //         provider: `credentials ${userId.Mail}`,
-                    //         providerAccountId: `provider ${userId.Mail}`,
-                    //     },
-                    // });
                 } catch (error) {
                     throw new Error(`${error.message}`);
                 }

@@ -5,8 +5,6 @@ import EmailProvider from "next-auth/providers/email";
 import nodemailer from "nodemailer";
 import { html, text } from "utils/htmlEmail";
 
-import bcrypt from "bcrypt";
-
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 
 // import { PrismaClient } from "@prisma/client";
@@ -33,41 +31,47 @@ export default NextAuth({
             async authorize(credentials) {
                 const email = credentials.email;
                 const password = credentials.password;
-                // Comprobar si existe el usuario
                 try {
-                    const Usuario = await prisma.persona.findFirst({
+                    const _Persona = await prisma.persona.findFirst({
                         where: {
                             Mail: email,
                         },
-                        include: { Persona_Cliente: true },
+                        include: {
+                            Persona_Cliente: true,
+                            Persona_Empleado: {
+                                select: { Foto: false, Id: true, Legajo: true },
+                            },
+                        },
                     });
 
                     // si existe el mail
-                    if (!Usuario) {
+                    if (!_Persona) {
                         throw new Error("No Estas Registrado.");
                     }
-                    // si no hay contraseña esta registrado con otro providers "Email Registrado con google o github."
-                    if (!Usuario.Persona_Cliente.Password) {
-                        throw new Error(
-                            "Error, Cliente fue dado de alta en sistema y no tiene contraseña"
-                        );
+
+                    console.log(_Persona);
+                    // Si es Cliente sistema o web
+                    // ConsumidorFinal = 0,
+                    // Sistema = 1,
+                    // Web = 2,
+                    // Preventista = 3,
+
+                    if (
+                        !_Persona.Persona_Cliente &&
+                        !_Persona.Persona_Empleado
+                    ) {
+                        throw new Error("Error, No es Empleado ni Cliente");
                     }
-                    // Compara las contraseñas
-                    const isMatch = await bcrypt.compare(
-                        password,
-                        Usuario.Persona_Cliente.Password
-                    );
-                    if (!isMatch) {
-                        throw new Error("Contraseña no es valida.");
+
+                    if (_Persona.Roll === 3) {
+                        await Preventista(_Persona, password);
+                    } else {
+                        await Cliente(_Persona, password);
                     }
-                    // Email
-                    // if(Usuario.emailVerified === null){
-                    //   throw new Error("Verifica el Email.");
-                    // }
 
                     return {
-                        name: Usuario.Nombre,
-                        email: Usuario.Mail,
+                        name: _Persona.Nombre,
+                        email: _Persona.Mail,
                         image: "",
                     };
                 } catch (error) {
@@ -105,7 +109,7 @@ export default NextAuth({
     },
     // database: process.env.MONGODB_URI,
     session: {
-        maxAge: 3600, // 1 hora
+        maxAge: 28800, // 3600 - 1 hora - 8hs
         strategy: "jwt",
     },
     jwt: {
@@ -115,5 +119,34 @@ export default NextAuth({
     debug: true,
 });
 
-/*ERROR*/
-/* El Email se puede registrar so una ves con cualquir proveedor*/
+function Cliente(_Persona, password) {
+    // Cliente 2
+    if (_Persona.Roll !== 2) {
+        throw new Error("Error, Cliente no esta autorizado por el sistema...");
+    }
+
+    if (password !== _Persona.Persona_Cliente.Password) {
+        throw new Error("Contraseña no es valida.");
+    }
+}
+
+async function Preventista(_Persona, password) {
+    // buscar el usuario - password
+    const _usuario = await prisma.usuario.findFirst({
+        where: {
+            EmpleadoId: _Persona.Id,
+        },
+    });
+
+    if (!_usuario) {
+        throw new Error("Erro, el empleado/preventista no tiene usuario");
+    }
+
+    console.log(password);
+    console.log(_usuario.Password);
+
+    if (password !== _usuario.Password) {
+        console.log("mal");
+        throw new Error("Contraseña no es valida.");
+    }
+}

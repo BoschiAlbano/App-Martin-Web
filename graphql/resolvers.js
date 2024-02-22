@@ -4,67 +4,15 @@ import GraphQLBigInt from "graphql-bigint";
 // const prisma = new PrismaClient()
 import prisma from "pirsma";
 
+// tipos de personas
+// ConsumidorFinal = 0,
+// Sistema = 1,
+// Web = 2,
+// Preventista = 3,
+
 export const resolvers = {
     Query: {
-        GetUser: async (root, args) => {
-            const usuarios = await prisma.user.findFirst({
-                where: {
-                    email: {
-                        contains: args.email,
-                    },
-                },
-            });
-
-            return usuarios;
-        },
-        GetUsers: async (root, args, context) => {
-            if (context.isAuthenticated === false) {
-                throw new Error(`Error: No estas autorizado.`);
-            }
-
-            try {
-                const UsuariosVerificados = await prisma.user.findMany();
-
-                if (UsuariosVerificados.length === 0) {
-                    throw new Error("No hay Usuarios Registrados");
-                }
-
-                return UsuariosVerificados;
-            } catch (error) {
-                throw new Error(`${error.message}`);
-            }
-        },
-        // Marca
-        GET_Marca: async () => {
-            const Marca = await prisma.marca.findMany({
-                where: {
-                    EstaEliminado: false,
-                },
-                include: {
-                    Articulo: true,
-                },
-            });
-
-            return Marca;
-        },
-        GET_Marcaid: async (root, args) => {
-            const Marca = await prisma.marca.findFirst({
-                where: {
-                    Id: args.id,
-                    EstaEliminado: false,
-                },
-                include: {
-                    Articulo: {
-                        include: {
-                            Marca: true,
-                        },
-                    },
-                },
-            });
-
-            return Marca;
-        },
-        // Rubro
+        // Rubro ✔
         GET_Rubro: async (root, args) => {
             const { Medicamento } = args;
 
@@ -81,18 +29,7 @@ export const resolvers = {
                 },
             });
         },
-        GET_Rubroid: async (root, args) => {
-            return await prisma.rubro.findFirst({
-                where: {
-                    Id: args.id,
-                    EstaEliminado: false,
-                },
-                include: {
-                    Articulo: true,
-                },
-            });
-        },
-        // Articulo
+        // Articulo ✔
         GET_Articulo: async () => {
             return await prisma.articulo.findMany({
                 where: {
@@ -104,18 +41,6 @@ export const resolvers = {
                 },
                 orderBy: {
                     Descripcion: "asc",
-                },
-            });
-        },
-        GET_Articuloid: async (root, args) => {
-            return await prisma.articulo.findFirst({
-                where: {
-                    Id: args.id,
-                    EstaEliminado: false,
-                },
-                include: {
-                    Rubro: true,
-                    Marca: true,
                 },
             });
         },
@@ -224,68 +149,310 @@ export const resolvers = {
                 throw new Error(`${error.message}`);
             }
         },
-        // Pedidos
-        GET_Pedidos: async (root, args) => {
-            const _get = await prisma.pedido.findMany({
-                where: { Estado: false },
-                include: {
-                    User: true,
-                    DetallePedido: true,
-                },
-            });
-
-            return _get;
-        },
-        GET_Pedido_Usuario: async (root, args) => {
-            const { email } = args;
+        // Clientes ✔
+        GET_Clientes: async (root, args) => {
+            const { cadena, personaId } = args;
+            console.log(cadena, personaId);
+            // Buscar clientes dependiendo de ( EmpleadoLegajo ) === legajoEmpleado.
 
             try {
-                // buscar el usuario
-                const _usu = await prisma.user.findUnique({ where: { email } });
-                if (!_usu) {
-                    throw { message: `El usuario ${email} no esta registrado` };
+                const empleado = await prisma.persona_Empleado.findUnique({
+                    where: { Id: personaId },
+                    include: { Persona: true },
+                });
+
+                if (!empleado) {
+                    throw new Error(`Error, Persona no encontrada`);
                 }
 
-                const _get = await prisma.pedido.findMany({
-                    where: { UserId: _usu.id },
+                if (empleado.Persona.Roll !== 3) {
+                    throw new Error(`Error, No eres preventista`);
+                }
+
+                console.log(empleado);
+
+                const clientes = await prisma.persona_Cliente.findMany({
+                    where: {
+                        EmpleadoLegajo: empleado.Legajo,
+                        Persona: { Roll: 2 },
+                        ...(cadena
+                            ? {
+                                  OR: [
+                                      {
+                                          Persona: {
+                                              Nombre: {
+                                                  contains: cadena,
+                                              },
+                                          },
+                                      },
+                                      {
+                                          Persona: {
+                                              Apellido: {
+                                                  contains: cadena,
+                                              },
+                                          },
+                                      },
+                                  ],
+                              }
+                            : {}),
+                    },
                     include: {
-                        DetallePedido: true,
+                        Persona: true,
+                    },
+                    orderBy: {
+                        Persona: { Apellido: "asc" },
                     },
                 });
 
-                return _get;
+                console.log(clientes);
+
+                const typeCliente = clientes.map((cliente, index) => {
+                    return {
+                        Id: cliente.Id,
+                        Apellido: cliente.Persona.Apellido,
+                        Nombre: cliente.Persona.Nombre,
+                        Dni: cliente.Persona.Dni,
+                        Direccion: cliente.Persona.Direccion,
+                        Telefono: cliente.Persona.Telefono,
+                        Mail: cliente.Persona.Mail,
+                        EstaEliminado: cliente.Persona.EstaEliminado,
+                        Medicamento: cliente.Medicamento,
+                    };
+                });
+
+                console.log(typeCliente);
+
+                return typeCliente;
             } catch (error) {
+                console.log(error.message);
+                // return [];
                 throw new Error(`${error.message}`);
             }
         },
     },
     Mutation: {
-        // usar en js ✔
+        // Pedidos Clientes Web
         ADD_Pedido: async (root, args, context) => {
+            if (context.isAuthenticated === false) {
+                throw new Error(`Error: No estas autorizado.`);
+            }
             const { articulos, usuario } = args;
 
             let _ListaArticulos = [];
 
-            const fecha = Date.now(); // milisegundos
-            const hoy = new Date(fecha); // formato ISO 8601  La "Z" al final indica que la fecha y hora están en la zona horaria UTC (Tiempo Universal Coordinado). Sql server Guardar
+            //const fecha = Date.now(); // milisegundos
+            // formato ISO 8601  La "Z" al final indica que la fecha y hora están en la zona horaria UTC (Tiempo Universal Coordinado). Sql server Guardar
+            //const hoy = new Date(fecha).toISOString(); // formato ISO 8601 en UTC
+
+            // Probar -
+            const hoy = ObtenerFecha();
 
             try {
-                // 😭 Modificar para guardar un comprobrante y detalle de comprobante en estado pendiende de pago. descontar el stock
-
-                // Buscar el cliente.
-                // Crear Comprobrante. (Obtener siguiente numero de comprobante)
-                // Crear el detalle de comprobante (Descontar stock)
-
                 //#region CLIENTE
                 const _Usu = await prisma.persona.findFirst({
                     where: {
                         Mail: usuario,
                     },
+                    include: { Persona_Cliente: true },
                 });
 
                 if (_Usu === null) {
                     throw {
                         message: `El usuario no Existe: ${usuario}`,
+                        bandera: true,
+                    };
+                }
+
+                //#endregion
+
+                // Creamos los detalles en memoria
+                let _DetalleComprobantes = [];
+                let _Total = 0;
+
+                // transaccion
+                const _Trans = await prisma.$transaction(async (prisma) => {
+                    //#region Articulos - Stock - Total - Lista de Detalle Comprobante
+                    for (const art of articulos) {
+                        // buscar articulo en la base de datos
+                        const _ArticuloBD = await prisma.articulo.findUnique({
+                            where: { Id: art.Id },
+                        });
+                        // si no existe error
+                        if (_ArticuloBD === null) {
+                            throw {
+                                message: `Codigo de Articulo no Existe: ${art.Descripcion}`,
+                                bandera: true,
+                            };
+                        }
+                        // comprobar si hay stock
+                        if (!_ArticuloBD.PermiteStockNegativo) {
+                            if (_ArticuloBD.Stock < art.Cantidad) {
+                                throw {
+                                    message: `Error no hay Stock Para el articulo: ${art.Descripcion} Stock Actual: ${_ArticuloBD.Stock}`,
+                                    bandera: true,
+                                };
+                            } else {
+                                // descontar stock - actualizar Cantidad
+                                _ArticuloBD.Stock =
+                                    _ArticuloBD.Stock - art.Cantidad;
+
+                                await prisma.articulo.update({
+                                    where: {
+                                        Id: _ArticuloBD.Id,
+                                    },
+                                    data: {
+                                        Stock: _ArticuloBD.Stock,
+                                    },
+                                });
+                            }
+                        }
+
+                        // Total
+                        const precioConDescuento =
+                            _ArticuloBD.Descuento == null
+                                ? _ArticuloBD.PrecioVenta
+                                : _ArticuloBD.PrecioVenta -
+                                  _ArticuloBD.PrecioVenta *
+                                      (_ArticuloBD.Descuento / 100);
+
+                        const _SubTotal = art.Cantidad * precioConDescuento;
+                        _Total += _SubTotal;
+
+                        // Detalle comprobante lista memoria
+                        _DetalleComprobantes.push({
+                            ArticuloId: _ArticuloBD.Id,
+                            Codigo: _ArticuloBD.Codigo.toString(),
+                            Descripcion: _ArticuloBD.Descripcion,
+                            Cantidad: art.Cantidad,
+                            Precio: precioConDescuento,
+                            PrecioCosto: _ArticuloBD.PrecioCosto,
+                            SubTotal: _SubTotal,
+                            Dto: _ArticuloBD.Descuento,
+                            EstaEliminado: false,
+                            PorcentajeGananciaPreventista:
+                                _ArticuloBD.PorcentajeGananciaPreventista,
+                            TotalGananciaPreventista:
+                                _SubTotal *
+                                (_ArticuloBD.PorcentajeGananciaPreventista /
+                                    100),
+                        });
+
+                        // Guardar en lista
+                        _ListaArticulos.push(_ArticuloBD);
+                    }
+
+                    //#region COMPROBANTE
+                    // 1 - Emplreado - el primer empleado es el que factura en el sistema. (modificar en caso que tengas un empreado propio para la web)
+                    // const _empleado = await prisma.persona_Empleado.findFirst({
+                    //     where: { Legajo: 1 },
+                    //     include: { Usuario: true },
+                    // });
+
+                    // if (_empleado === null) {
+                    //     throw {
+                    //         message: `Error, no hay empreado asignado en el sistema...`,
+                    //         bandera: true,
+                    //     };
+                    // }
+
+                    const _empleado = await prisma.persona_Empleado.findFirst({
+                        where: {
+                            Legajo: _Usu.Persona_Cliente.EmpleadoLegajo,
+                        },
+                        include: { Usuario: true },
+                    });
+
+                    if (_empleado === null) {
+                        throw {
+                            message: `El usuario ${usuario}, no tiene un Empleado asiganado para facturar`,
+                            bandera: true,
+                        };
+                    }
+
+                    if (_empleado.Usuario.length === 0) {
+                        throw {
+                            message: `El usuario ${usuario}, no tiene un Empleado asiganado para facturar`,
+                            bandera: true,
+                        };
+                    }
+
+                    // 2 - Obtener Siguiente numero comprobante
+
+                    const Numero = await prisma.comprobante.findFirst({
+                        orderBy: { Numero: "desc" },
+                    });
+
+                    // fin -
+                    const _Comprobante = await prisma.comprobante.create({
+                        data: {
+                            EmpleadoId: _empleado.Id,
+                            UsuarioId: _empleado.Usuario[0].Id,
+                            Fecha: hoy,
+                            Numero: Numero ? Numero.Numero + 1 : 1,
+                            SubTotal: _Total,
+                            Descuento: 0,
+                            Total: _Total,
+                            TipoComprobante: 3,
+                            Efectivo: 0,
+                            CuentaCorriente: 0,
+                            Estado: 1,
+                            ClienteId: _Usu.Id,
+                            PagoCuentaCorriente: false,
+                            EstaEliminado: false,
+                        },
+                    });
+                    //#endregion
+
+                    //#region DETALLE DE PEDIDOS
+                    for (const art of _DetalleComprobantes) {
+                        // Crear el detalle
+                        await prisma.detalleComprobante.create({
+                            data: {
+                                ...art,
+                                ComprobanteId: _Comprobante.Id,
+                            },
+                        });
+                    }
+                    //#endregion
+                });
+            } catch (error) {
+                console.log(error.message);
+                if (error.bandera) {
+                    throw new Error(`${error.message}`);
+                }
+                throw new Error(`Error, En el Servidor`);
+            }
+
+            return _ListaArticulos;
+        },
+        // Pedidos Comprobantes Web
+        ADD_Pedido_Preventista: async (root, args, context) => {
+            if (context.isAuthenticated === false) {
+                throw new Error(`Error: No estas autorizado.`);
+            }
+
+            const { personaId, articulos, clienteId } = args;
+
+            console.log(personaId, articulos, clienteId);
+
+            let _ListaArticulos = [];
+
+            const hoy = ObtenerFecha();
+
+            try {
+                //#region CLIENTE
+                const _cliente = await prisma.persona_Cliente.findFirst({
+                    where: {
+                        Id: clienteId,
+                    },
+                    include: {
+                        Persona: true,
+                    },
+                });
+
+                if (_cliente === null) {
+                    throw {
+                        message: `El No existe: ${_cliente.Persona.Nombre} ${_cliente.Persona.Apellido}`,
                         bandera: true,
                     };
                 }
@@ -341,7 +508,8 @@ export const resolvers = {
                                   _ArticuloBD.PrecioVenta *
                                       (_ArticuloBD.Descuento / 100);
 
-                        _Total += art.Cantidad * precioConDescuento;
+                        const _SubTotal = art.Cantidad * precioConDescuento;
+                        _Total += _SubTotal;
 
                         // Detalle comprobante lista memoria
                         _DetalleComprobantes.push({
@@ -351,9 +519,15 @@ export const resolvers = {
                             Cantidad: art.Cantidad,
                             Precio: precioConDescuento,
                             PrecioCosto: _ArticuloBD.PrecioCosto,
-                            SubTotal: art.Cantidad * precioConDescuento,
-                            Dto: 0,
+                            SubTotal: _SubTotal,
+                            Dto: _ArticuloBD.Descuento,
                             EstaEliminado: false,
+                            PorcentajeGananciaPreventista:
+                                _ArticuloBD.PorcentajeGananciaPreventista,
+                            TotalGananciaPreventista:
+                                _SubTotal *
+                                (_ArticuloBD.PorcentajeGananciaPreventista /
+                                    100),
                         });
 
                         // Guardar en lista
@@ -363,13 +537,20 @@ export const resolvers = {
                     //#region COMPROBANTE
                     // 1 - Emplreado - el primer empleado es el que factura en el sistema. (modificar en caso que tengas un empreado propio para la web)
                     const _empleado = await prisma.persona_Empleado.findFirst({
-                        where: { Legajo: 1 },
+                        where: { Id: personaId },
                         include: { Usuario: true },
                     });
 
                     if (_empleado === null) {
                         throw {
-                            message: `Error, no hay empreado asignado en el sistema...`,
+                            message: `Error, preventista no encontrado...`,
+                            bandera: true,
+                        };
+                    }
+
+                    if (_empleado.Usuario.length === 0) {
+                        throw {
+                            message: `Error, preventista tiene usuario...`,
                             bandera: true,
                         };
                     }
@@ -393,7 +574,7 @@ export const resolvers = {
                             Efectivo: 0,
                             CuentaCorriente: 0,
                             Estado: 1,
-                            ClienteId: _Usu.Id,
+                            ClienteId: _cliente.Id,
                             PagoCuentaCorriente: false,
                             EstaEliminado: false,
                         },
@@ -422,471 +603,106 @@ export const resolvers = {
 
             return _ListaArticulos;
         },
-        // usar en C# ✔
-        ADD_Articulo: async (root, args, context) => {
+        // Agregar Clientes desde web Preventistas
+        ADD_Cliente: async (root, args, context) => {
             if (context.isAuthenticated === false) {
                 throw new Error(`Error: No estas autorizado.`);
             }
+            const {
+                Apellido,
+                Nombre,
+                Dni,
+                Direccion,
+                Telefono,
+                Mail,
+                empleadoId,
+            } = args;
 
-            const { articulo } = args;
+            console.log(
+                Apellido,
+                Nombre,
+                Dni,
+                Direccion,
+                Telefono,
+                Mail,
+                empleadoId
+            );
 
             try {
-                // Marca
-                const _marca = await prisma.marca.findFirst({
-                    where: {
-                        Descripcion: articulo.marca,
-                    },
+                // comprobar que empleadoId sea preveentista
+                const _empleado = await prisma.persona_Empleado.findUnique({
+                    where: { Id: empleadoId },
+                    include: { Persona: true, Usuario: true },
                 });
-                if (!_marca) {
+
+                if (_empleado === null) {
                     throw {
-                        message: `Error, La Marca ${articulo.marca} no existe`,
+                        message: `Error, Preventista no encontrado...`,
+                        bandera: true,
                     };
                 }
 
-                // Rubro
-                const _rubro = await prisma.rubro.findFirst({
-                    where: {
-                        Descripcion: articulo.rubro,
-                    },
-                });
-                if (!_rubro) {
+                if (_empleado.Persona.Roll !== 3) {
                     throw {
-                        message: `Error, El Rubro ${articulo.Rubro} no existe`,
+                        message: `Error, no eres un Preventista`,
+                        bandera: true,
                     };
                 }
 
-                const NewArticulo = await prisma.articulo.create({
-                    data: {
-                        MarcaId: _marca.Id,
-                        RubroId: _rubro.Id,
-                        Codigo: articulo.codigo,
-                        Descripcion: articulo.descripcion,
-                        Stock: articulo.stock,
-                        EstaEliminado: articulo.estaEliminado,
-                        Oferta: articulo.oferta,
-                        FotoUrl:
-                            articulo.fotoUrl != "" ? articulo.fotoUrl : null,
-                        PrecioVenta: articulo.precioVenta,
-                        PermiteStockNegativo: articulo.permiteStockNegativo,
-                        Descuento: articulo.descuento,
-                    },
-                });
-
-                return NewArticulo;
-            } catch (error) {
-                throw new Error(`${error.message}`);
-            }
-        },
-        Update_Articulo: async (root, args, context) => {
-            if (context.isAuthenticated === false) {
-                throw new Error(`Error: No estas autorizado.`);
-            }
-
-            const { articulo } = args;
-
-            // marca y rubro -> MarcaId y RubroId
-
-            try {
-                // Marca
-                const _marca = await prisma.marca.findFirst({
-                    where: {
-                        Descripcion: articulo.marca,
-                    },
-                });
-                if (!_marca) {
+                if (_empleado.Usuario === null) {
                     throw {
-                        message: `Error, La Marca ${articulo.marca} no existe`,
+                        message: `Error, Preventista no tiene usuario`,
+                        bandera: true,
                     };
                 }
 
-                // Rubro
-                const _rubro = await prisma.rubro.findFirst({
-                    where: {
-                        Descripcion: articulo.rubro,
-                    },
-                });
-                if (!_rubro) {
-                    throw {
-                        message: `Error, El Rubro ${articulo.rubro} no existe`,
-                    };
-                }
-
-                const cod = await prisma.articulo.findUnique({
-                    where: { Codigo: articulo.codigo },
-                });
-
-                console.table(articulo);
-
-                if (!cod) {
-                    // Articulo no existe lo creo
-                    const NewArticulo = await prisma.articulo.create({
-                        data: {
-                            MarcaId: _marca.Id,
-                            RubroId: _rubro.Id,
-                            Codigo: articulo.codigo,
-                            Descripcion: articulo.descripcion,
-                            Stock: articulo.stock,
-                            EstaEliminado: articulo.estaEliminado,
-                            Oferta: articulo.oferta,
-                            FotoUrl:
-                                articulo.fotoUrl != ""
-                                    ? articulo.fotoUrl
-                                    : null,
-                            PrecioVenta: articulo.precioVenta,
-                            PermiteStockNegativo: articulo.permiteStockNegativo,
-                            Descuento: articulo.descuento,
-                        },
-                    });
-
-                    return NewArticulo;
-                }
-
-                // Actualizo
-                const _update = await prisma.articulo.update({
-                    where: {
-                        Codigo: articulo.codigo,
-                    },
-                    data: {
-                        MarcaId: _marca.Id,
-                        RubroId: _rubro.Id,
-                        Codigo: articulo.codigo,
-                        Descripcion: articulo.descripcion,
-                        Stock: articulo.stock,
-                        EstaEliminado: articulo.estaEliminado,
-                        Oferta: articulo.oferta,
-                        FotoUrl:
-                            articulo.fotoUrl != "" ? articulo.fotoUrl : null,
-                        PrecioVenta: articulo.precioVenta,
-                        PermiteStockNegativo: articulo.permiteStockNegativo,
-                        Descuento: articulo.descuento,
-                    },
-                });
-
-                return _update;
-            } catch (error) {
-                throw new Error(`${error.message}`);
-            }
-        },
-        Delete_Articulo: async (root, args, context) => {
-            if (context.isAuthenticated === false) {
-                throw new Error(`Error: No estas autorizado.`);
-            }
-
-            const { codigo, EstaEliminado } = args;
-
-            try {
-                const _delete = await prisma.articulo.update({
-                    where: {
-                        Codigo: codigo,
-                    },
-                    data: { EstaEliminado },
-                });
-
-                return _delete;
-            } catch (error) {
-                throw new Error(`${error.message}`);
-            }
-        },
-        ADD_Stock_Articulo: async (root, args, context) => {
-            if (context.isAuthenticated === false) {
-                throw new Error(`Error: No estas autorizado.`);
-            }
-
-            // desde c# mandar el total de stock
-            const update = await prisma.articulo.update({
-                where: {
-                    Codigo: args.codigo,
-                },
-                data: { Stock: args.cantidad },
-            });
-
-            return update;
-        },
-        Update_Stock_Articulos: async (root, args, context) => {
-            if (context.isAuthenticated === false) {
-                throw new Error(`Error: No estas autorizado.`);
-            }
-
-            const { lista } = args;
-
-            console.table(lista);
-
-            try {
-                // transaccion
+                // Agregar persona Cliente y persona
                 const _Trans = await prisma.$transaction(async (prisma) => {
-                    for (const art of lista) {
-                        // Crear el detalle
-                        await prisma.articulo.update({
-                            where: {
-                                Codigo: art.codigo,
-                            },
-                            data: {
-                                Stock: art.stock,
-                            },
-                        });
-                    }
-                });
-
-                console.log(_Trans);
-
-                return true;
-            } catch (error) {
-                throw new Error(`${error.message}`);
-            }
-        },
-        Update_PrecioVenta_Articulos: async (root, args, context) => {
-            if (context.isAuthenticated === false) {
-                throw new Error(`Error: No estas autorizado.`);
-            }
-
-            const { lista } = args;
-
-            console.table(lista);
-
-            try {
-                // transaccion
-                const _Trans = await prisma.$transaction(async (prisma) => {
-                    for (const art of lista) {
-                        // Crear el detalle
-                        await prisma.articulo.update({
-                            where: {
-                                Codigo: art.codigo,
-                            },
-                            data: {
-                                PrecioVenta: art.precioVenta,
-                            },
-                        });
-                    }
-                });
-
-                console.log(_Trans);
-
-                return true;
-            } catch (error) {
-                throw new Error(`${error.message}`);
-            }
-        },
-        UsuarioMedicamento: async (root, args, context) => {
-            if (context.isAuthenticated === false) {
-                throw new Error(`Error: No estas autorizado.`);
-            }
-
-            const { id } = args;
-
-            try {
-                const _usuario = await prisma.user.findUnique({
-                    where: { id },
-                });
-
-                const actualizar = await prisma.user.update({
-                    where: { id },
-                    data: {
-                        medicamento: !_usuario.medicamento,
-                    },
-                });
-
-                if (actualizar) {
-                    return true;
-                }
-
-                return false;
-            } catch (error) {
-                throw new Error(`${error.message}`);
-            }
-        },
-        Delete_User: async (root, args, context) => {
-            if (context.isAuthenticated === false) {
-                throw new Error(`Error: No estas autorizado.`);
-            }
-
-            const { id } = args;
-
-            try {
-                // const _usuario = await prisma.user.findUnique({
-                //     where: { id },
-                // });
-
-                const actualizar = await prisma.user.delete({ where: { id } });
-
-                if (actualizar) {
-                    return true;
-                }
-
-                return false;
-            } catch (error) {
-                throw new Error(`${error.message}`);
-            }
-        },
-        // Marca ✔
-        ADD_Marca: async (root, args, context) => {
-            if (context.isAuthenticated === false) {
-                throw new Error(`Error: No estas autorizado.`);
-            }
-
-            const { Codigo, Descripcion } = args;
-
-            console.log(Codigo);
-            console.log(Descripcion);
-
-            try {
-                const _add = await prisma.marca.create({
-                    data: {
-                        Codigo,
-                        Descripcion,
-                        EstaEliminado: false,
-                    },
-                });
-
-                return _add;
-            } catch (error) {
-                throw new Error(`${error.message}`);
-            }
-        },
-        Update_Marca: async (root, args, context) => {
-            if (context.isAuthenticated === false) {
-                throw new Error(`Error: No estas autorizado.`);
-            }
-
-            const { Codigo, Descripcion } = args;
-
-            try {
-                const _marca = await prisma.marca.findUnique({
-                    where: { Codigo },
-                });
-
-                if (_marca == null) {
-                    // no existe - la creo
-                    const _add = await prisma.marca.create({
+                    const _persona = await prisma.persona.create({
                         data: {
-                            Codigo,
-                            Descripcion,
+                            Apellido,
+                            Nombre,
+                            Dni,
+                            Direccion,
+                            Telefono,
+                            Mail: "",
+                            LocalidadId: 12,
                             EstaEliminado: false,
+                            Roll: 2,
                         },
                     });
 
-                    return _add;
+                    const _personaCliente = await prisma.persona_Cliente.create(
+                        {
+                            data: {
+                                Id: _persona.Id,
+                                ActivarCtaCte: true,
+                                TieneLimiteCompra: false,
+                                MontoMaximoCtaCte: 0,
+                                Deuda: 0,
+                                Medicamento: false,
+                                EmpleadoLegajo: _empleado.Legajo,
+                            },
+                        }
+                    );
+                });
+
+                console.log("Termina");
+                // retornar persona agregada
+                return [];
+            } catch (error) {
+                console.log(error.message);
+                if (error.bandera) {
+                    throw new Error(`${error.message}`);
                 }
-
-                if (Descripcion == _marca.Descripcion) return _marca;
-
-                const _update = await prisma.marca.update({
-                    where: {
-                        Id: _marca.Id,
-                    },
-                    data: { Descripcion },
-                });
-
-                return _update;
-            } catch (error) {
-                throw new Error(`${error.message}`);
-            }
-        },
-        Delete_Marca: async (root, args, context) => {
-            if (context.isAuthenticated === false) {
-                throw new Error(`Error: No estas autorizado.`);
-            }
-
-            const { Codigo, EstaEliminado } = args;
-
-            try {
-                const _update = await prisma.marca.update({
-                    where: {
-                        Codigo,
-                    },
-                    data: { EstaEliminado },
-                });
-
-                return _update;
-            } catch (error) {
-                throw new Error(`${error.message}`);
-            }
-        },
-        // Rubro ✔
-        ADD_Rubro: async (root, args, context) => {
-            if (context.isAuthenticated === false) {
-                throw new Error(`Error: No estas autorizado.`);
-            }
-
-            const { Codigo, Descripcion } = args;
-
-            try {
-                const _add = await prisma.rubro.create({
-                    data: {
-                        Codigo,
-                        Descripcion,
-                        EstaEliminado: false,
-                    },
-                });
-
-                return _add;
-            } catch (error) {
-                throw new Error(`${error.message}`);
-            }
-        },
-        Update_Rubro: async (root, args, context) => {
-            if (context.isAuthenticated === false) {
-                throw new Error(`Error: No estas autorizado.`);
-            }
-
-            const { Codigo, Descripcion } = args;
-
-            try {
-                const _rubro = await prisma.rubro.findUnique({
-                    where: { Codigo },
-                });
-
-                if (!_rubro) {
-                    // no existe - lo creo
-                    const _add = await prisma.rubro.create({
-                        data: {
-                            Codigo,
-                            Descripcion,
-                            EstaEliminado: false,
-                        },
-                    });
-
-                    return _add;
-                }
-
-                if (Descripcion == _rubro.Descripcion) return _rubro;
-
-                const _update = await prisma.rubro.update({
-                    where: {
-                        Id: _rubro.Id,
-                    },
-                    data: { Descripcion },
-                });
-
-                return _update;
-            } catch (error) {
-                throw new Error(`${error.message}`);
-            }
-        },
-        Delete_Rubro: async (root, args, context) => {
-            if (context.isAuthenticated === false) {
-                throw new Error(`Error: No estas autorizado.`);
-            }
-
-            const { Codigo, EstaEliminado } = args;
-
-            try {
-                const _update = await prisma.rubro.update({
-                    where: {
-                        Codigo,
-                    },
-                    data: { EstaEliminado },
-                });
-
-                return _update;
-            } catch (error) {
-                throw new Error(`${error.message}`);
+                throw new Error(`Error, En el Servidor`);
             }
         },
     },
     BigInt: GraphQLBigInt,
-    Pedido: {
-        Fecha: (root) => formatDate(root.Fecha), // cuando sale para c#
-    },
+    // Pedido: {
+    //     Fecha: (root) => formatDate(root.Fecha), // cuando sale para c#
+    // },
     // Articulo: {
     //     id: (root) => root.Id
     //     //Foto: (root) => Buffer.from(root.Foto).toString('base64')
@@ -911,4 +727,25 @@ function formatDate(date) {
     const fecha = `${[year, month, day].join("-")} ${hora}`;
 
     return fecha;
+}
+
+function ObtenerFecha() {
+    const fechaActual = new Date();
+
+    const year = fechaActual.getFullYear();
+    const month = fechaActual.getMonth() + 1;
+    const day = fechaActual.getDate();
+    const hours = fechaActual.getHours();
+    const minutes = fechaActual.getMinutes();
+    const seconds = fechaActual.getSeconds();
+
+    const fechaISO = `${year}-${month.toString().padStart(2, "0")}-${day
+        .toString()
+        .padStart(2, "0")}T${hours.toString().padStart(2, "0")}:${minutes
+        .toString()
+        .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}Z`;
+
+    console.log(fechaISO);
+
+    return fechaISO;
 }

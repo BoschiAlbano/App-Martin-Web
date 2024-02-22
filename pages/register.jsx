@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Layout from "../layout/layout";
 import { useRouter } from "next/router";
-import { signIn, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { useForm } from "react-hook-form";
 import { HiAtSymbol, HiFingerPrint, HiUser } from "react-icons/hi";
 import styles from "styles/Login.module.css";

@@ -12,6 +12,7 @@ import { signOut } from "next-auth/react";
 import Swal from "sweetalert2";
 import { MdExitToApp } from "react-icons/md";
 import { FaArrowCircleUp } from "react-icons/fa";
+import { FiUserPlus } from "react-icons/fi";
 
 /*[Items del menu horizontal]*/
 const datos = [
@@ -25,7 +26,7 @@ const datos = [
     { ruta: "/carrito", nombre: "Carrito", icono: IoCartOutline, subMenu: [] },
 ];
 
-export default function ({ children }) {
+export default function ({ children, preventista = false }) {
     const [background, setbackground] = useState("Degradado");
     const MenuRef = useRef();
 
@@ -98,7 +99,7 @@ export default function ({ children }) {
     };
 
     return (
-        <>
+        <div className="">
             <Head>
                 <title>{tituto}</title>
                 <meta
@@ -110,13 +111,13 @@ export default function ({ children }) {
 
             {/* Encabezado */}
             <div
-                className={`fixed w-full h-[60px] z-[99] top-0 ${background} mx-0`}
+                className={`fixed w-full h-[60px] z-[99] top-0 ${background} mx-0 print:hidden`}
             >
-                <Navegacion />
+                <Navegacion preventista={preventista} fondo={background} />
             </div>
 
             <FaArrowCircleUp
-                className={`Saltar w-[45px] h-[45px] mx-2 cursor-pointer rounded-full z-[300] text-[rgb(59,130,246)] fixed bottom-0 right-0 flex justify-center items-center ${
+                className={`print:hidden Saltar w-[45px] h-[45px] mx-2 cursor-pointer rounded-full z-[300] text-[rgb(59,130,246)] fixed bottom-0 right-0 flex justify-center items-center ${
                     ocultar ? "my-2 " : "my-12 "
                 } sm:my-2 transition-all duration-500`}
                 onClick={scrollToTop}
@@ -137,6 +138,12 @@ export default function ({ children }) {
                         );
                     })}
 
+                    {/* {!preventista ? null : (
+                        <Link href={"/preventista/cliente"}>
+                            <FiUserPlus className=" text-4xl m-2 text-black p-1" />
+                        </Link>
+                    )} */}
+
                     {/* Cerrar Sesion */}
                     <div className="" onClick={() => BtnSalir()}>
                         <MdExitToApp className=" text-4xl m-2 text-black p-1" />
@@ -145,9 +152,9 @@ export default function ({ children }) {
             </nav>
 
             {/* Contenedor */}
-            <main ref={MenuRef} className="z-[98] relative">
+            <main ref={MenuRef} className="z-[98] relative ">
                 {children}
             </main>
-        </>
+        </div>
     );
 }

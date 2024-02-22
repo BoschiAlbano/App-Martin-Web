@@ -4,7 +4,7 @@ import React from "react";
 const Banner = () => {
     return (
         <div className="">
-            <section className="relative bg-[url(/assets/App-Albano.jpg)] bg-cover bg-center bg-no-repeat">
+            <section className="banner">
                 {/* Efecto Tranparente */}
                 <div className="absolute inset-0 bg-white/75 sm:bg-transparent sm:bg-gradient-to-r sm:from-white/95 sm:to-white/25"></div>
 
@@ -28,9 +28,8 @@ const Banner = () => {
                                     <p className="mt-2 text-sm text-gray-500 hidden lg:block">
                                         Somos tu socio confiable para abastecer
                                         tu negocio con artículos diversos, desde
-                                        medicamentos y productos desechables
-                                        hasta cigarrillos y golosinas
-                                        deliciosas.
+                                        productos desechables hasta cigarrillos
+                                        y golosinas deliciosas.
                                     </p>
 
                                     <p className="mt-2 text-sm text-gray-900">

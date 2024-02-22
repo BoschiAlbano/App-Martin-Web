@@ -1,22 +1,15 @@
 import { gql } from "@apollo/client";
 
 export const GET_ARTICULOS = gql`
-    query Get_Articulos {
-        GET_Articulo {
+    query Query($medicamento: Boolean!) {
+        GET_Rubro(Medicamento: $medicamento) {
             Id
-            Codigo
             Descripcion
-            EstaEliminado
-            FotoUrl
-            Oferta
-            PrecioVenta
-            Rubro {
-                Id
+            Articulo {
                 Descripcion
-            }
-            Marca {
                 Id
-                Descripcion
+                Oferta
+                URL
             }
         }
     }
@@ -47,7 +40,7 @@ export const GET_ARTICULOS_Filtro = gql`
             Descripcion
             Stock
             EstaEliminado
-            FotoUrl
+            URL
             PrecioVenta
             Oferta
             Descuento
@@ -72,7 +65,7 @@ export const GET_ARTICULOS_Oferta = gql`
             Id
             Descripcion
             Stock
-            FotoUrl
+            URL
             PrecioVenta
             PermiteStockNegativo
             Oferta
