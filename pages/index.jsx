@@ -85,7 +85,7 @@ export default function Home({ Persona, Rubros }) {
                             </div>
                         )}
                     </div>
-                    {/* 
+
                     {Persona.Roll !== 3 ? null : (
                         <div className=" w-full flex flex-col justify-center items-center">
                             <h1 className="block text-2xl font-[Merienda] border-b-4 border-transparent px-3 my-10">
@@ -99,7 +99,7 @@ export default function Home({ Persona, Rubros }) {
                                 >
                                     Catalogo
                                 </Link>
-                                <Link
+                                {/* <Link
                                     href={"/preventista/cliente"}
                                     className="button w-[85%] sm:w-auto p-2 border-black rounded-xl border-[4px]"
                                 >
@@ -110,10 +110,10 @@ export default function Home({ Persona, Rubros }) {
                                     className="button w-[85%] sm:w-auto p-2 border-black rounded-xl border-[4px]"
                                 >
                                     Comprobantes
-                                </Link>
+                                </Link> */}
                             </div>
                         </div>
-                    )} */}
+                    )}
                 </div>
             </MenuPaginas>
         </div>

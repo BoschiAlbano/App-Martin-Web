@@ -327,7 +327,10 @@ export const resolvers = {
                             Precio: precioConDescuento,
                             PrecioCosto: _ArticuloBD.PrecioCosto,
                             SubTotal: _SubTotal,
-                            Dto: _ArticuloBD.Descuento,
+                            Dto:
+                                _ArticuloBD.Descuento === null
+                                    ? 0
+                                    : _ArticuloBD.Descuento,
                             EstaEliminado: false,
                             PorcentajeGananciaPreventista:
                                 _ArticuloBD.PorcentajeGananciaPreventista,
@@ -520,7 +523,10 @@ export const resolvers = {
                             Precio: precioConDescuento,
                             PrecioCosto: _ArticuloBD.PrecioCosto,
                             SubTotal: _SubTotal,
-                            Dto: _ArticuloBD.Descuento,
+                            Dto:
+                                _ArticuloBD.Descuento === null
+                                    ? 0
+                                    : _ArticuloBD.Descuento,
                             EstaEliminado: false,
                             PorcentajeGananciaPreventista:
                                 _ArticuloBD.PorcentajeGananciaPreventista,
@@ -594,7 +600,10 @@ export const resolvers = {
                     //#endregion
                 });
             } catch (error) {
+                console.log("entras aqui");
+                console.log(error);
                 console.log(error.message);
+
                 if (error.bandera) {
                     throw new Error(`${error.message}`);
                 }
@@ -730,22 +739,14 @@ function formatDate(date) {
 }
 
 function ObtenerFecha() {
-    const fechaActual = new Date();
+    const fechaHoraActual = new Date();
 
-    const year = fechaActual.getFullYear();
-    const month = fechaActual.getMonth() + 1;
-    const day = fechaActual.getDate();
-    const hours = fechaActual.getHours();
-    const minutes = fechaActual.getMinutes();
-    const seconds = fechaActual.getSeconds();
+    // Ajustar la zona horaria a Argentina (UTC-3)
+    fechaHoraActual.setUTCHours(fechaHoraActual.getUTCHours() - 3);
 
-    const fechaISO = `${year}-${month.toString().padStart(2, "0")}-${day
-        .toString()
-        .padStart(2, "0")}T${hours.toString().padStart(2, "0")}:${minutes
-        .toString()
-        .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}Z`;
+    // Formatear la fecha y hora en formato ISO
+    const fechaHoraFormateada =
+        fechaHoraActual.toISOString().slice(0, -1) + "Z";
 
-    console.log(fechaISO);
-
-    return fechaISO;
+    return fechaHoraFormateada;
 }

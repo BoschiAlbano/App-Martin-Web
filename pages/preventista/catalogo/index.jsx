@@ -132,14 +132,11 @@ function Tarjeta({ articulo, index }) {
     console.log(articulo);
 
     return (
-        <div key={index} className="w-[250px] mt-4">
-            <div className="card_box shadow-2xl Saltar">
-                {articulo.Oferta ? <span className="span"></span> : null}
-
+        <div key={index} className="w-[250px] mt-4 ">
+            <div className="card_box shadow-2xl Saltar ">
                 <div className="flex flex-col justify-center items-center">
                     <img
-                        // loading="lazy"
-                        className="rounded-[0.5rem] h-[200px] object-cover"
+                        className="rounded-[0.5rem] h-[200px] object-contain"
                         src={
                             articulo.URL ||
                             `${Publicas.NEXT_PUBLIC_HOST}/assets/ProductoSinFoto.png`
@@ -147,13 +144,18 @@ function Tarjeta({ articulo, index }) {
                         alt={articulo.Descripcion}
                     />
 
-                    <p className="m-1 text-center text-xl font-medium text-gray-900">
+                    <p className="m-1 text-center w-full px-1 text-xl font-medium text-gray-900 truncate">
                         {articulo.Descripcion}
                     </p>
                 </div>
             </div>
         </div>
     );
+}
+
+{
+    // loading="lazy"
+    /* {articulo.Oferta ? <span className="span"></span> : null} */
 }
 
 export async function getServerSideProps(context) {
