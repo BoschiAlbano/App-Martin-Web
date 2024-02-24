@@ -34,11 +34,11 @@ model Articulo {
   Foto                          Bytes?
   StockMinimo                   Decimal              @db.Decimal(18, 2)
   EstaEliminado                 Boolean
-  PermiteStockNegativo          Boolean              @default(false, map: "DF__Articulo__Permit__09A971A2")
+  PermiteStockNegativo          Boolean              @default(false, map: "DF__Articulo__Permit__47A6A41B")
   URL                           String?              @db.VarChar(8000)
-  Oferta                        Boolean              @default(false, map: "DF__Articulo__Oferta__0D7A0286")
+  Oferta                        Boolean              @default(false, map: "DF__Articulo__Oferta__4B7734FF")
   Descuento                     Decimal?             @db.Decimal(18, 2)
-  PorcentajeGananciaPreventista Decimal              @default(0, map: "DF__Articulo__Porcen__151B244E") @db.Decimal(18, 2)
+  PorcentajeGananciaPreventista Decimal              @default(0, map: "DF__Articulo__Porcen__4E53A1AA") @db.Decimal(18, 2)
   Marca                         Marca                @relation(fields: [MarcaId], references: [Id], onUpdate: NoAction, map: "FK_dbo.Articulo_dbo.Marca_MarcaId")
   Rubro                         Rubro                @relation(fields: [RubroId], references: [Id], onUpdate: NoAction, map: "FK_dbo.Articulo_dbo.Rubro_RubroId")
   DetalleComprobante            DetalleComprobante[]
@@ -54,6 +54,8 @@ model Caja {
   Fecha           DateTime  @db.DateTime
   EstaEliminado   Boolean
   FechaCierre     DateTime? @db.DateTime
+  Costo           Decimal   @default(0, map: "DF__Caja__Costo__607251E5") @db.Decimal(18, 2)
+  Ganancia        Decimal   @default(0, map: "DF__Caja__Ganancia__6166761E") @db.Decimal(18, 2)
 }
 
 model Comprobante {
@@ -120,10 +122,10 @@ model DetalleComprobante {
   Precio                        Decimal     @db.Decimal(18, 2)
   SubTotal                      Decimal     @db.Decimal(18, 2)
   EstaEliminado                 Boolean
-  PrecioCosto                   Decimal     @default(0, map: "DF__DetalleCo__Preci__05D8E0BE") @db.Decimal(18, 2)
-  Dto                           Decimal     @default(0, map: "DF__DetalleComp__Dto__0A9D95DB") @db.Decimal(18, 2)
-  PorcentajeGananciaPreventista Decimal     @default(0, map: "DF__DetalleCo__Porce__160F4887") @db.Decimal(18, 2)
-  TotalGananciaPreventista      Decimal     @default(0, map: "DF__DetalleCo__Total__17036CC0") @db.Decimal(18, 2)
+  PrecioCosto                   Decimal     @default(0, map: "DF__DetalleCo__Preci__43D61337") @db.Decimal(18, 2)
+  Dto                           Decimal     @default(0, map: "DF__DetalleComp__Dto__489AC854") @db.Decimal(18, 2)
+  PorcentajeGananciaPreventista Decimal     @default(0, map: "DF__DetalleCo__Porce__4F47C5E3") @db.Decimal(18, 2)
+  TotalGananciaPreventista      Decimal     @default(0, map: "DF__DetalleCo__Total__503BEA1C") @db.Decimal(18, 2)
   Articulo                      Articulo    @relation(fields: [ArticuloId], references: [Id], onUpdate: NoAction, map: "FK_dbo.DetalleComprobante_dbo.Articulo_ArticuloId")
   Comprobante                   Comprobante @relation(fields: [ComprobanteId], references: [Id], onUpdate: NoAction, map: "FK_dbo.DetalleComprobante_dbo.Comprobante_ComprobanteId")
 
@@ -148,7 +150,7 @@ model Marca {
   Id            BigInt     @id(map: "PK_dbo.Marca") @default(autoincrement())
   Descripcion   String?    @db.VarChar(8000)
   EstaEliminado Boolean
-  Codigo        Int        @unique(map: "IX_Codigo") @default(0, map: "DF__Marca__Codigo__0B91BA14")
+  Codigo        Int        @unique(map: "IX_Codigo") @default(0, map: "DF__Marca__Codigo__498EEC8D")
   Articulo      Articulo[]
 }
 
@@ -162,7 +164,7 @@ model Persona {
   Mail             String?           @db.VarChar(8000)
   LocalidadId      BigInt
   EstaEliminado    Boolean
-  Roll             Int               @default(0, map: "DF__Persona__Roll__14270015")
+  Roll             Int               @default(0, map: "DF__Persona__Roll__4D5F7D71")
   Localidad        Localidad         @relation(fields: [LocalidadId], references: [Id], onUpdate: NoAction, map: "FK_dbo.Persona_dbo.Localidad_LocalidadId")
   Persona_Cliente  Persona_Cliente?
   Persona_Empleado Persona_Empleado?
@@ -175,10 +177,10 @@ model Persona_Cliente {
   ActivarCtaCte     Boolean
   TieneLimiteCompra Boolean
   MontoMaximoCtaCte Decimal       @db.Decimal(18, 2)
-  Deuda             Decimal       @default(0, map: "DF__Persona_C__Deuda__06CD04F7") @db.Decimal(18, 2)
+  Deuda             Decimal       @default(0, map: "DF__Persona_C__Deuda__44CA3770") @db.Decimal(18, 2)
   Password          String?       @db.VarChar(8000)
-  Medicamento       Boolean       @default(false, map: "DF__Persona_C__Medic__0E6E26BF")
-  EmpleadoLegajo    Int           @default(0, map: "DF__Persona_C__Emple__17F790F9")
+  Medicamento       Boolean       @default(false, map: "DF__Persona_C__Medic__4C6B5938")
+  EmpleadoLegajo    Int           @default(0, map: "DF__Persona_C__Emple__51300E55")
   Comprobante       Comprobante[]
   Persona           Persona       @relation(fields: [Id], references: [Id], onUpdate: NoAction, map: "FK_dbo.Persona_Cliente_dbo.Persona_Id")
 
@@ -221,7 +223,7 @@ model Rubro {
   Id            BigInt     @id(map: "PK_dbo.Rubro") @default(autoincrement())
   Descripcion   String?    @db.VarChar(8000)
   EstaEliminado Boolean
-  Codigo        Int        @unique(map: "IX_Codigo") @default(0, map: "DF__Rubro__Codigo__0C85DE4D")
+  Codigo        Int        @unique(map: "IX_Codigo") @default(0, map: "DF__Rubro__Codigo__4A8310C6")
   Articulo      Articulo[]
 }
 
