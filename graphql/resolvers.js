@@ -25,7 +25,7 @@ export const resolvers = {
                         : { notIn: ["Medicamentos", "Indefinido"] },
                 },
                 include: {
-                    Articulo: true,
+                    Articulo: { where: { EstaEliminado: false } },
                 },
             });
         },
@@ -174,7 +174,7 @@ export const resolvers = {
                 const clientes = await prisma.persona_Cliente.findMany({
                     where: {
                         EmpleadoLegajo: empleado.Legajo,
-                        Persona: { Roll: 2 },
+                        Persona: { Roll: 2, EstaEliminado: false },
                         ...(cadena
                             ? {
                                   OR: [
