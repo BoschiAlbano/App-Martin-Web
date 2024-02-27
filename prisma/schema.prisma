@@ -48,14 +48,15 @@ model Articulo {
 }
 
 model Caja {
-  Id              BigInt    @id(map: "PK_dbo.Caja") @default(autoincrement())
-  Efectivo        Decimal   @db.Decimal(18, 2)
-  CuentaCorriente Decimal   @db.Decimal(18, 2)
-  Fecha           DateTime  @db.DateTime
+  Id              BigInt        @id(map: "PK_dbo.Caja") @default(autoincrement())
+  Efectivo        Decimal       @db.Decimal(18, 2)
+  CuentaCorriente Decimal       @db.Decimal(18, 2)
+  Fecha           DateTime      @db.DateTime
   EstaEliminado   Boolean
-  FechaCierre     DateTime? @db.DateTime
-  Costo           Decimal   @default(0, map: "DF__Caja__Costo__607251E5") @db.Decimal(18, 2)
-  Ganancia        Decimal   @default(0, map: "DF__Caja__Ganancia__6166761E") @db.Decimal(18, 2)
+  FechaCierre     DateTime?     @db.DateTime
+  Costo           Decimal       @default(0, map: "DF__Caja__Costo__607251E5") @db.Decimal(18, 2)
+  Ganancia        Decimal       @default(0, map: "DF__Caja__Ganancia__6166761E") @db.Decimal(18, 2)
+  Comprobante     Comprobante[]
 }
 
 model Comprobante {
@@ -74,6 +75,8 @@ model Comprobante {
   ClienteId           BigInt
   PagoCuentaCorriente Boolean
   EstaEliminado       Boolean
+  CajaId              BigInt?
+  Caja                Caja?                @relation(fields: [CajaId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_dbo.Comprobante_dbo.Caja_CajaId")
   Persona_Cliente     Persona_Cliente      @relation(fields: [ClienteId], references: [Id], onUpdate: NoAction, map: "FK_dbo.Comprobante_dbo.Persona_Cliente_ClienteId")
   Persona_Empleado    Persona_Empleado     @relation(fields: [EmpleadoId], references: [Id], onUpdate: NoAction, map: "FK_dbo.Comprobante_dbo.Persona_Empleado_EmpleadoId")
   Usuario             Usuario              @relation(fields: [UsuarioId], references: [Id], onUpdate: NoAction, map: "FK_dbo.Comprobante_dbo.Usuario_UsuarioId")
@@ -82,6 +85,7 @@ model Comprobante {
   @@index([ClienteId], map: "IX_ClienteId")
   @@index([EmpleadoId], map: "IX_EmpleadoId")
   @@index([UsuarioId], map: "IX_UsuarioId")
+  @@index([CajaId], map: "IX_CajaId")
 }
 
 model Configuracion {
