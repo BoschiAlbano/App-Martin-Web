@@ -55,6 +55,19 @@ export default function Home({ Persona, Rubros }) {
                     <Banner />
 
                     <div className="flex flex-col mt-5 ">
+                        {resultOfertas.data ? (
+                            <Carousel
+                                articulos={
+                                    resultOfertas.data.GET_Articulos_Oferta
+                                }
+                            />
+                        ) : (
+                            <div className="w-full flex flex-col items-center mt-3">
+                                {" "}
+                                <Spinner />
+                            </div>
+                        )}
+
                         <section>
                             {/* <h1 className="block text-2xl font-[Merienda] border-b-4 border-transparent px-3 my-10">
                                 Rubros
@@ -71,19 +84,6 @@ export default function Home({ Persona, Rubros }) {
                                 ))}
                             </div>
                         </section>
-
-                        {resultOfertas.data ? (
-                            <Carousel
-                                articulos={
-                                    resultOfertas.data.GET_Articulos_Oferta
-                                }
-                            />
-                        ) : (
-                            <div className="w-full flex flex-col items-center mt-3">
-                                {" "}
-                                <Spinner />
-                            </div>
-                        )}
                     </div>
 
                     {Persona.Roll !== 3 ? null : (
